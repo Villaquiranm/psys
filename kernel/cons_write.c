@@ -1,6 +1,7 @@
 #include "string.h"
 #include "types.h"
 #include "cpu.h"
+#include "inttypes.h"
 
 #define MEM_VIDEO 0xB8000
 #define NB_LIG 25
@@ -29,6 +30,18 @@ void ecrit_car(uint32_t lig, uint32_t col, char c) {
   uint16_t *position = ptr_mem(lig, col);
   *position = (cling << 8 | fond << 4 | couleur_c) << 8 | c;
 
+}
+
+void efface_ecran(void){
+  /* Fonction qui ecrit un espace en blanc sur un fond noir dans chaque position de memoire,
+  pour efface l'ecran;
+  Chaque position somme 2 a position actuel */
+  int lig, col;
+  for(col = 0; col < 80; col++) {
+    for(lig = 0; lig < 25; lig++){
+      ecrit_car(lig, col, ' ');
+    }
+  }
 }
 
 void place_curseur(uint32_t lig, uint32_t col){
