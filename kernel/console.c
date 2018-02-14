@@ -2,6 +2,7 @@
 #include "types.h"
 #include "cpu.h"
 #include "inttypes.h"
+#include "console.h"
 
 #define MEM_VIDEO 0xB8000
 #define NB_LIG 25
@@ -129,7 +130,7 @@ void traite_car(char c){
 
 }
 
-void cons_write(const char *s, int len) {
+void console_putbytes(const char *s, int len) {
 
         (void)s;
         (void)len;
