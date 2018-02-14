@@ -10,6 +10,5 @@ void console_putbytes(const char *s, int len) {
 
         (void)s;
         (void)len;
-        cons_write(s, len);
 
 }

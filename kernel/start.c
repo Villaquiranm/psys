@@ -1,6 +1,7 @@
 #include "debugger.h"
 #include "cpu.h"
 #include "stdio.h"
+#include "console.h"
 
 int fact(int n)
 {
@@ -14,13 +15,15 @@ int fact(int n)
 void kernel_start(void)
 {
 	int i;
+	efface_ecran();
 //	call_debugger();
 
 	i = 10;
+	printf("teste\n");
+	printf("Factoriel de %d:",i);
 
 	i = fact(i);
-
-	printf("teste\n");
+	printf("%d\n",i);
 
 	while(1)
 	  hlt();
