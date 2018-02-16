@@ -1,5 +1,4 @@
 #include "string.h"
-#include "types.h"
 #include "cpu.h"
 #include "inttypes.h"
 #include "console.h"
