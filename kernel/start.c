@@ -1,6 +1,7 @@
 #include "debugger.h"
 #include "cpu.h"
 #include "stdio.h"
+#include <processus.h>
 
 int fact(int n)
 {
@@ -21,9 +22,8 @@ void kernel_start(void)
 	i = fact(i);
 
 	printf("teste\n");
-
-	while(1)
-	  hlt();
+	initProc();
+	idle();
 
 	return;
 }
