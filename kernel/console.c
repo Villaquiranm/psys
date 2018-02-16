@@ -1,6 +1,6 @@
 #include "string.h"
 #include "cpu.h"
-#include "inttypes.h"
+#include "stdint.h"
 #include "console.h"
 
 #define MEM_VIDEO 0xB8000

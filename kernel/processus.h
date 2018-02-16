@@ -1,7 +1,7 @@
 #ifndef __PROCESSUS_H__
 #define __PROCESSUS_H__
 
-#include <inttypes.h>
+#include <stdint.h>
 
 #define SIZEPILE 512
 #define NBPROC 30
