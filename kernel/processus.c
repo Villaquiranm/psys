@@ -80,3 +80,19 @@ void proc2(void){
 		}
 	}
 }
+
+int getpid(void){
+	return actif->pid;
+}
+
+int getprio(int pid){
+	return actif->prio;
+}
+
+int chprio(int pid, int newprio){
+	//if prio and pid are valid
+	int oldprio = processus[pid].prio;
+	processus[pid].prio = newprio;
+	//Reorganize the priority queue
+	return oldprio;
+}
