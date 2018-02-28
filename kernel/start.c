@@ -16,6 +16,11 @@ int fact(int n)
 void kernel_start(void)
 {
 	int i;
+	unsigned long *quartz;
+	unsigned long *ticks;
+
+	//TODO VERIFIER CE QU'ON DOIT FAIRE AVEC LES POINTERS quartz ET ticks
+	clock_settings(quartz, ticks);
 	efface_ecran();
 //	call_debugger();
 
