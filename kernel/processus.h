@@ -32,6 +32,7 @@ struct processus{
 	int pid;
 	char nom[10];
 	int etat; //1 elu
+	int prio;
 	uint32_t regs[5];
 	uint32_t pile[SIZEPILE];
 };
