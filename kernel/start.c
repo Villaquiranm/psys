@@ -31,8 +31,10 @@ void kernel_start(void)
 	i = fact(i);
 	printf("%d\n",i);
 
+	init_traitant_IT(32, traitant_IT_32);
+
 	printf("teste\n");
-	initProc();
+	initProc();                    
 	idle();
 
 	return;
