@@ -1,26 +1,40 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <malloc.c>
 #include <processus.h>
 
-int32_t cree_processus(void (*code)(void), char *nom){
-	struct processus newProc;
-	int i = numberprocessus;
 
-	if(i < NBPROC){
-		newProc.pid = i;
-		sprintf(newProc.nom, "%s", nom);
-		newProc.etat = ACTIVABLE;
-		newProc.pile[SIZEPILE-1] = (uint32_t) code;
+int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, int prio, void *arg) {
+    processus *newProc;
+	//link linkProc = LIST_HEAD_INIT(linkProc);
 
-		procs[i] = newProc;
+    void *pile = malloc(ssize+3);
+    void *current = pile+ssize+3;
 
-		procs[i].regs[ESP] = (uint32_t) &procs[i].pile[SIZEPILE-1];
+    current = pt_func;
+	current--;
+    current = NULL;
+	current--;
+    current = arg;
+	current--;
 
-		numberprocessus ++;
-		return procs[i].pid;
-	} else {
+	newProc->prio = prio;
+	//newProc->queueLink = linkProc;
+
+	sprintf(newProc->nom, "%s", process_name);
+
+	newProc->etat = ACTIVABLE;
+	if(freePID == 0) {
 		return -1;
+	} else {
+		newProc->pid = nextPID;
+		queue_add(newProc, &procsPrioQueue, processus, queueLink, prio);
+		nextPID++;
+		freePID--;
+		return newProc->pid;
 	}
+
+
 }
 
 void context_switch(void){
@@ -28,17 +42,16 @@ void context_switch(void){
 }
 
 void initProc(void){
+	processus *idle;
 
-	numberprocessus = 0;
+	idle->pid = 0;
+	idle->etat = ACTIF;
+	idle->prio = 1;
+	sprintf(idle->nom, "idle");
 
-	procs[numberprocessus].pid = numberprocessus;
-	procs[numberprocessus].etat = ACTIF;
-	sprintf(procs[numberprocessus].nom, "idle");
+	queue_add(idle, &procsPrioQueue, processus, nom, prio);
 
-	numberprocessus += 1;
-
-	cree_processus(proc1, "proc1");
-	cree_processus(proc2, "proc2");
+	start(proc1, "proc1", 512, 5, NULL);
 
 	actif = &procs[0];
 }
@@ -51,24 +64,26 @@ char *mon_nom(void){
 	return actif->nom;
 }
 
-void idle(void){
+int idle(){
 	unsigned long i;
 	while(1){
 		printf("IDLE\n");
 		for(i = 0; i < 5000000; i++){
-			ctx_sw(procs[0].regs, procs[1].regs); //change to context_switch when done
+			//ctx_sw(procs[0].regs, procs[1].regs); //change to context_switch when done
 		}
 	}
+	return 0;
 }
 
-void proc1(void){
+int proc1(){
 	unsigned long i;
 	while(1){
 		printf("A\n");
 		for(i = 0; i < 5000000; i++){
-			ctx_sw(procs[1].regs, procs[0].regs); //change to context_switch when done
+			//ctx_sw(procs[1].regs, procs[0].regs); //change to context_switch when done
 		}
 	}
+	return 1;
 }
 
 void proc2(void){
@@ -91,8 +106,8 @@ int getprio(int pid){
 
 int chprio(int pid, int newprio){
 	//if prio and pid are valid
-	int oldprio = processus[pid].prio;
-	processus[pid].prio = newprio;
+	//int oldprio = processus[pid].prio;
+	//processus[pid].prio = newprio;
 	//Reorganize the priority queue
-	return oldprio;
+	return 0;
 }
