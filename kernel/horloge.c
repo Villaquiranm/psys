@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "horloge.h"
-#include "proc.h"
+#include "processus.h"
 #include "stdint.h"
 #include "segment.h"
 #include "cpu.h"

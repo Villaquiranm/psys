@@ -11,10 +11,12 @@ int32_t cree_processus(void (*code)(void), char *nom){
 		sprintf(newProc.nom, "%s", nom);
 		newProc.etat = ACTIVABLE;
 		newProc.pile[SIZEPILE-1] = (uint32_t) code;
+		newProc.reveille = 0;
 
 		procs[i] = newProc;
 
 		procs[i].regs[ESP] = (uint32_t) &procs[i].pile[SIZEPILE-1];
+
 
 		numberprocessus ++;
 		return procs[i].pid;
@@ -41,6 +43,8 @@ void initProc(void){
 	cree_processus(proc2, "proc2");
 
 	actif = &procs[0];
+
+
 }
 
 int32_t mon_pid(void){
@@ -50,6 +54,91 @@ int32_t mon_pid(void){
 char *mon_nom(void){
 	return actif->nom;
 }
+
+/*void idle(){
+
+	for(;;){
+		printf("[%s] pid = %i\n", mon_nom(), mon_pid());
+		sti();
+		hlt();
+		cli();
+	}
+
+}
+
+void proc1(){
+
+	for(;;){
+		printf("[%s] pid = %i\n", mon_nom(), mon_pid());
+		sti();
+		hlt();
+		cli();
+	}
+}
+
+void proc2(){
+
+	for(;;){
+		printf("[%s] pid = %i\n", mon_nom(), mon_pid());
+		sti();
+		hlt();
+		cli();
+	}
+}
+
+void proc3(){
+
+	for(;;){
+		printf("[%s] pid = %i\n", mon_nom(), mon_pid());
+		sti();
+		hlt();
+		cli();
+	}
+}*/
+
+
+
+
+
+/*
+void idle(){
+
+	for(;;){
+		ordonnance();
+		sti();
+		hlt();
+		cli();
+	}
+
+}
+
+void proc1(){
+	for (;;){
+		printf("[temps = %lu] processus %s pid = %i\n", current_clock(),mon_nom(), mon_pid());
+		dors(2);
+	}
+}
+
+void proc2(){
+	for (;;){
+		printf("[temps = %lu] processus %s pid = %i\n", current_clock(),mon_nom(), mon_pid());
+		dors(3);
+	}
+}
+
+void proc3(){
+	for (;;){
+		printf("[temps = %lu] processus %s pid = %i\n", current_clock(),mon_nom(), mon_pid());
+		dors(5);
+	}
+}
+*/
+
+
+
+
+
+
 
 void idle(void){
 	unsigned long i;

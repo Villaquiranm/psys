@@ -34,6 +34,9 @@ struct processus{
 	int etat; //1 elu
 	uint32_t regs[5];
 	uint32_t pile[SIZEPILE];
+	void(*func)(void);
+	unsigned long reveille;
+	int priorite;
 };
 
 struct processus *actif;
