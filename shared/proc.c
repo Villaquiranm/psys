@@ -1,9 +1,10 @@
 #include "proc.h"
-#include "horloge.h"
+#include "../kernel/horloge.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "../kernel/cpu.h"
 
 extern PROCESSUS table_proc[MAXIMUM_PROCESSUS];
 
@@ -26,19 +27,19 @@ void ctx_sw(uint32_t* previous_proc, uint32_t* next_proc);
 void initProcs(){
 
 	//cree_processus(idle, "idle");
-	
+
 	table_proc[0].etat=ELU;
 	table_proc[0].pid = 0;
 	sprintf(table_proc[0].nom, "%s","idle");
 	nombre_proc++;
-	
+
 	cree_processus(proc1, "proc1");
 	cree_processus(proc2, "proc2");
 	cree_processus(proc3, "proc3");
 
 	actif = &table_proc[0];
 
-	table_proc[0].etat=ELU;	
+	table_proc[0].etat=ELU;
 
 }
 
@@ -59,7 +60,7 @@ char* mon_nom(){
 }
 
 /*void idle(){
-	
+
 	for(;;){
 		printf("[%s] pid = %i\n", mon_nom(), mon_pid());
 		sti();
@@ -100,7 +101,7 @@ void proc3(){
 }*/
 
 void idle(){
-	
+
 	for(;;){
 		ordonnance();
 		sti();
@@ -167,7 +168,7 @@ void ordonnance(){
 			(*actif).etat = ACTIVABLE;
 			(actif++);
 			(*actif).etat = ELU;
-		
+
 			new = actif;
 
 			ctx_sw((*old).registre, (*new).registre);
@@ -219,12 +220,12 @@ int32_t cree_processus(void (*code)(void), char *nom){
 		return pid;
 	}
 }
-	
+
 /*
 
 	ctx_sw(addresse anterieur de processus, addresse nouvel de processus)
 	envoyer le pointeur de reg
-	
+
 
 
     .text
@@ -236,7 +237,7 @@ ctx_sw:
     # sauvegarde du contexte de l'ancien processus
     movl 4(%esp), %eax  //salva na memoria do processo os valores dos registradores físicos
     movl %ebx, (%eax)	//prendre 4 octets en commençant pour eax
-    movl %esp, 4(%eax)  //prendre les prochaines 4 octets (eax+4) //ESP É UM REGISTRADOR QUE APONTA PRO TOPO DA PILHA, POIS PERDEMOS O PC 
+    movl %esp, 4(%eax)  //prendre les prochaines 4 octets (eax+4) //ESP É UM REGISTRADOR QUE APONTA PRO TOPO DA PILHA, POIS PERDEMOS O PC
     movl %ebp, 8(%eax)  //meme chose. tous ont 4 octets (32 bits. c'est le motive pour qu'on a mis 5 entier de 32 bits en registre)
     movl %esi, 12(%eax)
     movl %edi, 16(%eax)

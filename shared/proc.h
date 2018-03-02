@@ -1,8 +1,5 @@
+#include "stdint.h"
 
-
-#define ACTIVABLE 0
-#define ELU 1
-#define ENDORMI 2
 #define TAILLE_PILE 1024
 #define MAXIMUM_PROCESSUS 4
 
