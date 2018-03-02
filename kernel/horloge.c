@@ -7,13 +7,35 @@
 #include "cpu.h"
 
 #define TABLE_VECTEURS 0x1000
-#define QUARTZ 0x1234DD
-#define CLOCKFREQ 50
 
 int ms, second, minute, heure;
 int totalSeconds;
 
 void traitant_IT_32();
+
+unsigned long numberInterruptions;
+
+void clock_settings(unsigned long *quartz, unsigned long *ticks){
+
+  *quartz = QUARTZ;
+  //TODO vérifier si on doit faire %256
+  *ticks = QUARTZ/CLOCKFREQ;
+}
+
+unsigned long current_clock(){
+
+    return numberInterruptions;
+}
+
+void wait_clock(unsigned long clock){
+
+  actif->etat = ENDORMI;
+  actif->reveille = current_clock() + clock;
+
+  //TODO DECOMMENTER APRÈS C'EST FAIT
+  //ordonnance();
+}
+
 
 /*void printDroite(char* contenu){
 
@@ -38,6 +60,9 @@ void tic_PIT(){
 
 	outb(0x20, 0x20);
 
+    numberInterruptions++;
+
+    //TODO verifier si on doit compter des seconds
 	char horaire[9];
 
 	ms+=(1000/CLOCKFREQ);
@@ -61,7 +86,8 @@ void tic_PIT(){
 		//printDroite(horaire);
 	}
 
-	ordonnance();
+    //TODO decomenter
+	//ordonnance();
 }
 
 void init_traitant_IT(uint32_t num_IT, void (*traitant)(void)){
@@ -138,7 +164,8 @@ void masque_IRQ(uint32_t num_IRQ, bool masque){
 void dors(uint32_t nbr_secs){
 	(*actif).reveille=totalSeconds+nbr_secs;
 	(*actif).etat=ENDORMI;
-	ordonnance();
+    //TODO decomenter
+	//ordonnance();
 }
 
 int nbr_secondes(){

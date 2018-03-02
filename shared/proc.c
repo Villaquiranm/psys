@@ -24,6 +24,7 @@ void ctx_sw(uint32_t* previous_proc, uint32_t* next_proc);
 	//mettre le nouvel contexte
 }*/
 
+/*
 void initProcs(){
 
 	//cree_processus(idle, "idle");
@@ -42,6 +43,7 @@ void initProcs(){
 	table_proc[0].etat=ELU;
 
 }
+*/
 
 /*void idle(){
 	ordonnance();
@@ -113,31 +115,32 @@ void idle(){
 
 void proc1(){
 	for (;;){
-		printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),mon_nom(), mon_pid());
+		printf("[temps = %lu] processus %s pid = %i\n", current_clock(),mon_nom(), mon_pid());
 		dors(2);
 	}
 }
 
 void proc2(){
 	for (;;){
-		printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),mon_nom(), mon_pid());
+		printf("[temps = %lu] processus %s pid = %i\n", current_clock(),mon_nom(), mon_pid());
 		dors(3);
 	}
 }
 
 void proc3(){
 	for (;;){
-		printf("[temps = %u] processus %s pid = %i\n", nbr_secondes(),mon_nom(), mon_pid());
+		printf("[temps = %lu] processus %s pid = %i\n", current_clock(),mon_nom(), mon_pid());
 		dors(5);
 	}
 }
 
+/*
 void ordonnance(){
 
 	while(1){
 		if( (*actif).etat == ENDORMI ){	//dors
 
-			if(nbr_secondes() >= (*actif).reveille ){
+			if(current_clock() >= (*actif).reveille ){
 				(*actif).etat = ACTIVABLE;
 				break;
 			}
@@ -193,6 +196,8 @@ void ordonnance(){
 		}
 	}
 }
+*/
+
 
 int32_t cree_processus(void (*code)(void), char *nom){
 

@@ -3,6 +3,7 @@
 #include "stdio.h"
 #include "console.h"
 #include <processus.h>
+#include "horloge.h"
 
 int fact(int n)
 {
@@ -16,11 +17,11 @@ int fact(int n)
 void kernel_start(void)
 {
 	int i;
-	unsigned long *quartz;
-	unsigned long *ticks;
+	unsigned long quartz;
+	unsigned long ticks;
 
 	//TODO VERIFIER CE QU'ON DOIT FAIRE AVEC LES POINTERS quartz ET ticks
-	clock_settings(quartz, ticks);
+	clock_settings(&quartz, &ticks);
 	efface_ecran();
 //	call_debugger();
 
@@ -34,7 +35,7 @@ void kernel_start(void)
 	init_traitant_IT(32, traitant_IT_32);
 
 	printf("teste\n");
-	initProc();                    
+	initProc();
 	idle();
 
 	return;

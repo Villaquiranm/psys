@@ -20,7 +20,7 @@ struct process{
 	uint32_t registre[5]; //il s’agira tout simplement d’un tableau d’entiers,puisqu’on manipule des registres 32 bits, et vous avez besoin de 5 cases
 	uint32_t pile[TAILLE_PILE]; //définie comme un tableau d’entiers d’une taille fixée par une constante
 	void(*func)(void);
-	int reveille;
+	unsigned long reveille;
 	int priorite;
 };
 typedef struct process PROCESSUS;
