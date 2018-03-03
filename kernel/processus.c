@@ -3,35 +3,75 @@
 #include <malloc.c>
 #include <processus.h>
 
+// These variables definitions were originally in the header file
+// but as the start.c file also includes that header, the compiler
+// was complaining (double definitions). For the moment they're not
+// used outside but it is necessary to address that problem if they
+// are to be used in another file
+int nextPID = 1;
+int freePID = NBPROC;
+
+enum reg_type{
+	EBX = 0,
+	ESP = 1,
+	EBP = 2,
+	ESI = 3,
+	EDI = 4
+};
+
+enum etats{
+	ACTIF,
+	ACTIVABLE,
+	BLOQUE_SEMAPHORE,
+	BLOQUE_IO,
+	BLOQUE_FILS,
+	ENDORMI,
+	ZOMBIE
+};
+
+typedef struct processus{
+	int pid;
+	char nom[10];
+	int etat; //1 elu
+	int prio;
+	void *pile;
+	link queueLink;
+} processus;
+
+struct processus *actif;
+struct processus procs[NBPROC+1];
+link procsPrioQueue = LIST_HEAD_INIT(procsPrioQueue);
+struct processus *lastProcessus;
+//--------------------------------------------------------
 
 int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, int prio, void *arg) {
-    processus *newProc;
+  processus newProc;
 	//link linkProc = LIST_HEAD_INIT(linkProc);
 
-    void *pile = malloc(ssize+3);
-    void *current = pile+ssize+3;
+  void *pile = malloc(ssize+3);
+  void *current = pile+ssize+3;
 
-    current = pt_func;
+  current = pt_func;
 	current--;
-    current = NULL;
+  current = NULL;
 	current--;
-    current = arg;
+  current = arg;
 	current--;
 
-	newProc->prio = prio;
-	//newProc->queueLink = linkProc;
+	newProc.prio = prio;
+	//newProc.queueLink = linkProc;
 
-	sprintf(newProc->nom, "%s", process_name);
+	sprintf(newProc.nom, "%s", process_name);
 
-	newProc->etat = ACTIVABLE;
+	newProc.etat = ACTIVABLE;
 	if(freePID == 0) {
 		return -1;
 	} else {
-		newProc->pid = nextPID;
-		queue_add(newProc, &procsPrioQueue, processus, queueLink, prio);
-		nextPID++;
+		newProc.pid = nextPID;
+		queue_add(&newProc, &procsPrioQueue, processus, queueLink, prio);
+    nextPID++;
 		freePID--;
-		return newProc->pid;
+		return newProc.pid;
 	}
 
 
@@ -42,14 +82,14 @@ void context_switch(void){
 }
 
 void initProc(void){
-	processus *idle;
+	processus idle;
 
-	idle->pid = 0;
-	idle->etat = ACTIF;
-	idle->prio = 1;
-	sprintf(idle->nom, "idle");
+	idle.pid = 0;
+	idle.etat = ACTIF;
+	idle.prio = 1;
+	sprintf(idle.nom, "idle");
 
-	queue_add(idle, &procsPrioQueue, processus, nom, prio);
+	queue_add(&idle, &procsPrioQueue, processus, queueLink, prio);
 
 	start(proc1, "proc1", 512, 5, NULL);
 
@@ -102,6 +142,7 @@ int getpid(void){
 
 int getprio(int pid){
 	return actif->prio;
+  return pid; //Temporary trivial statement to avoid compiler warning
 }
 
 int chprio(int pid, int newprio){
@@ -110,4 +151,5 @@ int chprio(int pid, int newprio){
 	//processus[pid].prio = newprio;
 	//Reorganize the priority queue
 	return 0;
+  return pid + newprio; //Temporary trivial statement to avoid compiler warning
 }
