@@ -45,7 +45,7 @@ struct processus *lastProcessus;
 //--------------------------------------------------------
 
 int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, int prio, void *arg) {
-  processus newProc;
+  processus *newProc = (processus*)malloc(sizeof(processus));
 	//link linkProc = LIST_HEAD_INIT(linkProc);
 
   void *pile = malloc(ssize+3);
@@ -58,23 +58,34 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
   current = arg;
 	current--;
 
-	newProc.prio = prio;
-	//newProc.queueLink = linkProc;
+	newProc->prio = prio;
+	//newProc->queueLink = linkProc;
 
-	sprintf(newProc.nom, "%s", process_name);
+	sprintf(newProc->nom, "%s", process_name);
 
-	newProc.etat = ACTIVABLE;
+	newProc->etat = ACTIVABLE;
 	if(freePID == 0) {
 		return -1;
 	} else {
-		newProc.pid = nextPID;
-		queue_add(&newProc, &procsPrioQueue, processus, queueLink, prio);
+		newProc->pid = nextPID;
+		queue_add(newProc, &procsPrioQueue, processus, queueLink, prio);
     nextPID++;
 		freePID--;
-		return newProc.pid;
+		return newProc->pid;
 	}
 
 
+}
+
+/**
+ * Test function to dequeue and print all processes
+ */
+void dequeue_all_processes(void){
+	processus *nextProc;
+	while(0 == queue_empty(&procsPrioQueue)){
+		nextProc = queue_out(&procsPrioQueue, processus, queueLink);
+		printf("%s : %d\n", nextProc->nom, nextProc->prio);
+	}
 }
 
 void context_switch(void){
@@ -82,18 +93,19 @@ void context_switch(void){
 }
 
 void initProc(void){
-	processus idle;
+	processus *idle = (processus*)malloc(sizeof(processus));
 
-	idle.pid = 0;
-	idle.etat = ACTIF;
-	idle.prio = 1;
-	sprintf(idle.nom, "idle");
+	idle->pid = 0;
+	idle->etat = ACTIF;
+	idle->prio = 1;
+	sprintf(idle->nom, "idle");
 
-	queue_add(&idle, &procsPrioQueue, processus, queueLink, prio);
+	queue_add(idle, &procsPrioQueue, processus, queueLink, prio);
 
 	start(proc1, "proc1", 512, 5, NULL);
 
 	actif = &procs[0];
+	dequeue_all_processes(); // Testing queue
 }
 
 int32_t mon_pid(void){
