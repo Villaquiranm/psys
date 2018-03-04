@@ -19,6 +19,14 @@ enum reg_type{
 	EDI = 4
 };
 
+typedef struct regs{
+	uint32_t ebx;
+	uint32_t esp;
+	uint32_t ebp;
+	uint32_t esi;
+	uint32_t edi;
+} regs;
+
 enum etats{
 	ACTIF,
 	ACTIVABLE,
@@ -34,6 +42,7 @@ typedef struct processus{
 	char nom[10];
 	int etat; //1 elu
 	int prio;
+	regs regs;
 	void *pile;
 	link queueLink;
 } processus;
@@ -48,14 +57,16 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
   processus *newProc = (processus*)malloc(sizeof(processus));
 	//link linkProc = LIST_HEAD_INIT(linkProc);
 
-  void *pile = malloc(ssize+3);
-  void *current = pile+ssize+3;
+  uint32_t *pile = malloc(ssize+3);
+  uint32_t *current = (pile+ssize+3);
 
-  current = pt_func;
+	newProc->regs.esp = (uint32_t)current;
+
+  *current = (uint32_t)pt_func;
 	current--;
-  current = NULL;
+  *current = (uint32_t)NULL;
 	current--;
-  current = arg;
+  *current = (uint32_t)arg;
 	current--;
 
 	newProc->prio = prio;
@@ -88,6 +99,27 @@ void dequeue_all_processes(void){
 	}
 }
 
+/**
+ * Function called by the system clock interruption or any event
+ * that changes the priority of a process in order to succesfully
+ * share the processor time
+ */
+void schedule(){
+	// Put the active process in the priority queue so it has the
+	// opportunity of being chosen again
+	actif->etat = ACTIVABLE;
+	queue_add(actif, &procsPrioQueue, processus, queueLink, prio);
+
+	processus *prevProc = actif;
+
+	// Simplistic election of the next process.
+	// But what if its state is not ACTIVABLE?
+	processus *nextProc = queue_out(&procsPrioQueue, processus, queueLink);
+	nextProc->etat = ACTIF;
+	actif = nextProc;
+	ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
+}
+
 void context_switch(void){
 	//Change context and call the scheduler here in the future
 }
@@ -100,12 +132,12 @@ void initProc(void){
 	idle->prio = 1;
 	sprintf(idle->nom, "idle");
 
-	queue_add(idle, &procsPrioQueue, processus, queueLink, prio);
+	//queue_add(idle, &procsPrioQueue, processus, queueLink, prio);
 
 	start(proc1, "proc1", 512, 5, NULL);
 
-	actif = &procs[0];
-	dequeue_all_processes(); // Testing queue
+	//actif = &procs[0];
+	actif = idle;
 }
 
 int32_t mon_pid(void){
@@ -121,6 +153,7 @@ int idle(){
 	while(1){
 		printf("IDLE\n");
 		for(i = 0; i < 5000000; i++){
+			schedule();
 			//ctx_sw(procs[0].regs, procs[1].regs); //change to context_switch when done
 		}
 	}
@@ -132,6 +165,7 @@ int proc1(){
 	while(1){
 		printf("A\n");
 		for(i = 0; i < 5000000; i++){
+			schedule();
 			//ctx_sw(procs[1].regs, procs[0].regs); //change to context_switch when done
 		}
 	}
