@@ -43,7 +43,7 @@ typedef struct processus{
 	int etat; //1 elu
 	int prio;
 	regs regs;
-	void *pile;
+	uint32_t *pile;
 	link queueLink;
 } processus;
 
@@ -53,28 +53,34 @@ link procsPrioQueue = LIST_HEAD_INIT(procsPrioQueue);
 struct processus *lastProcessus;
 //--------------------------------------------------------
 
+/*
+ * Start primitive to create a new process
+ */
 int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, int prio, void *arg) {
-  processus *newProc = (processus*)malloc(sizeof(processus));
-	//link linkProc = LIST_HEAD_INIT(linkProc);
+	// Create a pointer to a new process structure with the
+	// appropiate size
+	processus *newProc = (processus*)malloc(sizeof(processus));
 
-  uint32_t *pile = malloc(ssize+3);
-  uint32_t *current = (pile+ssize+3);
+	// Allocate the required space for the execution stack plus the
+	// function pointer, termination function pointer and the argument
+  uint32_t *pile = malloc(ssize + 3);
+  uint32_t *current = (pile + ssize + 3);
 
-	newProc->regs.esp = (uint32_t)current;
-
-  *current = (uint32_t)pt_func;
-	current--;
-  *current = (uint32_t)NULL;
-	current--;
-  *current = (uint32_t)arg;
-	current--;
-
-	newProc->prio = prio;
-	//newProc->queueLink = linkProc;
-
+	// Set the process' fields with the appropiate values
 	sprintf(newProc->nom, "%s", process_name);
-
 	newProc->etat = ACTIVABLE;
+	newProc->prio = prio;
+	newProc->regs.esp = (uint32_t)current;
+	newProc->pile = pile;
+
+	// Put the function pointer, termination function pointer and the
+	// argument on the top of the queue
+  *(current--) = (uint32_t)pt_func;
+  *(current--) = (uint32_t)NULL;
+  *(current--) = (uint32_t)arg;
+
+	// Add the process to the priority queue if there is enough
+	// available space
 	if(freePID == 0) {
 		return -1;
 	} else {
@@ -84,8 +90,6 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 		freePID--;
 		return newProc->pid;
 	}
-
-
 }
 
 /**
