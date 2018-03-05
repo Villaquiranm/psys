@@ -19,6 +19,7 @@ void initProc(void);
 int idle();
 int proc1();
 void proc2(void);
+int proc3();
 int getpid(void);
 int getprio(int pid);
 int chprio(int pid, int newprio);

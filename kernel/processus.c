@@ -34,7 +34,8 @@ enum etats{
 	BLOQUE_IO,
 	BLOQUE_FILS,
 	ENDORMI,
-	ZOMBIE
+	ZOMBIE,
+	DYING
 };
 
 typedef struct processus{
@@ -50,8 +51,28 @@ typedef struct processus{
 struct processus *actif;
 struct processus procs[NBPROC+1];
 link procsPrioQueue = LIST_HEAD_INIT(procsPrioQueue);
+link dyingProcessesQueue = LIST_HEAD_INIT(dyingProcessesQueue);
 struct processus *lastProcessus;
 //--------------------------------------------------------
+
+/*
+ * Primitive to properly finish a process
+ */
+void exitFunction(int retval){
+	(void)retval;
+
+	// Add the currently active process to the dying queue
+	actif->etat = DYING;
+	actif->prio = 1; // So that the queue acts as FIFO
+	queue_add(actif, &dyingProcessesQueue, processus, queueLink, prio);
+
+	// Perhaps oversimplified election of the next process
+	processus *prevProc = actif;
+	processus *nextProc = queue_out(&procsPrioQueue, processus, queueLink);
+	nextProc->etat = ACTIF;
+	actif = nextProc;
+	ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
+}
 
 /*
  * Start primitive to create a new process
@@ -114,10 +135,17 @@ void schedule(){
 	actif->etat = ACTIVABLE;
 	queue_add(actif, &procsPrioQueue, processus, queueLink, prio);
 
-	processus *prevProc = actif;
+	// Properly killing all the processes in the dying queue
+	processus *currentProc;
+	while(queue_empty(&dyingProcessesQueue) == 0){
+		currentProc = queue_out(&dyingProcessesQueue, processus, queueLink);
+		free(currentProc->pile);
+		free(currentProc);
+	}
 
-	// Simplistic election of the next process.
+	// Perhaps oversimplified election of the next process.
 	// But what if its state is not ACTIVABLE?
+	processus *prevProc = actif;
 	processus *nextProc = queue_out(&procsPrioQueue, processus, queueLink);
 	nextProc->etat = ACTIF;
 	actif = nextProc;
@@ -139,6 +167,7 @@ void initProc(void){
 	//queue_add(idle, &procsPrioQueue, processus, queueLink, prio);
 
 	start(proc1, "proc1", 512, 5, NULL);
+	start(proc3, "proc3", 512, 10, NULL);
 
 	//actif = &procs[0];
 	actif = idle;
@@ -186,20 +215,29 @@ void proc2(void){
 	}
 }
 
+int proc3(){
+	printf("C\n");
+	exitFunction(1);
+	return 1;
+}
+
 int getpid(void){
 	return actif->pid;
 }
 
 int getprio(int pid){
+	(void)pid;
+
 	return actif->prio;
-  return pid; //Temporary trivial statement to avoid compiler warning
 }
 
 int chprio(int pid, int newprio){
+	(void)pid;
+	(void)newprio;
+
 	//if prio and pid are valid
 	//int oldprio = processus[pid].prio;
 	//processus[pid].prio = newprio;
 	//Reorganize the priority queue
 	return 0;
-  return pid + newprio; //Temporary trivial statement to avoid compiler warning
 }
