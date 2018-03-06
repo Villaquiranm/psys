@@ -87,18 +87,18 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
   uint32_t *pile = malloc(ssize + 3);
   uint32_t *current = (pile + ssize + 3);
 
+	// Put the function pointer, termination function pointer and the
+	// argument on the top of the queue
+	*(current--) = (uint32_t)arg;
+	*(current--) = (uint32_t)exitFunction;
+  *(current) = (uint32_t)pt_func;
+
 	// Set the process' fields with the appropiate values
 	sprintf(newProc->nom, "%s", process_name);
 	newProc->etat = ACTIVABLE;
 	newProc->prio = prio;
 	newProc->regs.esp = (uint32_t)current;
 	newProc->pile = pile;
-
-	// Put the function pointer, termination function pointer and the
-	// argument on the top of the queue
-  *(current--) = (uint32_t)pt_func;
-  *(current--) = (uint32_t)NULL;
-  *(current--) = (uint32_t)arg;
 
 	// Add the process to the priority queue if there is enough
 	// available space
@@ -217,7 +217,6 @@ void proc2(void){
 
 int proc3(){
 	printf("C\n");
-	exitFunction(1);
 	return 1;
 }
 
