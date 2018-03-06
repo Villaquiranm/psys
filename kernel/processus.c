@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <processus.h>
+#include <cpu.h>
 
 int32_t cree_processus(void (*code)(void), char *nom){
 	struct processus newProc;
@@ -144,8 +145,9 @@ void idle(void){
 	unsigned long i;
 	while(1){
 		printf("IDLE\n");
+		sti();
 		for(i = 0; i < 5000000; i++){
-			ctx_sw(procs[0].regs, procs[1].regs); //change to context_switch when done
+			cli();
 		}
 	}
 }
@@ -154,8 +156,9 @@ void proc1(void){
 	unsigned long i;
 	while(1){
 		printf("A\n");
+		sti();
 		for(i = 0; i < 5000000; i++){
-			ctx_sw(procs[1].regs, procs[0].regs); //change to context_switch when done
+			cli();
 		}
 	}
 }
@@ -164,8 +167,19 @@ void proc2(void){
 	unsigned long i;
 	while(1){
 		printf("B");
+		sti();
 		for(i = 0; i < 5000000; i++){
-			//ctx_sw();
+			cli();
 		}
 	}
+}
+void ordonnance(){
+		if(actif->pid == 0){
+			actif = &procs[1];
+			ctx_sw(procs[0].regs, procs[1].regs);
+		}
+		else{
+			actif = &procs[0];
+			ctx_sw(procs[1].regs, procs[0].regs);
+		}
 }

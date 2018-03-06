@@ -11,11 +11,11 @@ extern void ctx_sw(uint32_t* pointeur1, uint32_t* pointeur2);
 int numberprocessus;
 
 enum reg_type{
-	EBX = 0,
-	ESP = 1,
-	EBP = 2,
-	ESI = 3,
-	EDI = 4
+	EBX,
+	ESP,
+	EBP,
+	ESI,
+	EDI
 };
 
 enum etats{

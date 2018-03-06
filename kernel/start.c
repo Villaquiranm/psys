@@ -28,7 +28,6 @@ void kernel_start(void)
 	i = 10;
 	printf("teste\n");
 	printf("Factoriel de %d:",i);
-
 	i = fact(i);
 	printf("%d\n",i);
 
@@ -36,6 +35,7 @@ void kernel_start(void)
 
 	printf("teste\n");
 	initProc();
+	//sti();
 	idle();
 
 	return;

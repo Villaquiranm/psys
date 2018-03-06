@@ -87,7 +87,7 @@ void tic_PIT(){
 	}
 
     //TODO decomenter
-	//ordonnance();
+	ordonnance();
 }
 
 void init_traitant_IT(uint32_t num_IT, void (*traitant)(void)){
