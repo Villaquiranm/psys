@@ -31,62 +31,13 @@ void wait_clock(unsigned long clock){
 
   actif->etat = ENDORMI;
   actif->reveille = current_clock() + clock;
-
-  //TODO DECOMMENTER APRÈS C'EST FAIT
-  //ordonnance();
+  ordonnance();
 }
-
-
-/*void printDroite(char* contenu){
-
-	char* aux;
-	int sizeContenu=0;
-	int i;
-
-	aux=contenu;
-	while((*aux)!='\0'){
-		sizeContenu++;
-		aux++;
-	}
-
-	aux=contenu;
-	for(i=0; i<sizeContenu; i++){
-		ecrit_car(0,(80-sizeContenu+i),(*aux),0,0,15);
-		aux++;
-	}
-}*/
 
 void tic_PIT(){
 
 	outb(0x20, 0x20);
-
     numberInterruptions++;
-
-    //TODO verifier si on doit compter des seconds
-	char horaire[9];
-
-	ms+=(1000/CLOCKFREQ);
-
-	if(ms==1000){
-		second++;
-		totalSeconds++;
-		ms=0;
-
-		if(second==60){
-			minute++;
-			second=0;
-
-			if(minute==60){
-				heure++;
-				minute=0;
-			}
-		}
-
-		sprintf(horaire,"%02d:%02d:%02d",heure,minute,second);
-		//printDroite(horaire);
-	}
-
-    //TODO decomenter
 	ordonnance();
 }
 
@@ -96,9 +47,6 @@ void init_traitant_IT(uint32_t num_IT, void (*traitant)(void)){
 	uint32_t traitantFort;
 	uint32_t *adresseN = (uint32_t*)(TABLE_VECTEURS + 2*4*num_IT);
 
-	/*uint32_t premiereMot;
-	uint32_t deuxiemeMot;*/
-
 	traitantFaible = (uint32_t)traitant;
 	traitantFaible <<= 16;
 	traitantFaible >>= 16;
@@ -106,18 +54,6 @@ void init_traitant_IT(uint32_t num_IT, void (*traitant)(void)){
 	traitantFort = (uint32_t)traitant;
 	traitantFort >>= 16;
 	traitantFort <<= 16;
-
-	/*premiereMot = (uint32_t)KERNEL_CS;
-	premiereMot <<= 16;
-	premiereMot = premiereMot | traitantFaible;
-	*adresseN = premiereMot;
-
-	adresseN++;
-
-	deuxiemeMot = traitantFort;
-	deuxiemeMot = deuxiemeMot | (uint32_t)0x8E00;
-
-	*adresseN = deuxiemeMot;*/
 
 	*adresseN = (uint32_t)KERNEL_CS;
 	*adresseN <<= 16;
@@ -159,13 +95,6 @@ void masque_IRQ(uint32_t num_IRQ, bool masque){
 	}
 
 	outb(tableBool, 0x21);
-}
-
-void dors(uint32_t nbr_secs){
-	(*actif).reveille=totalSeconds+nbr_secs;
-	(*actif).etat=ENDORMI;
-    //TODO decomenter
-	//ordonnance();
 }
 
 int nbr_secondes(){
