@@ -20,11 +20,7 @@ enum reg_type{
 };
 
 typedef struct regs{
-	uint32_t ebx;
-	uint32_t esp;
-	uint32_t ebp;
-	uint32_t esi;
-	uint32_t edi;
+	uint32_t ebx, esp, ebp, esi, edi;
 } regs;
 
 enum etats{
@@ -41,18 +37,21 @@ enum etats{
 typedef struct processus{
 	int pid;
 	char nom[10];
-	int etat; //1 elu
+	enum etats state; //1 elu
 	int prio;
+	int returnVal;
+	int expectedChild;
 	regs regs;
 	uint32_t *pile;
+	struct processus *parent, *children;
+	struct processus *nextSibling;
 	link queueLink;
 } processus;
 
-struct processus *actif;
-struct processus procs[NBPROC+1];
+processus *active;
+processus *procs[NBPROC + 1];
 link procsPrioQueue = LIST_HEAD_INIT(procsPrioQueue);
 link dyingProcessesQueue = LIST_HEAD_INIT(dyingProcessesQueue);
-struct processus *lastProcessus;
 //--------------------------------------------------------
 
 /*
@@ -62,15 +61,15 @@ void exitFunction(int retval){
 	(void)retval;
 
 	// Add the currently active process to the dying queue
-	actif->etat = DYING;
-	actif->prio = 1; // So that the queue acts as FIFO
-	queue_add(actif, &dyingProcessesQueue, processus, queueLink, prio);
+	active->state = DYING;
+	active->prio = 1; // So that the queue acts as FIFO
+	queue_add(active, &dyingProcessesQueue, processus, queueLink, prio);
 
 	// Perhaps oversimplified election of the next process
-	processus *prevProc = actif;
+	processus *prevProc = active;
 	processus *nextProc = queue_out(&procsPrioQueue, processus, queueLink);
-	nextProc->etat = ACTIF;
-	actif = nextProc;
+	nextProc->state = ACTIF;
+	active = nextProc;
 	ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
 }
 
@@ -95,10 +94,25 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 
 	// Set the process' fields with the appropiate values
 	sprintf(newProc->nom, "%s", process_name);
-	newProc->etat = ACTIVABLE;
+	newProc->state = ACTIVABLE;
 	newProc->prio = prio;
 	newProc->regs.esp = (uint32_t)current;
 	newProc->pile = pile;
+
+	if (active->pid == 0) {	// IDLE process is active
+		newProc->parent = NULL;
+		newProc->children = NULL;
+		newProc->nextSibling = NULL;
+	} else {
+		newProc->parent = active;
+		newProc->children = NULL;
+		if (newProc->parent->children != NULL) {
+			newProc->nextSibling = newProc->parent->children;
+		}
+		newProc->parent->children = newProc;
+	}
+
+	procs[nextPID] = newProc;
 
 	// Add the process to the priority queue if there is enough
 	// available space
@@ -111,6 +125,19 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 		freePID--;
 		return newProc->pid;
 	}
+}
+
+int kill(int pid) {
+	if (procs[pid] == NULL || pid == active->pid)
+		return -1;
+
+	processus *killedProc = procs[pid];
+	if (killedProc->state == ACTIVABLE) {
+		queue_del(killedProc, queueLink);
+	}
+	free(killedProc->pile);
+	free(killedProc);
+	return 0;
 }
 
 /**
@@ -132,8 +159,8 @@ void dequeue_all_processes(void){
 void schedule(){
 	// Put the active process in the priority queue so it has the
 	// opportunity of being chosen again
-	actif->etat = ACTIVABLE;
-	queue_add(actif, &procsPrioQueue, processus, queueLink, prio);
+	active->state = ACTIVABLE;
+	queue_add(active, &procsPrioQueue, processus, queueLink, prio);
 
 	// Properly killing all the processes in the dying queue
 	processus *currentProc;
@@ -145,10 +172,10 @@ void schedule(){
 
 	// Perhaps oversimplified election of the next process.
 	// But what if its state is not ACTIVABLE?
-	processus *prevProc = actif;
+	processus *prevProc = active;
 	processus *nextProc = queue_out(&procsPrioQueue, processus, queueLink);
-	nextProc->etat = ACTIF;
-	actif = nextProc;
+	nextProc->state = ACTIF;
+	active = nextProc;
 	ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
 }
 
@@ -157,28 +184,28 @@ void context_switch(void){
 }
 
 void initProc(void){
+	for (size_t i = 0; i < NBPROC + 1; i++) {
+		procs[i] = NULL;
+	}
+
 	processus *idle = (processus*)malloc(sizeof(processus));
 
 	idle->pid = 0;
-	idle->etat = ACTIF;
+	idle->state = ACTIF;
 	idle->prio = 1;
 	sprintf(idle->nom, "idle");
-
-	//queue_add(idle, &procsPrioQueue, processus, queueLink, prio);
+	active = idle;
 
 	start(proc1, "proc1", 512, 5, NULL);
 	start(proc3, "proc3", 512, 10, NULL);
-
-	//actif = &procs[0];
-	actif = idle;
 }
 
 int32_t mon_pid(void){
-	return actif->pid;
+	return active->pid;
 }
 
 char *mon_nom(void){
-	return actif->nom;
+	return active->nom;
 }
 
 int idle(){
@@ -221,22 +248,38 @@ int proc3(){
 }
 
 int getpid(void){
-	return actif->pid;
+	return active->pid;
 }
 
 int getprio(int pid){
-	(void)pid;
+	if (procs[pid] == NULL)
+		return -1;
 
-	return actif->prio;
+	return procs[pid]->prio;
 }
 
 int chprio(int pid, int newprio){
-	(void)pid;
-	(void)newprio;
+	if (procs[pid] == NULL || (newprio < 1 && newprio > MAXPRIO))
+		return -1;
 
-	//if prio and pid are valid
-	//int oldprio = processus[pid].prio;
-	//processus[pid].prio = newprio;
-	//Reorganize the priority queue
+	int prevPrio = procs[pid]->prio;
+	procs[pid]->prio = newprio;
+	if (procs[pid]->state == ACTIVABLE) {
+		queue_del(procs[pid], queueLink);
+		queue_add(procs[pid], &procsPrioQueue, processus, queueLink, prio);
+	}
+	return prevPrio;
+}
+
+int waitpid(int pid, int *retvalp) {
+	(void)retvalp;
+	active->state = BLOQUE_FILS;
+
+ //CTX
+
+
+	if (pid < 0) {
+
+	}
 	return 0;
 }
