@@ -31,7 +31,7 @@ enum etats{
 struct processus{
 	int pid;
 	char nom[10];
-	int etat; //1 elu
+	int etat;
 	uint32_t regs[5];
 	uint32_t pile[SIZEPILE];
 	void(*func)(void);

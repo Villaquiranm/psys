@@ -56,99 +56,13 @@ char *mon_nom(void){
 	return actif->nom;
 }
 
-/*void idle(){
-
-	for(;;){
-		printf("[%s] pid = %i\n", mon_nom(), mon_pid());
-		sti();
-		hlt();
-		cli();
-	}
-
-}
-
-void proc1(){
-
-	for(;;){
-		printf("[%s] pid = %i\n", mon_nom(), mon_pid());
-		sti();
-		hlt();
-		cli();
-	}
-}
-
-void proc2(){
-
-	for(;;){
-		printf("[%s] pid = %i\n", mon_nom(), mon_pid());
-		sti();
-		hlt();
-		cli();
-	}
-}
-
-void proc3(){
-
-	for(;;){
-		printf("[%s] pid = %i\n", mon_nom(), mon_pid());
-		sti();
-		hlt();
-		cli();
-	}
-}*/
-
-
-
-
-
-/*
-void idle(){
-
-	for(;;){
-		ordonnance();
-		sti();
-		hlt();
-		cli();
-	}
-
-}
-
-void proc1(){
-	for (;;){
-		printf("[temps = %lu] processus %s pid = %i\n", current_clock(),mon_nom(), mon_pid());
-		dors(2);
-	}
-}
-
-void proc2(){
-	for (;;){
-		printf("[temps = %lu] processus %s pid = %i\n", current_clock(),mon_nom(), mon_pid());
-		dors(3);
-	}
-}
-
-void proc3(){
-	for (;;){
-		printf("[temps = %lu] processus %s pid = %i\n", current_clock(),mon_nom(), mon_pid());
-		dors(5);
-	}
-}
-*/
-
-
-
-
-
-
-
 void idle(void){
 	unsigned long i;
 	while(1){
 		printf("IDLE\n");
 		sti();
-		for(i = 0; i < 5000000; i++){
-			cli();
-		}
+		for(i = 0; i < 50000000; i++);
+		cli();
 	}
 }
 
@@ -157,9 +71,8 @@ void proc1(void){
 	while(1){
 		printf("A\n");
 		sti();
-		for(i = 0; i < 5000000; i++){
-			cli();
-		}
+		for(i = 0; i < 50000000; i++);
+		cli();
 	}
 }
 

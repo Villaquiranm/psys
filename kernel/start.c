@@ -16,7 +16,7 @@ int fact(int n)
 
 void kernel_start(void)
 {
-	int i;
+
 	unsigned long quartz;
 	unsigned long ticks;
 
@@ -25,17 +25,10 @@ void kernel_start(void)
 	efface_ecran();
 //	call_debugger();
 
-	i = 10;
-	printf("teste\n");
-	printf("Factoriel de %d:",i);
-	i = fact(i);
-	printf("%d\n",i);
-
 	init_traitant_IT(32, traitant_IT_32);
 
 	printf("teste\n");
 	initProc();
-	//sti();
 	idle();
 
 	return;
