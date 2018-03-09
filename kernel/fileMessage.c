@@ -1,3 +1,5 @@
+#include "mem.h"
+#include "fileMessage.h"
 #define NBQUEUE 20
 
 QUEUE* queues[NBQUEUE];
@@ -10,13 +12,16 @@ int pcreate(int count){
   QUEUE* newQueue;
   int* queue;
 
-  if(numberQueues <= (NBQUEUE-1)){
+  if(numberQueues <= NBQUEUE-1 && count > 0 ){
     numberQueues++;
-    newQueue = (QUEUE*)malloc(sizeof(QUEUE)*count);
-    queue = (int*)malloc(sizeof(int)*count);
+    newQueue = (QUEUE*)mem_alloc(sizeof(QUEUE)*count);
+    queue = (int*)mem_alloc(sizeof(int)*count);
     newQueue->message = queue;
     newQueue->capacite = count;
     newQueue->message = 0;
+    return numberQueues;
+  } else {
+    return -1;
   }
 }
 

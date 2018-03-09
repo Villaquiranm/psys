@@ -1,6 +1,9 @@
-struct queue{
+#include "../shared/queue.h"
+
+typedef struct queue{
   int* message;
-  int capacite;         
+  int capacite;
   int numberMessages;   //combien de messages on a
-}
-typedef struct queue QUEUE;
+  link process_send;
+  link process_receive;
+} QUEUE;
