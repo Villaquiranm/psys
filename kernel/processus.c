@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <malloc.c>
 #include <processus.h>
+#include <stdbool.h>
 
 // These variables definitions were originally in the header file
 // but as the start.c file also includes that header, the compiler
@@ -39,7 +40,7 @@ typedef struct processus{
 	char nom[10];
 	enum etats state; //1 elu
 	int prio;
-	int returnVal;
+	int retval;
 	int expectedChild;
 	regs regs;
 	uint32_t *pile;
@@ -61,7 +62,7 @@ void exitFunction(int retval){
 	(void)retval;
 
 	// Add the currently active process to the dying queue
-	active->state = DYING;
+	active->state = ZOMBIE;
 	active->prio = 1; // So that the queue acts as FIFO
 	queue_add(active, &dyingProcessesQueue, processus, queueLink, prio);
 
@@ -132,11 +133,16 @@ int kill(int pid) {
 		return -1;
 
 	processus *killedProc = procs[pid];
+
 	if (killedProc->state == ACTIVABLE) {
 		queue_del(killedProc, queueLink);
 	}
-	free(killedProc->pile);
-	free(killedProc);
+
+	/* We can't kill a process(ess) if his/her parent is in a wait method */
+	if (killedProc->parent != NULL) {
+		free(killedProc->pile);
+		free(killedProc);
+	}
 	return 0;
 }
 
@@ -157,17 +163,22 @@ void dequeue_all_processes(void){
  * share the processor time
  */
 void schedule(){
-	// Put the active process in the priority queue so it has the
-	// opportunity of being chosen again
-	active->state = ACTIVABLE;
-	queue_add(active, &procsPrioQueue, processus, queueLink, prio);
+	if (active->state == ACTIF) {
+		// Put the active process in the priority queue so it has the
+		// opportunity of being chosen again
+		active->state = ACTIVABLE;
+		queue_add(active, &procsPrioQueue, processus, queueLink, prio);
+	}
 
 	// Properly killing all the processes in the dying queue
 	processus *currentProc;
 	while(queue_empty(&dyingProcessesQueue) == 0){
 		currentProc = queue_out(&dyingProcessesQueue, processus, queueLink);
-		free(currentProc->pile);
-		free(currentProc);
+		/* We can't kill a process(ess) if his/her parent is in a wait method */
+		if (currentProc->parent != NULL) {
+			free(currentProc->pile);
+			free(currentProc);
+		}
 	}
 
 	// Perhaps oversimplified election of the next process.
@@ -179,9 +190,6 @@ void schedule(){
 	ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
 }
 
-void context_switch(void){
-	//Change context and call the scheduler here in the future
-}
 
 void initProc(void){
 	for (size_t i = 0; i < NBPROC + 1; i++) {
@@ -272,14 +280,43 @@ int chprio(int pid, int newprio){
 }
 
 int waitpid(int pid, int *retvalp) {
-	(void)retvalp;
-	active->state = BLOQUE_FILS;
+	bool end = false;
+	processus *nextChild = active->children;
+	/* Loop to wait a child proccess to be ended */
+	while(!end){
+		/* If pid < 0 we must wait until any child ends */
+		if (pid < 0){
+			nextChild = active->children;
+			while(nextChild != NULL){
+				if(nextChild->state == ZOMBIE){
+					pid = nextChild->pid;
+					*retvalp = procs[pid]->retval;
+					end = true;
+				} else {
+					nextChild = nextChild->nextSibling;
+				}
+			}
+		}	else {
+			/* if the pid is not valid, we return a negative number */
+			if(procs[pid] == NULL){
+				return -1;
+			} else if(procs[pid]->state == ZOMBIE){
+				*retvalp = procs[pid]->retval;
+				end = true;
+			}
+		}
 
- //CTX
-
-
-	if (pid < 0) {
+		if(!end){
+			schedule();
+		}
 
 	}
-	return 0;
+	free(procs[pid]->pile);
+	free(procs[pid]);
+	/* if the process was ended in function kill */
+	if(*retvalp == 0)
+		return 0;
+	return pid;
+
+
 }
