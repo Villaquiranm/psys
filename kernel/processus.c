@@ -204,8 +204,8 @@ void initProc(void){
 	sprintf(idle->nom, "idle");
 	active = idle;
 
-	start(proc1, "proc1", 512, 5, NULL);
-	start(proc3, "proc3", 512, 10, NULL);
+	//start(proc1, "proc1", 512, 5, NULL);
+	//start(proc3, "proc3", 512, 10, NULL);
 }
 
 int32_t mon_pid(void){
@@ -314,8 +314,8 @@ int waitpid(int pid, int *retvalp) {
 	free(procs[pid]->pile);
 	free(procs[pid]);
 	/* if the process was ended in function kill */
-	if(*retvalp == 0)
-		return 0;
+	/*if(*retvalp == 0)
+		return 0;*/
 	return pid;
 
 
