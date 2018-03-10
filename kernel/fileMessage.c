@@ -45,13 +45,15 @@ int pdelete(int fid) {
   //verifie le fid
   if(fid<0 || fid>NBQUEUE-1 || queues[fid]==NULL)
     return -1;
-
-
   numberQueues--;
 
   //fait passer dans l'état activable tous les processus, s'il en existe, qui se trouvaient bloqués sur la file
   //Les processus libérés auront une valeur strictement négative comme retour de psend ou preceive.
-  
+  if (!queue_empty(&queues[fid]->process_send)) {
+      //queue_for_each() changer l'état de chaque processus
+  }else if (!queue_empty(&queues[fid]->process_receive)) {
+      //queue_for_each() changer l'état de chaque processus
+  }
 
   //on libere les messages et la structure et met NULL dans queues[fid]
   if(queues[fid]->message != NULL) {
@@ -59,8 +61,6 @@ int pdelete(int fid) {
   }
   mem_free(queues[fid],sizeof(QUEUE*));
   queues[fid]=NULL;
-
-
   return 0;
 
 }
