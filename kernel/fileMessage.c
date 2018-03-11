@@ -6,7 +6,7 @@
 //les variables globales
 QUEUE* queues[NBQUEUE]={[0 ... NBQUEUE-1] = NULL};
 int numberQueues = 0;
-struct processus* procBloque;
+//struct processus* procBloque;
 
 //renvoie la premiere indice vide. Si pleine, renvoie -1
 int searchEmptyPosition(){
