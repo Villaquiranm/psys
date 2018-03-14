@@ -28,6 +28,9 @@ int pcreate(int count) {
     newQueue->message = (int*)mem_alloc(sizeof(int) * count);
     newQueue->capacite = count;
     newQueue->numberMessages = 0;
+    //initialize processuslink in the queue.
+    INIT_LINK(&newQueue->process_send.head);
+    INIT_LINK(&newQueue->process_receive.head);
     numberQueues++;
     queues[freeIndex] = newQueue;
     return freeIndex;
@@ -43,11 +46,11 @@ int pdelete(int fid) {
     return -1;
   //fait passer dans l'état activable tous les processus, s'il en existe, qui se trouvaient bloqués sur la file
   //Les processus libérés auront une valeur strictement négative comme retour de psend ou preceive.
-  if (!queue_empty(&queues[fid]->process_send)) {
+  //if (!queue_empty(&queues[fid]->process_send)) {
       //queue_for_each() changer l'état de chaque processus
-  }else if (!queue_empty(&queues[fid]->process_receive)) {
+//  }else if (!queue_empty(&queues[fid]->process_receive)) {
       //queue_for_each() changer l'état de chaque processus
-  }
+  //}
   numberQueues--;
   //on libere les messages et la structure et met NULL dans queues[fid]
   if(queues[fid]->message != NULL) {
