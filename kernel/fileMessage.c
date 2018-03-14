@@ -29,8 +29,8 @@ int pcreate(int count) {
     newQueue->capacite = count;
     newQueue->numberMessages = 0;
     //initialize processuslink in the queue.
-    INIT_LINK(&newQueue->process_send.head);
-    INIT_LINK(&newQueue->process_receive.head);
+    INIT_LIST_HEAD(&newQueue->process_send.head);
+    INIT_LIST_HEAD(&newQueue->process_receive.head);
     numberQueues++;
     queues[freeIndex] = newQueue;
     return freeIndex;
@@ -41,16 +41,24 @@ int pcreate(int count) {
 
 //pdelete : détruit une file de messages
 int pdelete(int fid) {
+
+  PLINK* plink_it;
+
   //verifie le fid
   if(fid < 0 || fid > NBQUEUE-1 || queues[fid] == NULL)
     return -1;
   //fait passer dans l'état activable tous les processus, s'il en existe, qui se trouvaient bloqués sur la file
   //Les processus libérés auront une valeur strictement négative comme retour de psend ou preceive.
-  //if (!queue_empty(&queues[fid]->process_send)) {
-      //queue_for_each() changer l'état de chaque processus
-//  }else if (!queue_empty(&queues[fid]->process_receive)) {
-      //queue_for_each() changer l'état de chaque processus
-  //}
+  if (!queue_empty(&queues[fid]->process_send.head)) {
+      queue_for_each(plink_it, &queues[fid]->process_send.head, PLINK, head){
+        plink_it->actuel->etat = ACTIVABLE; //changer l'état de chaque processus}
+      }
+  }else if (!queue_empty(&queues[fid]->process_receive.head)) {
+      queue_for_each(plink_it, &queues[fid]->process_receive.head, PLINK, head){
+        plink_it->actuel->etat = ACTIVABLE; //changer l'état de chaque processus}
+      }
+  }
+
   numberQueues--;
   //on libere les messages et la structure et met NULL dans queues[fid]
   if(queues[fid]->message != NULL) {
