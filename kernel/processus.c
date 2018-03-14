@@ -31,8 +31,7 @@ enum etats{
 	BLOQUE_IO,
 	BLOQUE_FILS,
 	ENDORMI,
-	ZOMBIE,
-	DYING
+	ZOMBIE
 };
 
 typedef struct processus{
@@ -46,25 +45,30 @@ typedef struct processus{
 	uint32_t *pile;
 	struct processus *parent, *children;
 	struct processus *nextSibling;
+	struct processus *dyingProcsLink;
 	link queueLink;
 } processus;
 
 processus *active;
 processus *procs[NBPROC + 1];
 link procsPrioQueue = LIST_HEAD_INIT(procsPrioQueue);
-link dyingProcessesQueue = LIST_HEAD_INIT(dyingProcessesQueue);
+//link dyingProcessesQueue = LIST_HEAD_INIT(dyingProcessesQueue);
+processus *dyingProcessesQueue = NULL;
 //--------------------------------------------------------
 
 /*
  * Primitive to properly finish a process
  */
 void exitFunction(int retval){
-	(void)retval;
 
 	// Add the currently active process to the dying queue
 	active->state = ZOMBIE;
 	active->prio = 1; // So that the queue acts as FIFO
-	queue_add(active, &dyingProcessesQueue, processus, queueLink, prio);
+	active->retval = retval;
+	//queue_add(active, &dyingProcessesQueue, processus, dyingProcsLink, prio);
+	active->dyingProcsLink = dyingProcessesQueue;
+	dyingProcessesQueue = active;
+
 
 	// Perhaps oversimplified election of the next process
 	processus *prevProc = active;
@@ -90,7 +94,8 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 	// Put the function pointer, termination function pointer and the
 	// argument on the top of the queue
 	*(current--) = (uint32_t)arg;
-	*(current--) = (uint32_t)exitFunction;
+	//*(current--) = (uint32_t)exitFunction;
+	*(current--) = (uint32_t)ret_exit;
   *(current) = (uint32_t)pt_func;
 
 	// Set the process' fields with the appropiate values
@@ -99,6 +104,7 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 	newProc->prio = prio;
 	newProc->regs.esp = (uint32_t)current;
 	newProc->pile = pile;
+	newProc->dyingProcsLink = NULL;
 
 	if (active->pid == 0) {	// IDLE process is active
 		newProc->parent = NULL;
@@ -172,10 +178,11 @@ void schedule(){
 
 	// Properly killing all the processes in the dying queue
 	processus *currentProc;
-	while(queue_empty(&dyingProcessesQueue) == 0){
-		currentProc = queue_out(&dyingProcessesQueue, processus, queueLink);
+	while((currentProc = dyingProcessesQueue) != NULL){
+		/* At first we remove the process from the queue */
+		dyingProcessesQueue = currentProc->dyingProcsLink;
 		/* We can't kill a process(ess) if his/her parent is in a wait method */
-		if (currentProc->parent != NULL) {
+		if (currentProc->parent == NULL) {
 			free(currentProc->pile);
 			free(currentProc);
 		}
@@ -222,7 +229,6 @@ int idle(){
 		printf("IDLE\n");
 		for(i = 0; i < 5000000; i++){
 			schedule();
-			//ctx_sw(procs[0].regs, procs[1].regs); //change to context_switch when done
 		}
 	}
 	return 0;
@@ -234,7 +240,6 @@ int proc1(){
 		printf("A\n");
 		for(i = 0; i < 5000000; i++){
 			schedule();
-			//ctx_sw(procs[1].regs, procs[0].regs); //change to context_switch when done
 		}
 	}
 	return 1;
@@ -245,7 +250,6 @@ void proc2(void){
 	while(1){
 		printf("B");
 		for(i = 0; i < 5000000; i++){
-			//ctx_sw();
 		}
 	}
 }
@@ -280,6 +284,9 @@ int chprio(int pid, int newprio){
 }
 
 int waitpid(int pid, int *retvalp) {
+	/* This function returns pid if one valid process is found
+	 * -1 if the pid is invalid
+	 */
 	bool end = false;
 	processus *nextChild = active->children;
 	/* Loop to wait a child proccess to be ended */
@@ -297,7 +304,9 @@ int waitpid(int pid, int *retvalp) {
 				}
 			}
 		}	else {
-			/* if the pid is not valid, we return a negative number */
+			/* Case where we search for a particular pid;
+			 * if the pid is not valid, we return a negative number
+			 */
 			if(procs[pid] == NULL){
 				return -1;
 			} else if(procs[pid]->state == ZOMBIE){
@@ -313,9 +322,8 @@ int waitpid(int pid, int *retvalp) {
 	}
 	free(procs[pid]->pile);
 	free(procs[pid]);
-	/* if the process was ended in function kill */
-	/*if(*retvalp == 0)
-		return 0;*/
+	/* After freeing the procs array position it has to be set to NULL papapa */
+	procs[pid] = NULL;
 	return pid;
 
 

@@ -9,6 +9,7 @@
 #define MAXPRIO 256
 
 extern void ctx_sw(uint32_t* pointeur1, uint32_t* pointeur2);
+extern void ret_exit(void);
 
 int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, int prio, void *arg);
 int waitpid(int pid, int *retvalp);
