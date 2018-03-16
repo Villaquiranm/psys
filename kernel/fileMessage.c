@@ -225,7 +225,7 @@ int pcount(int fid, int *count){
       if(queues[fid]->numberMessages == queues[fid]->capacite){
         //compter combien de processus sont bloques en queues[fid]->processus_send
         //processusAtteint = ....;
-        *count = numberMessages + processusAtteint;
+        *count = queues[fid]->numberMessages + processusAtteint;
       }
     }
     return 0;
