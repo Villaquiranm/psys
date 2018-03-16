@@ -29,8 +29,8 @@ int pcreate(int count) {
     newQueue = (QUEUE*)mem_alloc(sizeof(QUEUE));
     newQueue->message = (int*)mem_alloc(sizeof(int) * count);
     newQueue->capacite = count;
-    newQueue->write = (int)newQueue->message;
-    newQueue->read = (int)newQueue->message;
+    newQueue->write = newQueue->message; //write et read pointent vers le début du vecteur de messages
+    newQueue->read = newQueue->message;
     newQueue->numberMessages = 0;
     //initialize processuslink in the queue.
     INIT_LIST_HEAD(&newQueue->process_send.head);
@@ -51,6 +51,7 @@ int pdelete(int fid) {
   //verifie le fid
   if(fid < 0 || fid > NBQUEUE-1 || queues[fid] == NULL)
     return -1;
+
   //fait passer dans l'état activable tous les processus, s'il en existe, qui se trouvaient bloqués sur la file
   //Les processus libérés auront une valeur strictement négative comme retour de psend ou preceive.
   if (!queue_empty(&queues[fid]->process_send.head)) {
@@ -73,6 +74,25 @@ int pdelete(int fid) {
 
 }
 
+
+void updateWritePointer(int fid, int capacite){
+  if (queues[fid]->write == &(queues[fid]->message[capacite-1]) ){ //If Write points to the end of the vector
+    queues[fid]->write = queues[fid]->message;// moves to first memory position.
+  }
+  else{
+      queues[fid]->write++;// move to next memory position.
+  }
+}
+
+void updateReadPointer(int fid, int capacite){
+  if (queues[fid]->read == &(queues[fid]->message[capacite-1]) ){  //If Read points to the end of the vector
+    queues[fid]->read = queues[fid]->message;// moves to first memory position.
+  }
+  else{
+      queues[fid]->read++;// move to next memory position.
+  }
+}
+
 //psend : dépose un message dans une file
 int psend(int fid, int message){
 
@@ -92,14 +112,10 @@ int psend(int fid, int message){
   //alors le processus le plus ancien dans la file parmi les plus prioritaires est débloqué et reçoit ce message
   if(nbMsgs == 0){
     // Send message
-    queues[fid]->write = message;
+    *(queues[fid]->write) = message;
     queues[fid]->numberMessages++;
-    if (queues[fid]->write == queues[fid]->message[capacite-1]){
-      queues[fid]->write = (int)queues[fid]->message;// move to first memory position.
-    }
-    else{
-        queues[fid]->write++;// move to next memory position.
-    }
+    updateWritePointer(fid, capacite);
+
     //2-Get first processus and give him execution time.
     //TODO know if there is a process to unblock
     PLINK * processus_to_unblock = queue_out(&queues[fid]->process_send.head, PLINK, head);
@@ -124,14 +140,9 @@ int psend(int fid, int message){
   //Sinon, la file n'est pas pleine et aucun processus n'est bloqué en attente de message.
   //Le message est alors déposé directement dans la file.
   else{// Done
-    queues[fid]->write = message;
+    *(queues[fid]->write) = message;
     queues[fid]->numberMessages++;
-    if (queues[fid]->write == queues[fid]->message[capacite-1]){
-      queues[fid]->write = (int)queues[fid]->message;// move to first memory position.
-    }
-    else{
-        queues[fid]->write++;// move to next memory position.
-    }
+    updateWritePointer(fid, capacite);
   }
 
   return 0;
@@ -163,14 +174,9 @@ int preceive(int fid,int *message){
 
   //sinon, il y a un message à lire
   else{
-    *message = queues[fid]->read ;
+    *message = *(queues[fid]->read) ;
     queues[fid]->numberMessages--;
-    if (queues[fid]->read == queues[fid]->message[capacite-1]){  //Write%capacite;
-      queues[fid]->read = (int)queues[fid]->message;// move to first memory position.
-    }
-    else{
-        queues[fid]->read++;// move to next memory position.
-    }
+    updateReadPointer(fid, capacite);
 
     //si la file était pleine, débloque un processus
     if(nbMsgs == capacite){
