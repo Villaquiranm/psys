@@ -62,13 +62,8 @@ processus *dyingProcessesQueue = NULL;
 void exitFunction(int retval){
 
 	// Add the currently active process to the dying queue
-	active->state = ZOMBIE;
-	active->prio = 1; // So that the queue acts as FIFO
+	zombifyProc(active->pid);
 	active->retval = retval;
-	//queue_add(active, &dyingProcessesQueue, processus, dyingProcsLink, prio);
-	active->dyingProcsLink = dyingProcessesQueue;
-	dyingProcessesQueue = active;
-
 
 	// Perhaps oversimplified election of the next process
 	processus *prevProc = active;
@@ -119,13 +114,12 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 		newProc->parent->children = newProc;
 	}
 
-	procs[nextPID] = newProc;
-
 	// Add the process to the priority queue if there is enough
 	// available space
 	if(freePID == 0) {
 		return -1;
 	} else {
+		procs[nextPID] = newProc;
 		newProc->pid = nextPID;
 		queue_add(newProc, &procsPrioQueue, processus, queueLink, prio);
     nextPID++;
@@ -146,8 +140,7 @@ int kill(int pid) {
 
 	/* We can't kill a process(ess) if his/her parent is in a wait method */
 	if (killedProc->parent != NULL) {
-		free(killedProc->pile);
-		free(killedProc);
+		freeProcessus(killedProc->pid);
 	}
 	return 0;
 }
@@ -183,8 +176,7 @@ void schedule(){
 		dyingProcessesQueue = currentProc->dyingProcsLink;
 		/* We can't kill a process(ess) if his/her parent is in a wait method */
 		if (currentProc->parent == NULL) {
-			free(currentProc->pile);
-			free(currentProc);
+			freeProcessus(currentProc->pid);
 		}
 	}
 
@@ -320,11 +312,27 @@ int waitpid(int pid, int *retvalp) {
 		}
 
 	}
+	return pid;
+
+
+}
+
+void zombifyProc(int pid){
+	if(procs[pid]->state != ZOMBIE){
+		procs[pid]->state = ZOMBIE;
+		if(dyingProcessesQueue == NULL){
+			procs[pid]->dyingProcsLink = NULL;
+		}else{
+			procs[pid]->dyingProcsLink = dyingProcessesQueue;
+		}
+		dyingProcessesQueue = procs[pid];
+	}
+}
+
+void freeProcessus(int pid){
 	free(procs[pid]->pile);
 	free(procs[pid]);
 	/* After freeing the procs array position it has to be set to NULL papapa */
 	procs[pid] = NULL;
-	return pid;
-
 
 }

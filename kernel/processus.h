@@ -27,6 +27,8 @@ int proc3();
 int getpid(void);
 int getprio(int pid);
 int chprio(int pid, int newprio);
+void freeProcessus(int pid);
+void zombifyProc(int pid);
 
 
 #endif
