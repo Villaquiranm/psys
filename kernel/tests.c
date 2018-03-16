@@ -23,7 +23,7 @@ int dummy1(void *arg) {
 }
 
 int dummy2(void *arg) {
-  printf(" 5");
+  printf(" 4");
   assert((int) arg == DUMMY_VAL + 1);
   return 4;
 }
@@ -44,7 +44,7 @@ void test1() {
 
   pid1 = start(dummy2, "dummy2", 4000, 100, (void *) (DUMMY_VAL + 1));
   assert(pid1 > 0);
-  printf(" 4");
+  printf(" 5");
 
   r = waitpid(pid1, &rval);
   assert(r == pid1);

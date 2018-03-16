@@ -121,9 +121,15 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 	} else {
 		procs[nextPID] = newProc;
 		newProc->pid = nextPID;
-		queue_add(newProc, &procsPrioQueue, processus, queueLink, prio);
     nextPID++;
 		freePID--;
+
+		if (newProc->prio > active->prio) {
+			schedulePID(newProc->pid);
+		} else {
+			queue_add(newProc, &procsPrioQueue, processus, queueLink, prio);
+		}
+
 		return newProc->pid;
 	}
 }
@@ -156,12 +162,7 @@ void dequeue_all_processes(void){
 	}
 }
 
-/**
- * Function called by the system clock interruption or any event
- * that changes the priority of a process in order to succesfully
- * share the processor time
- */
-void schedule(){
+void preparingContextSwitch(){
 	if (active->state == ACTIF) {
 		// Put the active process in the priority queue so it has the
 		// opportunity of being chosen again
@@ -179,6 +180,15 @@ void schedule(){
 			freeProcessus(currentProc->pid);
 		}
 	}
+}
+
+/**
+ * Function called by the system clock interruption or any event
+ * that changes the priority of a process in order to succesfully
+ * share the processor time
+ */
+void schedule(){
+	preparingContextSwitch();
 
 	// Perhaps oversimplified election of the next process.
 	// But what if its state is not ACTIVABLE?
@@ -187,6 +197,21 @@ void schedule(){
 	nextProc->state = ACTIF;
 	active = nextProc;
 	ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
+}
+
+/**
+ * Function to activate a specific process
+ */
+void schedulePID(int pid){
+	if (procs[pid] != NULL) {	// Not supposed to happen but checking anyway
+		preparingContextSwitch();
+
+		processus *prevProc = active;
+		processus *nextProc = procs[pid];
+		nextProc->state = ACTIF;
+		active = nextProc;
+		ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
+	}
 }
 
 

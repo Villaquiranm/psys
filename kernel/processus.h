@@ -29,6 +29,8 @@ int getprio(int pid);
 int chprio(int pid, int newprio);
 void freeProcessus(int pid);
 void zombifyProc(int pid);
+void schedulePID(int pid);
+void schedule();
 
 
 #endif
