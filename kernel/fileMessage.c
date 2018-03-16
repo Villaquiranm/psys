@@ -202,7 +202,7 @@ int preset(int fid){
 //pcount : renvoie l'état courant d'une file
 int pcount(int fid, int *count){
 
-  int processusAtteint=0;
+  int processusEnAttente=0;
 
   //l'indice de queue doit etre valide
   if(fid < NBQUEUE && queues[fid]!=NULL){
@@ -215,17 +215,17 @@ int pcount(int fid, int *count){
     //on a des processus bloques en attendant pour lire des messages
     if(queues[fid]->numberMessages == 0){
       //compter combien de processus sont bloque en queues[fid]->process_receive
-      //processusAtteint = ....;
+      //processusEnAttente = ....;
 
-      *count = -processusAtteint;
+      *count = -processusEnAttente;
     }
     else{
       //si la queue est pleine
       //on a des processus bloques en attendant pour ecrire des messages
       if(queues[fid]->numberMessages == queues[fid]->capacite){
         //compter combien de processus sont bloques en queues[fid]->processus_send
-        //processusAtteint = ....;
-        *count = queues[fid]->numberMessages + processusAtteint;
+        //processusEnAttente = ....;
+        *count = queues[fid]->numberMessages + processusEnAttente;
       }
     }
     return 0;
