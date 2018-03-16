@@ -6,6 +6,8 @@
 //les variables globales
 QUEUE* queues[NBQUEUE]={[0 ... NBQUEUE-1] = NULL};
 int numberQueues = 0;
+
+extern struct processus* actif; //TODO: à vérifier, éventuellement erreur
 //struct processus* procBloque;
 
 //renvoie la premiere indice vide. Si pleine, renvoie -1
@@ -27,6 +29,8 @@ int pcreate(int count) {
     newQueue = (QUEUE*)mem_alloc(sizeof(QUEUE));
     newQueue->message = (int*)mem_alloc(sizeof(int) * count);
     newQueue->capacite = count;
+    newQueue->write = (int)newQueue->message;
+    newQueue->read = (int)newQueue->message;
     newQueue->numberMessages = 0;
     //initialize processuslink in the queue.
     INIT_LIST_HEAD(&newQueue->process_send.head);
@@ -58,7 +62,6 @@ int pdelete(int fid) {
         plink_it->actuel->etat = ACTIVABLE; //changer l'état de chaque processus}
       }
   }
-
   numberQueues--;
   //on libere les messages et la structure et met NULL dans queues[fid]
   if(queues[fid]->message != NULL) {
@@ -87,8 +90,21 @@ int psend(int fid, int message){
   //si la file est vide
   //et que des processus sont bloqués en attente de message,
   //alors le processus le plus ancien dans la file parmi les plus prioritaires est débloqué et reçoit ce message
-  if(nbMsgs == 0 /*TODO && il y a des procs bloques*/){
-
+  if(nbMsgs == 0){
+    // Send message
+    queues[fid]->write = message;
+    queues[fid]->numberMessages++;
+    if (queues[fid]->write == queues[fid]->message[capacite-1]){
+      queues[fid]->write = (int)queues[fid]->message;// move to first memory position.
+    }
+    else{
+        queues[fid]->write++;// move to next memory position.
+    }
+    //2-Get first processus and give him execution time.
+    //TODO know if there is a process to unblock
+    PLINK * processus_to_unblock = queue_out(&queues[fid]->process_send.head, PLINK, head);
+    processus_to_unblock->actuel->etat = ACTIVABLE;
+    //ctx_sw(&actif->regs ,&processus_to_unblock->actuel->regs)  Giving execution time to unblocked processus
   }
 
   //si la file est pleine,
@@ -97,26 +113,29 @@ int psend(int fid, int message){
   //Il est possible également, qu'après avoir été mis dans l'état bloqué sur file pleine,
   //le processus soit remis dans l'état activable par un autre processus ayant exécuté preset ou pdelete.
   //Dans ce cas, la valeur de retour de psend est strictement négative.
-  else
-  if(nbMsgs == capacite){
-
+  else if(nbMsgs == capacite){// Done.
+    PLINK* processus_bloque = (PLINK*)mem_alloc(sizeof(PLINK));
+    processus_bloque->actuel = actif;
+    actif->etat = BLOQUE_IO;
+    processus_bloque->priorite = 0;
+    queue_add(processus_bloque,&queues[fid]->process_send.head, PLINK, head, priorite);
   }
 
   //Sinon, la file n'est pas pleine et aucun processus n'est bloqué en attente de message.
   //Le message est alors déposé directement dans la file.
-  else{
-    queues[fid]->message[nbMsgs] = message;
+  else{// Done
+    queues[fid]->write = message;
     queues[fid]->numberMessages++;
+    if (queues[fid]->write == queues[fid]->message[capacite-1]){
+      queues[fid]->write = (int)queues[fid]->message;// move to first memory position.
+    }
+    else{
+        queues[fid]->write++;// move to next memory position.
+    }
   }
 
   return 0;
 }
-
-
-//TODO la liste de messages ne peut pas être un vecteur, parce qu'on doit lire
-//l'élement le plus ancien e le rétirer
-//idée: utiliser l'API de link une fois qu'elle est comprise
-//ou créer une liste enchaînée pour les messages
 
 
 //preceive : retire un message d'une file
@@ -135,17 +154,30 @@ int preceive(int fid,int *message){
 
   //si la file est vide, bloque le proc
   if(nbMsgs == 0){
-
+    PLINK* processus_bloque = (PLINK*)mem_alloc(sizeof(PLINK));
+    processus_bloque->actuel = actif;
+    processus_bloque->priorite = 0;
+    actif->etat = BLOQUE_IO;
+    queue_add(processus_bloque,&queues[fid]->process_receive.head, PLINK, head, priorite);
   }
 
   //sinon, il y a un message à lire
   else{
-
-    //lit le message et le supprime de la file
-    *message = 0;//TODO pas 0, getOldestMessageAndDeleteIt;
+    *message = queues[fid]->read ;
+    queues[fid]->numberMessages--;
+    if (queues[fid]->read == queues[fid]->message[capacite-1]){  //Write%capacite;
+      queues[fid]->read = (int)queues[fid]->message;// move to first memory position.
+    }
+    else{
+        queues[fid]->read++;// move to next memory position.
+    }
 
     //si la file était pleine, débloque un processus
     if(nbMsgs == capacite){
+      //TODO know if there is a process to unblock
+      PLINK * processus_to_unblock = queue_out(&queues[fid]->process_receive.head, PLINK, head);
+      processus_to_unblock->actuel->etat = ACTIVABLE;
+      //ctx_sw(&actif->regs ,&processus_to_unblock->actuel->regs)  Giving execution time to unblocked processus
 
     }
 
