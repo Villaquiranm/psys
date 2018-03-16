@@ -191,11 +191,39 @@ int preceive(int fid,int *message){
 int preset(int fid){
   return -1;
 }
-
+*/
 
 //pcount : renvoie l'état courant d'une file
 int pcount(int fid, int *count){
 
-  return -1;
+  int processusAtteint=0;
+
+  //l'indice de queue doit etre valide
+  if(fid < NBQUEUE && queues[fid]!=NULL){
+
+    if(count==NULL){
+      return -1;
+    }
+
+    //si la queue est vide
+    //on a des processus bloques en attendant pour lire des messages
+    if(queues[fid]->numberMessages == 0){
+      //compter combien de processus sont bloque en queues[fid]->process_receive
+      //processusAtteint = ....;
+
+      *count = -processusAtteint;
+    }
+    else{
+      //si la queue est pleine
+      //on a des processus bloques en attendant pour ecrire des messages
+      if(queues[fid]->numberMessages == queues[fid]->capacite){
+        //compter combien de processus sont bloques en queues[fid]->processus_send
+        //processusAtteint = ....;
+        *count = numberMessages + processusAtteint;
+      }
+    }
+    return 0;
+  }
+  else
+    return -1;
 }
-*/
