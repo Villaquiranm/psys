@@ -11,12 +11,12 @@ typedef struct plink{
 } PLINK;
 
 typedef struct queue{
-  int* message, read, write;
+  int *message, *read, *write;
   int capacite;
   int numberMessages;   //combien de messages on a
   PLINK process_send;
   PLINK process_receive;
-  //link process_block; on a pas besoin parce que si un processus est dans les autres structures il est déjà bloqué.
+  //link process_block; on en a pas besoin parce que si un processus est dans les autres structures il est déjà bloqué.
 } QUEUE;
 
 
