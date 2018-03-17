@@ -54,15 +54,14 @@ int pdelete(int fid) {
 
   //fait passer dans l'état activable tous les processus, s'il en existe, qui se trouvaient bloqués sur la file
   //Les processus libérés auront une valeur strictement négative comme retour de psend ou preceive.
-  if (!queue_empty(&queues[fid]->process_send.head)) {
-      queue_for_each(plink_it, &queues[fid]->process_send.head, PLINK, head){
-        plink_it->actuel->etat = ACTIVABLE; //changer l'état de chaque processus}
-      }
-  }else if (!queue_empty(&queues[fid]->process_receive.head)) {
-      queue_for_each(plink_it, &queues[fid]->process_receive.head, PLINK, head){
-        plink_it->actuel->etat = ACTIVABLE; //changer l'état de chaque processus}
-      }
+
+  queue_for_each(plink_it, &queues[fid]->process_send.head, PLINK, head){
+      plink_it->actuel->etat = ACTIVABLE; //changer l'état de chaque processus}
   }
+  queue_for_each(plink_it, &queues[fid]->process_receive.head, PLINK, head){
+      plink_it->actuel->etat = ACTIVABLE; //changer l'état de chaque processus}
+  }
+
   numberQueues--;
   //on libere les messages et la structure et met NULL dans queues[fid]
   if(queues[fid]->message != NULL) {
@@ -117,10 +116,12 @@ int psend(int fid, int message){
     updateWritePointer(fid, capacite);
 
     //2-Get first processus and give him execution time.
-    //TODO know if there is a process to unblock
-    PLINK * processus_to_unblock = queue_out(&queues[fid]->process_send.head, PLINK, head);
-    processus_to_unblock->actuel->etat = ACTIVABLE;
-    //ctx_sw(&actif->regs ,&processus_to_unblock->actuel->regs)  Giving execution time to unblocked processus
+    if (!queue_empty(&queues[fid]->process_receive.head)) {// There is a processus to unblock?
+        PLINK * processus_to_unblock = queue_out(&queues[fid]->process_receive.head, PLINK, head);
+        processus_to_unblock->actuel->etat = ACTIVABLE;
+        //ctx_sw(&actif->regs ,&processus_to_unblock->actuel->regs)  Giving execution time to unblocked processus
+    }
+
   }
 
   //si la file est pleine,
@@ -151,7 +152,6 @@ int psend(int fid, int message){
 
 //preceive : retire un message d'une file
 int preceive(int fid,int *message){
-
   //valider FID
   if(fid < 0 || fid > NBQUEUE-1 || queues[fid] == NULL)
     return -1;
@@ -180,11 +180,11 @@ int preceive(int fid,int *message){
 
     //si la file était pleine, débloque un processus
     if(nbMsgs == capacite){
-      //TODO know if there is a process to unblock
-      PLINK * processus_to_unblock = queue_out(&queues[fid]->process_receive.head, PLINK, head);
-      processus_to_unblock->actuel->etat = ACTIVABLE;
-      //ctx_sw(&actif->regs ,&processus_to_unblock->actuel->regs)  Giving execution time to unblocked processus
-
+      if (!queue_empty(&queues[fid]->process_send.head)) {// There is a processus to unblock?
+          PLINK * processus_to_unblock = queue_out(&queues[fid]->process_send.head, PLINK, head);
+          processus_to_unblock->actuel->etat = ACTIVABLE;
+          //ctx_sw(&actif->regs ,&processus_to_unblock->actuel->regs)  Giving execution time to unblocked processus
+      }
     }
 
   }
@@ -192,17 +192,28 @@ int preceive(int fid,int *message){
   return 0;
 }
 
-/*
+
 //preset : réinitialise une file
 int preset(int fid){
-  return -1;
+    if(fid < 0 || fid > NBQUEUE-1 || queues[fid] == NULL)
+        return -1;
+    PLINK * plink_it;
+    queues[fid]->numberMessages = 0; //Reset numberMessages
+    queue_for_each(plink_it, &queues[fid]->process_send.head, PLINK, head){
+        plink_it->actuel->etat = ACTIVABLE; //changer l'état de chaque processus}
+    }
+    queue_for_each(plink_it, &queues[fid]->process_receive.head, PLINK, head){
+        plink_it->actuel->etat = ACTIVABLE; //changer l'état de chaque processus}
+    }
+    return 0;
 }
-*/
+
 
 //pcount : renvoie l'état courant d'une file
 int pcount(int fid, int *count){
 
   int processusEnAttente=0;
+  PLINK * plink_it;
 
   //l'indice de queue doit etre valide
   if(fid < NBQUEUE && queues[fid]!=NULL){
@@ -214,17 +225,18 @@ int pcount(int fid, int *count){
     //si la queue est vide
     //on a des processus bloques en attendant pour lire des messages
     if(queues[fid]->numberMessages == 0){
-      //compter combien de processus sont bloque en queues[fid]->process_receive
-      //processusEnAttente = ....;
-
+        queue_for_each(plink_it, &queues[fid]->process_receive.head, PLINK, head){
+            processusEnAttente++; //Count all processus bloques sur file vide.
+        }
       *count = -processusEnAttente;
     }
     else{
       //si la queue est pleine
       //on a des processus bloques en attendant pour ecrire des messages
       if(queues[fid]->numberMessages == queues[fid]->capacite){
-        //compter combien de processus sont bloques en queues[fid]->processus_send
-        //processusEnAttente = ....;
+        queue_for_each(plink_it, &queues[fid]->process_send.head, PLINK, head){
+            processusEnAttente++; //Count all processus bloques sur file pleine.
+        }
         *count = queues[fid]->numberMessages + processusEnAttente;
       }
     }
