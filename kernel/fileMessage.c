@@ -120,6 +120,7 @@ int psend(int fid, int message){
         PLINK * processus_to_unblock = queue_out(&queues[fid]->process_receive.head, PLINK, head);
         processus_to_unblock->actuel->etat = ACTIVABLE;
         //ctx_sw(&actif->regs ,&processus_to_unblock->actuel->regs)  Giving execution time to unblocked processus
+        //Just realized that it'is not necessary because l'ordonnanceur will do it.
     }
 
   }
@@ -134,8 +135,13 @@ int psend(int fid, int message){
     PLINK* processus_bloque = (PLINK*)mem_alloc(sizeof(PLINK));
     processus_bloque->actuel = actif;
     actif->etat = BLOQUE_IO;
-    processus_bloque->priorite = 0;
+    processus_bloque->priorite = processus_bloque->actuel->priorite;
     queue_add(processus_bloque,&queues[fid]->process_send.head, PLINK, head, priorite);
+    /*ordonnanceur(); We need to call ordonnanceur to block the processus
+    and then we need to check again if queues[fid]->numberMessages == capacite if so preceive has failed.*/
+    if (queues[fid]->numberMessages == capacite) {//
+        return -1;
+    }
   }
 
   //Sinon, la file n'est pas pleine et aucun processus n'est bloqué en attente de message.
@@ -170,6 +176,11 @@ int preceive(int fid,int *message){
     processus_bloque->priorite = 0;
     actif->etat = BLOQUE_IO;
     queue_add(processus_bloque,&queues[fid]->process_receive.head, PLINK, head, priorite);
+    /*ordonnanceur(); We need to call ordonnanceur to block the processus
+    and then we need to check again if nbMsgs == 0 if so preceive has failed.*/
+    if (nbMsgs == 0) {
+        return -1;
+    }
   }
 
   //sinon, il y a un message à lire
@@ -184,6 +195,7 @@ int preceive(int fid,int *message){
           PLINK * processus_to_unblock = queue_out(&queues[fid]->process_send.head, PLINK, head);
           processus_to_unblock->actuel->etat = ACTIVABLE;
           //ctx_sw(&actif->regs ,&processus_to_unblock->actuel->regs)  Giving execution time to unblocked processus
+          //Just realized that it'is not necessary because l'ordonnanceur will do it.
       }
     }
 
