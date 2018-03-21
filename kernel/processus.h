@@ -11,6 +11,37 @@
 extern void ctx_sw(uint32_t* pointeur1, uint32_t* pointeur2);
 extern void ret_exit(void);
 
+typedef struct regs{
+	uint32_t ebx, esp, ebp, esi, edi;
+} regs;
+
+enum etats{
+	ACTIF,
+	ACTIVABLE,
+	BLOQUE_SEMAPHORE,
+	BLOQUE_IO,
+	BLOQUE_FILS,
+	ENDORMI,
+	ZOMBIE
+};
+
+typedef struct processus{
+	int pid;
+	char nom[10];
+	enum etats state; //1 elu
+	int prio;
+	int retval;
+	int expectedChild;
+	regs regs;
+	uint32_t *pile;
+	struct processus *parent, *children;
+	struct processus *nextSibling;
+	struct processus *dyingProcsLink;
+	link queueLink;
+} processus;
+
+processus *active;
+
 int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, int prio, void *arg);
 int waitpid(int pid, int *retvalp);
 void exitFunction(int retval);
