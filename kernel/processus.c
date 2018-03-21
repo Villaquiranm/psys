@@ -1,7 +1,7 @@
-#include <stdint.h>
+#include <processus.h>
 #include <stdio.h>
 #include <malloc.c>
-#include <processus.h>
+#include <cpu.h>
 #include <stdbool.h>
 
 // These variables definitions were originally in the header file
@@ -12,49 +12,10 @@
 int nextPID = 1;
 int freePID = NBPROC;
 
-enum reg_type{
-	EBX = 0,
-	ESP = 1,
-	EBP = 2,
-	ESI = 3,
-	EDI = 4
-};
-
-typedef struct regs{
-	uint32_t ebx, esp, ebp, esi, edi;
-} regs;
-
-enum etats{
-	ACTIF,
-	ACTIVABLE,
-	BLOQUE_SEMAPHORE,
-	BLOQUE_IO,
-	BLOQUE_FILS,
-	ENDORMI,
-	ZOMBIE
-};
-
-typedef struct processus{
-	int pid;
-	char nom[10];
-	enum etats state; //1 elu
-	int prio;
-	int retval;
-	int expectedChild;
-	regs regs;
-	uint32_t *pile;
-	struct processus *parent, *children;
-	struct processus *nextSibling;
-	struct processus *dyingProcsLink;
-	link queueLink;
-} processus;
-
-processus *active;
 processus *procs[NBPROC + 1];
 link procsPrioQueue = LIST_HEAD_INIT(procsPrioQueue);
 //link dyingProcessesQueue = LIST_HEAD_INIT(dyingProcessesQueue);
 processus *dyingProcessesQueue = NULL;
-//--------------------------------------------------------
 
 /*
  * Primitive to properly finish a process
@@ -280,6 +241,7 @@ void proc2(void){
 	unsigned long i;
 	while(1){
 		printf("B");
+		sti();
 		for(i = 0; i < 5000000; i++){
 		}
 	}
