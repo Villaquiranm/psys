@@ -282,6 +282,8 @@ int waitpid(int pid, int *retvalp) {
 	 */
 	bool end = false;
 	processus *nextChild = active->children;
+	active->expectedChild = pid;
+
 	/* Loop to wait a child proccess to be ended */
 	while(!end){
 		/* If pid < 0 we must wait until any child ends */
@@ -309,6 +311,7 @@ int waitpid(int pid, int *retvalp) {
 		}
 
 		if(!end){
+			active->state = BLOQUE_FILS;
 			schedule();
 		}
 
