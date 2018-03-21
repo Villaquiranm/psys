@@ -101,6 +101,14 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 	newProc->pile = pile;
 	newProc->dyingProcsLink = NULL;
 
+	/* Considering that IDLE is parent of everyone */
+		newProc->parent = active;
+		newProc->children = NULL;
+		if (newProc->parent->children != NULL) {
+			newProc->nextSibling = newProc->parent->children;
+		}
+		newProc->parent->children = newProc;
+	/*
 	if (active->pid == 0) {	// IDLE process is active
 		newProc->parent = NULL;
 		newProc->children = NULL;
@@ -113,6 +121,7 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 		}
 		newProc->parent->children = newProc;
 	}
+	*/
 
 	// Add the process to the priority queue if there is enough
 	// available space
@@ -135,17 +144,22 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 }
 
 int kill(int pid) {
+
 	if (procs[pid] == NULL || pid == active->pid)
+	/* Invalid pid */
 		return -1;
+
 
 	processus *killedProc = procs[pid];
 
 	if (killedProc->state == ACTIVABLE) {
 		queue_del(killedProc, queueLink);
+		killedProc->state = ZOMBIE;
 	}
+	killedProc->retval = 0;
 
 	/* We can't kill a process(ess) if his/her parent is in a wait method */
-	if (killedProc->parent != NULL) {
+	if (killedProc->parent == NULL) {
 		freeProcessus(killedProc->pid);
 	}
 	return 0;
