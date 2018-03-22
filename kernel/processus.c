@@ -26,6 +26,12 @@ void exitFunction(int retval){
 	zombifyProc(active->pid);
 	active->retval = retval;
 
+	if (active->parent != NULL && active->parent->state == BLOQUE_FILS &&
+		  (active->parent->expectedChild == active->pid || active->parent->expectedChild < 0)) {
+		active->parent->state = ACTIVABLE;
+		queue_add(active->parent, &procsPrioQueue, processus, queueLink, prio);
+	}
+
 	// Perhaps oversimplified election of the next process
 	processus *prevProc = active;
 	processus *nextProc = queue_out(&procsPrioQueue, processus, queueLink);
@@ -61,15 +67,16 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 	newProc->regs.esp = (uint32_t)current;
 	newProc->pile = pile;
 	newProc->dyingProcsLink = NULL;
+	newProc->expectedChild = 0;
 
-	/* Considering that IDLE is parent of everyone */
+	/* Considering that IDLE is parent of everyone
 		newProc->parent = active;
 		newProc->children = NULL;
 		if (newProc->parent->children != NULL) {
 			newProc->nextSibling = newProc->parent->children;
 		}
 		newProc->parent->children = newProc;
-	/*
+	*/
 	if (active->pid == 0) {	// IDLE process is active
 		newProc->parent = NULL;
 		newProc->children = NULL;
@@ -82,7 +89,7 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 		}
 		newProc->parent->children = newProc;
 	}
-	*/
+
 
 	// Add the process to the priority queue if there is enough
 	// available space
@@ -118,6 +125,12 @@ int kill(int pid) {
 		killedProc->state = ZOMBIE;
 	}
 	killedProc->retval = 0;
+
+	if (killedProc->parent != NULL && killedProc->parent->state == BLOQUE_FILS &&
+		  (killedProc->parent->expectedChild == killedProc->pid || killedProc->parent->expectedChild < 0)) {
+		killedProc->parent->state = ACTIVABLE;
+		queue_add(killedProc->parent, &procsPrioQueue, processus, queueLink, prio);
+	}
 
 	/* We can't kill a process(ess) if his/her parent is in a wait method */
 	if (killedProc->parent == NULL) {
@@ -273,6 +286,7 @@ int chprio(int pid, int newprio){
 		queue_del(procs[pid], queueLink);
 		queue_add(procs[pid], &procsPrioQueue, processus, queueLink, prio);
 	}
+	schedule();
 	return prevPrio;
 }
 
@@ -292,7 +306,11 @@ int waitpid(int pid, int *retvalp) {
 			while(nextChild != NULL){
 				if(nextChild->state == ZOMBIE){
 					pid = nextChild->pid;
-					*retvalp = procs[pid]->retval;
+
+					if (retvalp != 0) {
+						*retvalp = procs[pid]->retval;
+					}
+
 					end = true;
 				} else {
 					nextChild = nextChild->nextSibling;
@@ -302,10 +320,12 @@ int waitpid(int pid, int *retvalp) {
 			/* Case where we search for a particular pid;
 			 * if the pid is not valid, we return a negative number
 			 */
-			if(procs[pid] == NULL){
+			if(procs[pid] == NULL || procs[pid]->parent->pid != active->pid){
 				return -1;
 			} else if(procs[pid]->state == ZOMBIE){
-				*retvalp = procs[pid]->retval;
+				if (retvalp != 0) {
+					*retvalp = procs[pid]->retval;
+				}
 				end = true;
 			}
 		}

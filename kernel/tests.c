@@ -4,25 +4,20 @@
 #include <stddef.h>
 
 #define TESTS_NUMBER 3
+
 int (*functions[TESTS_NUMBER])(void*) = {
         test1,
         test2,
         test3
 };
+
 const char *function_names[TESTS_NUMBER] = {
         "test1",
         "test2",
         "test3",
 };
 
-/*void execute_tests() {
-  for (int i = 0; i < TESTS_NUMBER; i++) {
-    printf("Executing test %d\n", i+1);
-    (functions[i])();
-  }
-}*/
-
-void execute_tests() {
+int test_suite(){
   int i;
   int pid;
   int ret;
@@ -33,6 +28,13 @@ void execute_tests() {
     waitpid(pid, &ret);
     assert(ret == 0);
   }
+
+  return 0;
+}
+
+void execute_tests() {
+  start(test_suite, "test_suite", 4000, 10, NULL);
+  printf("Tests finished\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -46,7 +48,7 @@ int dummy1(void *arg) {
 }
 
 int dummy2(void *arg) {
-  printf(" 4");
+  printf(" 5");
   assert((int) arg == DUMMY_VAL + 1);
   return 4;
 }
@@ -67,7 +69,7 @@ int test1() {
 
   pid1 = start(dummy2, "dummy2", 4000, 100, (void *) (DUMMY_VAL + 1));
   assert(pid1 > 0);
-  printf(" 5");
+  printf(" 4");
 
   r = waitpid(pid1, &rval);
   assert(r == pid1);
