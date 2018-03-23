@@ -2,11 +2,14 @@
 #define __PROCESSUS_H__
 
 #include <stdint.h>
+#include <queue.h>
 
 #define SIZEPILE 512
 #define NBPROC 30
+#define MAXPRIO 256
 
 extern void ctx_sw(uint32_t* pointeur1, uint32_t* pointeur2);
+extern void ret_exit(void);
 
 int numberprocessus;
 
@@ -49,9 +52,17 @@ void ordonnance(void);
 int32_t mon_pid(void);
 char *mon_nom(void);
 void initProc(void);
-void idle(void);
-void proc1(void);
+int idle();
+int proc1();
 void proc2(void);
+int proc3();
+int getpid(void);
+int getprio(int pid);
+int chprio(int pid, int newprio);
+void freeProcessus(int pid);
+void zombifyProc(int pid);
+void schedulePID(int pid);
+void schedule();
 
 
 #endif

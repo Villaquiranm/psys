@@ -3,6 +3,7 @@
 #include "stdio.h"
 #include "console.h"
 #include <processus.h>
+#include "tests.h"
 #include "horloge.h"
 
 int fact(int n)
@@ -29,6 +30,9 @@ void kernel_start(void)
 
 	printf("teste\n");
 	initProc();
+
+	execute_tests();
+
 	idle();
 
 	return;
