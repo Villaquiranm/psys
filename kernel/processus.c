@@ -14,8 +14,7 @@ int freePID = NBPROC;
 
 processus *procs[NBPROC + 1];
 link procsPrioQueue = LIST_HEAD_INIT(procsPrioQueue);
-//link dyingProcessesQueue = LIST_HEAD_INIT(dyingProcessesQueue);
-processus *dyingProcessesQueue = NULL;
+processus *dyingProcessesQueue;
 
 /*
  * Primitive to properly finish a process
@@ -69,14 +68,6 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 	newProc->dyingProcsLink = NULL;
 	newProc->expectedChild = 0;
 
-	/* Considering that IDLE is parent of everyone
-		newProc->parent = active;
-		newProc->children = NULL;
-		if (newProc->parent->children != NULL) {
-			newProc->nextSibling = newProc->parent->children;
-		}
-		newProc->parent->children = newProc;
-	*/
 	if (active->pid == 0) {	// IDLE process is active
 		newProc->parent = NULL;
 		newProc->children = NULL;
@@ -132,10 +123,8 @@ int kill(int pid) {
 		queue_add(killedProc->parent, &procsPrioQueue, processus, queueLink, prio);
 	}
 
-	/* We can't kill a process(ess) if his/her parent is in a wait method */
-	if (killedProc->parent == NULL) {
-		freeProcessus(killedProc->pid);
-	}
+	zombifyProc(killedProc->pid);
+
 	return 0;
 }
 
@@ -159,14 +148,19 @@ void preparingContextSwitch(){
 	}
 
 	// Properly killing all the processes in the dying queue
-	processus *currentProc;
-	while((currentProc = dyingProcessesQueue) != NULL){
-		/* At first we remove the process from the queue */
-		dyingProcessesQueue = currentProc->dyingProcsLink;
+	processus *currentProc, *prevProc;
+	/* prevProc is the sentinel */
+	prevProc = dyingProcessesQueue;
+	currentProc = prevProc->dyingProcsLink;
+	while(currentProc != NULL){;
 		/* We can't kill a process(ess) if his/her parent is in a wait method */
 		if (currentProc->parent == NULL) {
+			prevProc->dyingProcsLink = currentProc->dyingProcsLink;
 			freeProcessus(currentProc->pid);
+		}else{
+			prevProc = currentProc;
 		}
+		currentProc = prevProc->dyingProcsLink;
 	}
 }
 
@@ -215,6 +209,10 @@ void initProc(void){
 	idle->prio = 1;
 	sprintf(idle->nom, "idle");
 	active = idle;
+
+	processus *sentinel = (processus*)malloc(sizeof(processus));
+	sentinel->dyingProcsLink = NULL;
+	dyingProcessesQueue = sentinel;
 
 	//start(proc1, "proc1", 512, 5, NULL);
 	//start(proc3, "proc3", 512, 10, NULL);
@@ -344,12 +342,8 @@ int waitpid(int pid, int *retvalp) {
 void zombifyProc(int pid){
 	if(procs[pid]->state != ZOMBIE){
 		procs[pid]->state = ZOMBIE;
-		if(dyingProcessesQueue == NULL){
-			procs[pid]->dyingProcsLink = NULL;
-		}else{
-			procs[pid]->dyingProcsLink = dyingProcessesQueue;
-		}
-		dyingProcessesQueue = procs[pid];
+		procs[pid]->dyingProcsLink = dyingProcessesQueue->dyingProcsLink;
+		dyingProcessesQueue->dyingProcsLink = procs[pid];
 	}
 }
 
