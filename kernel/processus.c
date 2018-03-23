@@ -1,7 +1,6 @@
-#include <stdint.h>
+#include <processus.h>
 #include <stdio.h>
 #include <malloc.c>
-#include <processus.h>
 #include <cpu.h>
 #include <stdbool.h>
 
@@ -13,41 +12,9 @@
 int nextPID = 1;
 int freePID = NBPROC;
 
-typedef struct regs{
-	uint32_t ebx, esp, ebp, esi, edi;
-} regs;
-
-enum etats{
-	ACTIF,
-	ACTIVABLE,
-	BLOQUE_SEMAPHORE,
-	BLOQUE_IO,
-	BLOQUE_FILS,
-	ENDORMI,
-	ZOMBIE
-};
-
-typedef struct processus{
-	int pid;
-	char nom[10];
-	enum etats state; //1 elu
-	int prio;
-	int retval;
-	int expectedChild;
-	regs regs;
-	uint32_t *pile;
-	struct processus *parent, *children;
-	struct processus *nextSibling;
-	struct processus *dyingProcsLink;
-	link queueLink;
-} processus;
-
-processus *active;
 processus *procs[NBPROC + 1];
 link procsPrioQueue = LIST_HEAD_INIT(procsPrioQueue);
-//link dyingProcessesQueue = LIST_HEAD_INIT(dyingProcessesQueue);
-processus *dyingProcessesQueue = NULL;
-//--------------------------------------------------------
+processus *dyingProcessesQueue;
 
 /*
  * Primitive to properly finish a process
@@ -57,6 +24,12 @@ void exitFunction(int retval){
 	// Add the currently active process to the dying queue
 	zombifyProc(active->pid);
 	active->retval = retval;
+
+	if (active->parent != NULL && active->parent->state == BLOQUE_FILS &&
+		  (active->parent->expectedChild == active->pid || active->parent->expectedChild < 0)) {
+		active->parent->state = ACTIVABLE;
+		queue_add(active->parent, &procsPrioQueue, processus, queueLink, prio);
+	}
 
 	// Perhaps oversimplified election of the next process
 	processus *prevProc = active;
@@ -93,15 +66,8 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 	newProc->regs.esp = (uint32_t)current;
 	newProc->pile = pile;
 	newProc->dyingProcsLink = NULL;
+	newProc->expectedChild = 0;
 
-	/* Considering that IDLE is parent of everyone */
-		newProc->parent = active;
-		newProc->children = NULL;
-		if (newProc->parent->children != NULL) {
-			newProc->nextSibling = newProc->parent->children;
-		}
-		newProc->parent->children = newProc;
-	/*
 	if (active->pid == 0) {	// IDLE process is active
 		newProc->parent = NULL;
 		newProc->children = NULL;
@@ -114,7 +80,7 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 		}
 		newProc->parent->children = newProc;
 	}
-	*/
+
 
 	// Add the process to the priority queue if there is enough
 	// available space
@@ -151,10 +117,14 @@ int kill(int pid) {
 	}
 	killedProc->retval = 0;
 
-	/* We can't kill a process(ess) if his/her parent is in a wait method */
-	if (killedProc->parent == NULL) {
-		freeProcessus(killedProc->pid);
+	if (killedProc->parent != NULL && killedProc->parent->state == BLOQUE_FILS &&
+		  (killedProc->parent->expectedChild == killedProc->pid || killedProc->parent->expectedChild < 0)) {
+		killedProc->parent->state = ACTIVABLE;
+		queue_add(killedProc->parent, &procsPrioQueue, processus, queueLink, prio);
 	}
+
+	zombifyProc(killedProc->pid);
+
 	return 0;
 }
 
@@ -178,14 +148,19 @@ void preparingContextSwitch(){
 	}
 
 	// Properly killing all the processes in the dying queue
-	processus *currentProc;
-	while((currentProc = dyingProcessesQueue) != NULL){
-		/* At first we remove the process from the queue */
-		dyingProcessesQueue = currentProc->dyingProcsLink;
+	processus *currentProc, *prevProc;
+	/* prevProc is the sentinel */
+	prevProc = dyingProcessesQueue;
+	currentProc = prevProc->dyingProcsLink;
+	while(currentProc != NULL){;
 		/* We can't kill a process(ess) if his/her parent is in a wait method */
 		if (currentProc->parent == NULL) {
+			prevProc->dyingProcsLink = currentProc->dyingProcsLink;
 			freeProcessus(currentProc->pid);
+		}else{
+			prevProc = currentProc;
 		}
+		currentProc = prevProc->dyingProcsLink;
 	}
 }
 
@@ -234,6 +209,10 @@ void initProc(void){
 	idle->prio = 1;
 	sprintf(idle->nom, "idle");
 	active = idle;
+
+	processus *sentinel = (processus*)malloc(sizeof(processus));
+	sentinel->dyingProcsLink = NULL;
+	dyingProcessesQueue = sentinel;
 
 	//start(proc1, "proc1", 512, 5, NULL);
 	//start(proc3, "proc3", 512, 10, NULL);
@@ -305,6 +284,7 @@ int chprio(int pid, int newprio){
 		queue_del(procs[pid], queueLink);
 		queue_add(procs[pid], &procsPrioQueue, processus, queueLink, prio);
 	}
+	schedule();
 	return prevPrio;
 }
 
@@ -314,6 +294,8 @@ int waitpid(int pid, int *retvalp) {
 	 */
 	bool end = false;
 	processus *nextChild = active->children;
+	active->expectedChild = pid;
+
 	/* Loop to wait a child proccess to be ended */
 	while(!end){
 		/* If pid < 0 we must wait until any child ends */
@@ -322,7 +304,11 @@ int waitpid(int pid, int *retvalp) {
 			while(nextChild != NULL){
 				if(nextChild->state == ZOMBIE){
 					pid = nextChild->pid;
-					*retvalp = procs[pid]->retval;
+
+					if (retvalp != 0) {
+						*retvalp = procs[pid]->retval;
+					}
+
 					end = true;
 				} else {
 					nextChild = nextChild->nextSibling;
@@ -332,15 +318,18 @@ int waitpid(int pid, int *retvalp) {
 			/* Case where we search for a particular pid;
 			 * if the pid is not valid, we return a negative number
 			 */
-			if(procs[pid] == NULL){
+			if(procs[pid] == NULL || procs[pid]->parent->pid != active->pid){
 				return -1;
 			} else if(procs[pid]->state == ZOMBIE){
-				*retvalp = procs[pid]->retval;
+				if (retvalp != 0) {
+					*retvalp = procs[pid]->retval;
+				}
 				end = true;
 			}
 		}
 
 		if(!end){
+			active->state = BLOQUE_FILS;
 			schedule();
 		}
 
@@ -353,12 +342,8 @@ int waitpid(int pid, int *retvalp) {
 void zombifyProc(int pid){
 	if(procs[pid]->state != ZOMBIE){
 		procs[pid]->state = ZOMBIE;
-		if(dyingProcessesQueue == NULL){
-			procs[pid]->dyingProcsLink = NULL;
-		}else{
-			procs[pid]->dyingProcsLink = dyingProcessesQueue;
-		}
-		dyingProcessesQueue = procs[pid];
+		procs[pid]->dyingProcsLink = dyingProcessesQueue->dyingProcsLink;
+		dyingProcessesQueue->dyingProcsLink = procs[pid];
 	}
 }
 

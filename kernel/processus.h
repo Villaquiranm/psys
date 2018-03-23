@@ -11,15 +11,9 @@
 extern void ctx_sw(uint32_t* pointeur1, uint32_t* pointeur2);
 extern void ret_exit(void);
 
-int numberprocessus;
-
-enum reg_type{
-	EBX,
-	ESP,
-	EBP,
-	ESI,
-	EDI
-};
+typedef struct regs{
+	uint32_t ebx, esp, ebp, esi, edi;
+} regs;
 
 enum etats{
 	ACTIF,
@@ -31,22 +25,27 @@ enum etats{
 	ZOMBIE
 };
 
-struct processus{
+typedef struct processus{
 	int pid;
 	char nom[10];
-	int etat;
-	uint32_t regs[5];
-	uint32_t pile[SIZEPILE];
-	void(*func)(void);
-	unsigned long reveille;
-	int priorite;
-};
+	enum etats state; //1 elu
+	int prio;
+	int retval;
+	int expectedChild;
+	regs regs;
+	uint32_t *pile;
+	struct processus *parent, *children;
+	struct processus *nextSibling;
+	struct processus *dyingProcsLink;
+	link queueLink;
+} processus;
 
-struct processus *actif;
-struct processus procs[NBPROC];
-struct processus *lastProcessus;
+processus *active;
 
-int32_t cree_processus(void (*code)(void), char *nom);
+int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, int prio, void *arg);
+int waitpid(int pid, int *retvalp);
+void exitFunction(int retval);
+int kill(int pid);
 void context_switch(void);
 void ordonnance(void);
 int32_t mon_pid(void);

@@ -27,18 +27,18 @@ unsigned long current_clock(){
     return numberInterruptions;
 }
 
-void wait_clock(unsigned long clock){
+/*void wait_clock(unsigned long clock){
 
   actif->etat = ENDORMI;
   actif->reveille = current_clock() + clock;
   ordonnance();
-}
+}*/
 
 void tic_PIT(){
 
 	outb(0x20, 0x20);
-    numberInterruptions++;
-	ordonnance();
+  numberInterruptions++;
+	schedule();
 }
 
 void init_traitant_IT(uint32_t num_IT, void (*traitant)(void)){

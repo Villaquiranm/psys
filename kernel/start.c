@@ -3,8 +3,8 @@
 #include "stdio.h"
 #include "console.h"
 #include <processus.h>
-#include "tests.h"
 #include "horloge.h"
+#include "tests.h"
 
 int fact(int n)
 {
