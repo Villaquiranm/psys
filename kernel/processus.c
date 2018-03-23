@@ -148,9 +148,11 @@ void preparingContextSwitch(){
     PLINK* plink_it;
     unsigned long current_time = current_clock();
     queue_for_each(plink_it, &sleeping_queue.head, PLINK, head){
-        if(plink_it->actuel->sleep_time >= current_time){
-            plink_it->actuel->state = ACTIVABLE;
-            queue_del(plink_it, head); // Delete element from sleeping_queue
+        if(plink_it->actuel->sleep_time <= current_time){
+                plink_it->actuel->state = ACTIVABLE;
+                queue_add(plink_it->actuel, &procsPrioQueue, processus, queueLink, prio);
+                queue_del(plink_it, head); // Delete element from sleeping_queue
+
         }
     }
 }
@@ -214,12 +216,10 @@ char *mon_nom(void){
 }
 
 int idle(){
-	unsigned long i;
 	while(1){
-		printf("IDLE\n");
-		for(i = 0; i < 5000000; i++){
-			schedule();
-		}
+		sti();
+        hlt();
+        cli();
 	}
 	return 0;
 }
