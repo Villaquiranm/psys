@@ -3,6 +3,8 @@
 #include <malloc.c>
 #include <cpu.h>
 #include <stdbool.h>
+#include "fileMessage.h"
+#include "horloge.h"
 
 // These variables definitions were originally in the header file
 // but as the start.c file also includes that header, the compiler
@@ -11,6 +13,7 @@
 // are to be used in another file
 int nextPID = 1;
 int freePID = NBPROC;
+extern PLINK sleeping_queue;
 
 processus *procs[NBPROC + 1];
 link procsPrioQueue = LIST_HEAD_INIT(procsPrioQueue);
@@ -141,6 +144,15 @@ void preparingContextSwitch(){
 			freeProcessus(currentProc->pid);
 		}
 	}
+    //Wake up sleeping processus
+    PLINK* plink_it;
+    unsigned long current_time = current_clock();
+    queue_for_each(plink_it, &sleeping_queue.head, PLINK, head){
+        if(plink_it->actuel->sleep_time >= current_time){
+            plink_it->actuel->state = ACTIVABLE;
+            queue_del(plink_it, head); // Delete element from sleeping_queue
+        }
+    }
 }
 
 /**

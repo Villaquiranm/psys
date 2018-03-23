@@ -38,6 +38,7 @@ typedef struct processus{
 	struct processus *nextSibling;
 	struct processus *dyingProcsLink;
 	link queueLink;
+    unsigned long sleep_time;
 } processus;
 
 processus *active;

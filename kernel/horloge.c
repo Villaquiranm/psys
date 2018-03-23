@@ -4,12 +4,18 @@
 #include "processus.h"
 #include "stdint.h"
 #include "segment.h"
+#include "fileMessage.h"
 #include "cpu.h"
+#include "queue.h"
+#include "mem.h"
 
 #define TABLE_VECTEURS 0x1000
 
 int ms, second, minute, heure;
-int totalSeconds;
+//int totalSeconds;
+//PLINK sleeping_queue;
+extern struct processus* active; //TODO: à vérifier, éventuellement erreur
+
 
 void traitant_IT_32();
 
@@ -26,18 +32,23 @@ unsigned long current_clock(){
 
     return numberInterruptions;
 }
-
-/*void wait_clock(unsigned long clock){
-
-  actif->etat = ENDORMI;
-  actif->reveille = current_clock() + clock;
-  ordonnance();
-}*/
+void initialize_sleeping_queue(){
+    INIT_LIST_HEAD(&sleeping_queue.head);
+}
+void wait_clock(unsigned long clock){
+    // we suppose that sleeping_queue is initialized
+    active->state = ENDORMI;
+    active->sleep_time = current_clock() + clock;
+    PLINK* processus_sleeping = (PLINK*)mem_alloc(sizeof(PLINK));
+    processus_sleeping->actuel = active;
+    queue_add(processus_sleeping,&sleeping_queue.head, PLINK, head, prio);
+    schedule();
+}
 
 void tic_PIT(){
 
 	outb(0x20, 0x20);
-  numberInterruptions++;
+    numberInterruptions++;
 	schedule();
 }
 
@@ -97,6 +108,9 @@ void masque_IRQ(uint32_t num_IRQ, bool masque){
 	outb(tableBool, 0x21);
 }
 
-int nbr_secondes(){
-	return totalSeconds;
+//int nbr_secondes(){
+//	return totalSeconds;
+//}
+unsigned long getNumberInterruptions(){
+    return numberInterruptions;
 }
