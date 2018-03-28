@@ -15,6 +15,7 @@ int ms, second, minute, heure;
 //int totalSeconds;
 //PLINK sleeping_queue;
 extern struct processus* active; //TODO: à vérifier, éventuellement erreur
+extern struct processus* sleepingProcs;
 
 
 void traitant_IT_32();
@@ -39,9 +40,13 @@ void wait_clock(unsigned long clock){
     // we suppose that sleeping_queue is initialized
     active->state = ENDORMI;
     active->sleep_time = current_clock() + clock;
-    PLINK* processus_sleeping = (PLINK*)mem_alloc(sizeof(PLINK));
+
+    //ajouter le processus dans la liste de procs endormis
+    /*PLINK* processus_sleeping = (PLINK*)mem_alloc(sizeof(PLINK));
     processus_sleeping->actuel = active;
     queue_add(processus_sleeping,&sleeping_queue.head, PLINK, head, prio);
+    */
+
     schedule();
 }
 
