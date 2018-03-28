@@ -13,7 +13,7 @@ typedef struct {
 } alloc_node_t;
 
 typedef struct ll_head {
-    void *node;
+    alloc_node_t *node;
     struct ll_head *prev;
     struct ll_head *next;
 } ll_m;

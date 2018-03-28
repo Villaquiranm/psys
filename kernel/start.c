@@ -35,6 +35,13 @@ void kernel_start(void)
 	int *b2 = fl_malloc(10);
 	*b2 = 10;
 
+	int *b3 = fl_malloc(10);
+	*b3 = 10;
+
+	printf("B3 = %d", *b3);
+
+	fl_free(b1);
+
 	i = 10;
 	printf("teste\n");
 	printf("Factoriel de %d:",i);
