@@ -39,7 +39,7 @@ typedef struct processus{
 	struct processus *dyingProcsLink;
 	struct processus *nextSleepingProcs;
 	link queueLink;
-    unsigned long sleep_time;
+  unsigned long sleep_time;
 } processus;
 
 processus *active;

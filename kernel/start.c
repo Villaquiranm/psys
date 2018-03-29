@@ -30,7 +30,6 @@ void kernel_start(void)
 
 	printf("teste\n");
 	initProc();
-    initialize_sleeping_queue();
     masque_IRQ(32,false);
     initFile();
 	idle();

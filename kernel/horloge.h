@@ -13,8 +13,6 @@ PLINK sleeping_queue;
 void clock_settings(unsigned long *quartz, unsigned long *ticks);
 unsigned long current_clock();
 void wait_clock(unsigned long clock);
-
-void initialize_sleeping_queue();
 void printDroite(char* contenu);
 void tic_PIT();
 void init_traitant_IT(uint32_t num_IT, void (*traitant)(void));

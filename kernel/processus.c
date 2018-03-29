@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "fileMessage.h"
 #include "horloge.h"
+#include "mem.h"
 
 // These variables definitions were originally in the header file
 // but as the start.c file also includes that header, the compiler
@@ -18,7 +19,7 @@ processus *procs[NBPROC + 1];
 link procsPrioQueue = LIST_HEAD_INIT(procsPrioQueue);
 //link dyingProcessesQueue = LIST_HEAD_INIT(dyingProcessesQueue);
 processus *dyingProcessesQueue = NULL;
-processus *sleepingProcs = NULL;
+processus *sleepingProcs;
 
 /*
  * Primitive to properly finish a process
@@ -64,7 +65,7 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 	newProc->regs.esp = (uint32_t)current;
 	newProc->pile = pile;
 	newProc->dyingProcsLink = NULL;
-	newProc->sleepingProcs = NULL;
+	newProc->nextSleepingProcs = NULL;
 
 	if (active->pid == 0) {	// IDLE process is active
 		newProc->parent = NULL;
@@ -146,19 +147,25 @@ void preparingContextSwitch(){
 		}
 	}
     //Wake up sleeping processus
-    PLINK* plink_it;
     unsigned long current_time = current_clock();
 
 		//Reveille tous les processus qu'il faut et les ajoute dans la file de priorite
-
-    /*queue_for_each(plink_it, &sleeping_queue.head, PLINK, head){
-        if(plink_it->actuel->sleep_time <= current_time){
-                plink_it->actuel->state = ACTIVABLE;
-                queue_add(plink_it->actuel, &procsPrioQueue, processus, queueLink, prio);
-                queue_del(plink_it, head); // Delete element from sleeping_queue
-
-        }
-    }*/
+		struct processus* ptr = sleepingProcs;
+		struct processus* previous_ptr = sleepingProcs;
+		while (ptr != NULL) {
+			if (ptr->sleep_time < current_time) {
+				ptr->state = ACTIVABLE;
+				queue_add(ptr, &procsPrioQueue, processus, queueLink, prio);
+				if (ptr == sleepingProcs) {//If the first process We need to move the head.
+					sleepingProcs = ptr->nextSleepingProcs;
+				}
+				else{
+					previous_ptr->nextSleepingProcs = ptr->nextSleepingProcs;
+				}
+			}
+			previous_ptr = ptr;
+			ptr = ptr->nextSleepingProcs;
+		}
 }
 
 /**

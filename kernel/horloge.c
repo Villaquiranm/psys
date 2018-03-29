@@ -33,20 +33,20 @@ unsigned long current_clock(){
 
     return numberInterruptions;
 }
-void initialize_sleeping_queue(){
-    INIT_LIST_HEAD(&sleeping_queue.head);
-}
 void wait_clock(unsigned long clock){
     // we suppose that sleeping_queue is initialized
     active->state = ENDORMI;
     active->sleep_time = current_clock() + clock;
-
-    //ajouter le processus dans la liste de procs endormis
-    /*PLINK* processus_sleeping = (PLINK*)mem_alloc(sizeof(PLINK));
-    processus_sleeping->actuel = active;
-    queue_add(processus_sleeping,&sleeping_queue.head, PLINK, head, prio);
-    */
-
+    if (sleepingProcs == NULL) {
+      sleepingProcs = active;
+    }else{
+      struct processus* ptr = sleepingProcs;
+      while (ptr->nextSleepingProcs != NULL) {
+        ptr = ptr->nextSleepingProcs;
+      }
+      ptr->nextSleepingProcs = active;
+      active->nextSleepingProcs = NULL;
+    }
     schedule();
 }
 
