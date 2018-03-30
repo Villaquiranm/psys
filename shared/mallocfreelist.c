@@ -10,18 +10,14 @@ extern void * malloc(size_t n);
 
 void malloc_addblock(void *addr, size_t size) {
     alloc_node_t *blk;
-    ll_m *newNode = (ll_m*)malloc(sizeof(ll_m));
+
 
     blk = (void *)ALIGN_UP((ptrdiff_t)addr, sizeof(void*));
 
     blk->size = (ptrdiff_t) addr + size - (ptrdiff_t) blk; //ALLOC_HEADER_SZ ???
 
     //Add to the end of the freelist
-    newNode->next = &freelist;
-    newNode->prev = freelist.prev;
-    newNode->node = blk;
-    freelist.prev->next = newNode;
-    freelist.prev = newNode;
+    ADD_LIST(freelist, blk)
 }
 
 void * fl_malloc(size_t size) {
@@ -51,8 +47,6 @@ void * fl_malloc(size_t size) {
                 newBlock = (alloc_node_t *) ((ptrdiff_t)(&blk->block) + size);
                 newBlock->size = blk->size - size;
                 blk->size = size;
-                //*(blk->block) = ptr;
-                sprintf(blk->block, "%s", ptr);
 
                 //Add to the end of the freelist
                 newNode->next = &freelist;
@@ -83,7 +77,7 @@ void fl_free(void * ptr) {
     if(ptr) {
         while(!isOccupied && current != NULL) {
             block = current->node;
-            if(block->block == ptr) {
+            if(&(block->block) == ptr) {
                 isOccupied = true;
             } else if (current->next == NULL) {
                 break;
