@@ -8,7 +8,7 @@
 #define CLOCKFREQ 100
 #define QUARTZ 0x1234DD
 #define SECOND_IN_TICKS CLOCKFREQ*1000000
-PLINK sleeping_queue;
+PLINK sleeping_queue; 
 
 void clock_settings(unsigned long *quartz, unsigned long *ticks);
 unsigned long current_clock();

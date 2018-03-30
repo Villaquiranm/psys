@@ -22,27 +22,29 @@ void traitant_IT_32();
 
 unsigned long numberInterruptions;
 
+//renvoie la fréquence du quartz et le nombre d'oscillations entre chaque interruption
 void clock_settings(unsigned long *quartz, unsigned long *ticks){
-
-  *quartz = QUARTZ;
+  *quartz = (unsigned long) QUARTZ;
   //TODO vérifier si on doit faire %256
-  *ticks = QUARTZ/CLOCKFREQ;
+  *ticks = (unsigned long) QUARTZ/ (unsigned long) CLOCKFREQ;
 }
 
+//Retourne le nombre d'interruptions d'horloge depuis le démarrage du noyau.
 unsigned long current_clock(){
-
     return numberInterruptions;
 }
+
+//Passe le processus dans l'état endormi jusqu'à ce que le nombre d'interruptions horloge passé en paramètre soit atteint ou dépassé
 void wait_clock(unsigned long clock){
     // we suppose that sleeping_queue is initialized
     active->state = ENDORMI;
-    active->sleep_time = current_clock() + clock;
-    if (sleepingProcs == NULL) {
-      sleepingProcs = active;
+    active->sleep_time = current_clock() + clock; // On affecte l'heure où le processus dois être réveillé
+    if (sleepingProcs == NULL) { // On vérifie que si la liste des processus endormi sont vide ou pas
+      sleepingProcs = active; //Si la liste est vide, on met directement le processus actif dans la liste
     }else{
       struct processus* ptr = sleepingProcs;
-      while (ptr->nextSleepingProcs != NULL) {
-        ptr = ptr->nextSleepingProcs;
+      while (ptr->nextSleepingProcs != NULL) { // On vérifie si le prochain processus endormi est null,
+        ptr = ptr->nextSleepingProcs; // sinon on rentre dans la boucle, jusqu'à trouver la queue
       }
       ptr->nextSleepingProcs = active;
       active->nextSleepingProcs = NULL;
@@ -50,6 +52,7 @@ void wait_clock(unsigned long clock){
     schedule();
 }
 
+/*l'acquittement de l'interruption et la partie gérant l'affichage*/
 void tic_PIT(){
 
 	outb(0x20, 0x20);

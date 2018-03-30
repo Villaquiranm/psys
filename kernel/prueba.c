@@ -34,7 +34,7 @@ int cons() {
         if (error >= 0) {
             printf("J'ai resu le message : %d\n",message);
         }else{
-            printf("Consomateur : erreur\n");
+            return 0; //printf("Consomateur : erreur\n");
         }
         wait_clock(200);
         schedule();
@@ -49,7 +49,7 @@ int prod(){
         if (error >= 0) {
             printf("J'ai deja envoye le message : %d\n",message);
         }else{
-            printf("Producteur : erreur\n");
+            return 0;//printf("Producteur : erreur\n");
         }
         wait_clock(100);
         schedule();

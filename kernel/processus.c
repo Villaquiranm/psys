@@ -344,5 +344,4 @@ void freeProcessus(int pid){
 	free(procs[pid]);
 	/* After freeing the procs array position it has to be set to NULL papapa */
 	procs[pid] = NULL;
-
 }

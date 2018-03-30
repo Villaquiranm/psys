@@ -30,8 +30,8 @@ void kernel_start(void)
 
 	printf("teste\n");
 	initProc();
-    masque_IRQ(32,false);
-    initFile();
+  masque_IRQ(32,false);
+  initFile();
 	idle();
 
 	return;
