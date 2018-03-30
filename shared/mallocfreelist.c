@@ -6,18 +6,15 @@
 ll_m freelist = { NULL, &(freelist), &(freelist) };
 ll_m occupiedlist = { NULL, &(occupiedlist), &(occupiedlist) };
 
-extern void * malloc(size_t n);
-
 void malloc_addblock(void *addr, size_t size) {
     alloc_node_t *blk;
 
-
     blk = (void *)ALIGN_UP((ptrdiff_t)addr, sizeof(void*));
 
-    blk->size = (ptrdiff_t) addr + size - (ptrdiff_t) blk; //ALLOC_HEADER_SZ ???
+    blk->size = (ptrdiff_t) addr + size - (ptrdiff_t)blk - sizeof(size_t); //ALLOC_HEADER_SZ ???
 
     //Add to the end of the freelist
-    ADD_LIST(freelist, blk)
+    ADD_LIST_NEWNODE(freelist, blk)
 }
 
 void * fl_malloc(size_t size) {
@@ -42,27 +39,19 @@ void * fl_malloc(size_t size) {
         if(ptr) {
             if(blk->size - size > MIN_ALOC_SIZE) {
                 alloc_node_t *newBlock; //the new free block
-                ll_m *newNode = (ll_m*)malloc(sizeof(ll_m));
 
                 newBlock = (alloc_node_t *) ((ptrdiff_t)(&blk->block) + size);
-                newBlock->size = blk->size - size;
+                newBlock->size = blk->size - size - sizeof(size_t);
                 blk->size = size;
 
                 //Add to the end of the freelist
-                newNode->next = &freelist;
-                newNode->prev = freelist.prev;
-                newNode->node = newBlock;
-                freelist.prev->next = newNode;
-                freelist.prev = newNode;
+                ADD_LIST_NEWNODE(freelist, newBlock)
             }
             //Delete it from the freelist
             current->next->prev = current->prev;
             current->prev->next = current->next;
             //And put it in the occupiedlist
-            current->next = &occupiedlist;
-            current->prev = occupiedlist.prev;
-            occupiedlist.prev->next = current;
-            occupiedlist.prev = current;
+            ADD_LIST(occupiedlist, current)
         }
     }
 
@@ -85,13 +74,43 @@ void fl_free(void * ptr) {
                 current = current->next;
             }
         }
-        //Delete it from the occupiedlist
-        current->next->prev = current->prev;
-        current->prev->next = current->next;
-        //And put it back in the freelist
-        current->next = &freelist;
-        current->prev = freelist.prev;
-        freelist.prev->next = current;
-        freelist.prev = current;
+        if(isOccupied) {
+            free(ptr);
+            //Delete it from the occupiedlist
+            current->next->prev = current->prev;
+            current->prev->next = current->next;
+            //Try to merge blocks
+            ADD_LIST(freelist, current)
+            merge_blocks(current);
+        }
     }
+}
+
+bool merge_blocks(ll_m *block) {
+    ll_m *current = freelist.prev;
+    bool blockMerge = false;
+
+    while(current->node != NULL) {
+        if((void *)((int)&(block->node->block) + block->node->size) == (current->node)) { //if block is immediately before current
+            block->node->size = current->node->size + block->node->size + 2*sizeof(size_t);
+            blockMerge = true;
+            //Delete current from freelist
+            current->next->prev = current->prev;
+            current->prev->next = current->next;
+            //free current
+            free(current);
+        } else if ((void *)((int)&(current->node->block) + current->node->size) == (block->node)) { //if block comes immediately after current
+            current->node->size = current->node->size + block->node->size + 2*sizeof(size_t);
+            //Delete it from freelist
+            block->next->prev = block->prev;
+            block->prev->next = block->next;
+            //free block
+            free(block);
+            block = current;
+            blockMerge = true;
+        }
+        current = current->prev;
+    }
+
+    return blockMerge;
 }

@@ -38,10 +38,19 @@ void kernel_start(void)
 	int *b3 = fl_malloc(10);
 	*b3 = 10;
 
-	printf("B3 = %d", *b3);
-
+	printf("B1 = %d\n", *b1);
+	printf("B2 = %d\n", *b2);
+	printf("B3 = %d\n", *b3);
+	//fl_free(b3);
+	//printf("FREE B3!!\n");
+	//printf("NEW B3 = %d\n", *b3);
 	fl_free(b1);
-
+	printf("NEW B1 = %d\n", *b1);
+	fl_free(b2);
+	b2 = fl_malloc(10);
+	*b2 = 30;
+	printf("NEW B2 = %d\n", *b2);
+	fl_free(b3);
 	i = 10;
 	printf("teste\n");
 	printf("Factoriel de %d:",i);
