@@ -6,6 +6,7 @@
 //les variables globales
 QUEUE* queues[NBQUEUE]={[0 ... NBQUEUE-1] = NULL};
 int numberQueues = 0;
+extern link procsPrioQueue;
 
 extern struct processus* active; //TODO: à vérifier, éventuellement erreur
 //struct processus* procBloque;
@@ -132,13 +133,13 @@ int psend(int fid, int message){
   //le processus soit remis dans l'état activable par un autre processus ayant exécuté preset ou pdelete.
   //Dans ce cas, la valeur de retour de psend est strictement négative.
   else if(nbMsgs == capacite){// Done.
+    printf("File pleine: %d\n", queues[fid]->numberMessages);
     PLINK* processus_bloque = (PLINK*)mem_alloc(sizeof(PLINK));
     processus_bloque->actuel = active;
     active->state = BLOQUE_IO;
     processus_bloque->prio = processus_bloque->actuel->prio;
     queue_add(processus_bloque,&queues[fid]->process_send.head, PLINK, head, prio);
-    /*ordonnanceur(); We need to call ordonnanceur to block the processus
-    and then we need to check again if queues[fid]->numberMessages == capacite if so preceive has failed.*/
+    schedule();
     if (queues[fid]->numberMessages == capacite) {//
         return -1;
     }
@@ -149,6 +150,7 @@ int psend(int fid, int message){
   else{// Done
     *(queues[fid]->write) = message;
     queues[fid]->numberMessages++;
+    printf("File pas pleine et pas vide: %d\n", queues[fid]->numberMessages);
     updateWritePointer(fid, capacite);
   }
 
@@ -176,8 +178,7 @@ int preceive(int fid,int *message){
     processus_bloque->prio = 0;
     active->state = BLOQUE_IO;
     queue_add(processus_bloque,&queues[fid]->process_receive.head, PLINK, head, prio);
-    /*ordonnanceur(); We need to call ordonnanceur to block the processus
-    and then we need to check again if nbMsgs == 0 if so preceive has failed.*/
+    schedule();
     if (nbMsgs == 0) {
         return -1;
     }
@@ -194,6 +195,7 @@ int preceive(int fid,int *message){
       if (!queue_empty(&queues[fid]->process_send.head)) {// There is a processus to unblock?
           PLINK * processus_to_unblock = queue_out(&queues[fid]->process_send.head, PLINK, head);
           processus_to_unblock->actuel->state = ACTIVABLE;
+          queue_add(processus_to_unblock->actuel, &procsPrioQueue, processus, queueLink, prio);
           //ctx_sw(&active->regs ,&processus_to_unblock->actuel->regs)  Giving execution time to unblocked processus
           //Just realized that it'is not necessary because l'ordonnanceur will do it.
       }
