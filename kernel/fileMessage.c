@@ -132,27 +132,28 @@ int psend(int fid, int message){
   //Il est possible également, qu'après avoir été mis dans l'état bloqué sur file pleine,
   //le processus soit remis dans l'état activable par un autre processus ayant exécuté preset ou pdelete.
   //Dans ce cas, la valeur de retour de psend est strictement négative.
-  else if(nbMsgs == capacite){// Done.
-    printf("File pleine: %d\n", queues[fid]->numberMessages);
-    PLINK* processus_bloque = (PLINK*)mem_alloc(sizeof(PLINK));
-    processus_bloque->actuel = active;
-    active->state = BLOQUE_IO;
-    processus_bloque->prio = processus_bloque->actuel->prio;
-    queue_add(processus_bloque,&queues[fid]->process_send.head, PLINK, head, prio);
-    schedule();
-    if (queues[fid]->numberMessages == capacite) {//
-        return -1;
+  else{
+      if(nbMsgs == capacite){// Done.
+        printf("File pleine: %d messages\n", queues[fid]->numberMessages);
+        PLINK* processus_bloque = (PLINK*)mem_alloc(sizeof(PLINK));
+        processus_bloque->actuel = active;
+        active->state = BLOQUE_IO;
+        processus_bloque->prio = processus_bloque->actuel->prio;
+        queue_add(processus_bloque,&queues[fid]->process_send.head, PLINK, head, prio);
+        schedule();
+        if (queues[fid]->numberMessages == capacite) {//
+            return -1;
+        }
     }
-  }
 
-  //Sinon, la file n'est pas pleine et aucun processus n'est bloqué en attente de message.
+  //Ici la file n'est pas pleine et aucun processus n'est bloqué en attente de message.
   //Le message est alors déposé directement dans la file.
-  else{// Done
-    *(queues[fid]->write) = message;
-    queues[fid]->numberMessages++;
-    printf("File pas pleine et pas vide: %d\n", queues[fid]->numberMessages);
-    updateWritePointer(fid, capacite);
-  }
+
+        printf("La file a %d messages. On va ecrire.\n", queues[fid]->numberMessages);
+        *(queues[fid]->write) = message;
+        queues[fid]->numberMessages++;
+        updateWritePointer(fid, capacite);
+    }
 
   return 0;
 }
@@ -179,13 +180,15 @@ int preceive(int fid,int *message){
     active->state = BLOQUE_IO;
     queue_add(processus_bloque,&queues[fid]->process_receive.head, PLINK, head, prio);
     schedule();
-    if (nbMsgs == 0) {
+
+    //Ici on a redonné la main au proc, donc il doit y avoir des messages à lire
+    if (queues[fid]->numberMessages == 0) {
         return -1;
     }
+
   }
 
-  //sinon, il y a un message à lire
-  else{
+  //il y a un message à lire
     *message = *(queues[fid]->read) ;
     queues[fid]->numberMessages--;
     updateReadPointer(fid, capacite);
@@ -200,8 +203,6 @@ int preceive(int fid,int *message){
           //Just realized that it'is not necessary because l'ordonnanceur will do it.
       }
     }
-
-  }
 
   return 0;
 }
