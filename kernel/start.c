@@ -51,6 +51,7 @@ void kernel_start(void)
 	*b2 = 30;
 	printf("NEW B2 = %d\n", *b2);
 	fl_free(b3);
+	fl_free(b2);
 	i = 10;
 	printf("teste\n");
 	printf("Factoriel de %d:",i);
