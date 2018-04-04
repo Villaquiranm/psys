@@ -36,7 +36,7 @@ int cons() {
         }else{
             return 0; //printf("Consomateur : erreur\n");
         }
-        wait_clock(200);
+        wait_clock(300);
         schedule();
     }
     return 0;
