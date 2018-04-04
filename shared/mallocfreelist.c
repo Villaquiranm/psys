@@ -11,7 +11,7 @@ void malloc_addblock(void *addr, size_t size) {
 
     blk = (void *)ALIGN_UP((ptrdiff_t)addr, sizeof(void*));
 
-    blk->size = (ptrdiff_t) addr + size - (ptrdiff_t)blk - sizeof(size_t); //ALLOC_HEADER_SZ ???
+    blk->size = (ptrdiff_t) addr + size - (ptrdiff_t)blk - sizeof(size_t);
 
     //Add to the end of the freelist
     ADD_LIST_NEWNODE(freelist, blk)
@@ -79,6 +79,7 @@ void fl_free(void * ptr) {
             //Delete it from the occupiedlist
             current->next->prev = current->prev;
             current->prev->next = current->next;
+            current->node->block = NULL;
             //Try to merge blocks
             ADD_LIST(freelist, current)
             merge_blocks(current);
@@ -92,7 +93,8 @@ bool merge_blocks(ll_m *block) {
 
     while(current->node != NULL) {
         if((void *)((int)&(block->node->block) + block->node->size) == (current->node)) { //if block is immediately before current
-            block->node->size = current->node->size + block->node->size + 2*sizeof(size_t);
+            block->node->size = current->node->size + block->node->size + sizeof(size_t);
+            block->node->block = NULL;
             blockMerge = true;
             //Delete current from freelist
             current->next->prev = current->prev;
@@ -100,7 +102,8 @@ bool merge_blocks(ll_m *block) {
             //free current
             free(current);
         } else if ((void *)((int)&(current->node->block) + current->node->size) == (block->node)) { //if block comes immediately after current
-            current->node->size = current->node->size + block->node->size + 2*sizeof(size_t);
+            current->node->size = current->node->size + block->node->size + sizeof(size_t);
+            current->node->block = NULL;
             //Delete it from freelist
             block->next->prev = block->prev;
             block->prev->next = block->next;
