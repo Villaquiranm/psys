@@ -2,8 +2,8 @@
 #define __TESTS_H__
 
 void execute_tests();
-void test1();
-void test2();
-void test3();
+int test1();
+int test2();
+int test3();
 
 #endif

@@ -1,15 +1,40 @@
 #include <debug.h>
 #include "processus.h"
 #include "tests.h"
+#include <stddef.h>
 
 #define TESTS_NUMBER 3
-void (*functions[TESTS_NUMBER])(void) = {test1, test2, test3};
+
+int (*functions[TESTS_NUMBER])(void*) = {
+        test1,
+        test2,
+        test3
+};
+
+const char *function_names[TESTS_NUMBER] = {
+        "test1",
+        "test2",
+        "test3",
+};
+
+int test_suite(){
+  int i;
+  int pid;
+  int ret;
+
+  for (i = 0; i < TESTS_NUMBER; i++) {
+    printf("Executing test %d\n", i+1);
+    pid = start(functions[i], function_names[i], 4000, 128, NULL);
+    waitpid(pid, &ret);
+    assert(ret == 0);
+  }
+
+  return 0;
+}
 
 void execute_tests() {
-  for (int i = 0; i < TESTS_NUMBER; i++) {
-    printf("Executing test %d\n", i+1);
-    (functions[i])();
-  }
+  start(test_suite, "test_suite", 4000, 10, NULL);
+  printf("Tests finished\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -28,7 +53,7 @@ int dummy2(void *arg) {
   return 4;
 }
 
-void test1() {
+int test1() {
   int pid1;
   int r;
   int rval;
@@ -50,6 +75,8 @@ void test1() {
   assert(r == pid1);
   assert(rval == 4);
   printf(" 6.\n");
+
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -66,7 +93,7 @@ int procKill(void *args) {
   return (int)args;
 }
 
-void test2() {
+int test2() {
   int rval;
   int r;
   int pid1;
@@ -95,6 +122,8 @@ void test2() {
   assert(r == pid1);
   assert(waitpid(getpid(), &rval) < 0);
   printf(" 7.\n");
+
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -124,7 +153,7 @@ int prio5(void *arg) {
   return 0;
 }
 
-void test3() {
+int test3() {
   int pid1;
   int p = 192;
   int r;
@@ -156,6 +185,8 @@ void test3() {
   r = chprio(getpid(), 128);
   assert(r == 32);
   printf(" 11.\n");
+
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
