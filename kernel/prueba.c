@@ -36,8 +36,8 @@ int cons() {
         }else{
             return 0; //printf("Consomateur : erreur\n");
         }
-        wait_clock(300);
-        schedule();
+        wait_clock(2);
+        //schedule();
     }
     return 0;
 }
@@ -51,8 +51,8 @@ int prod(){
         }else{
             return 0;//printf("Producteur : erreur\n");
         }
-        wait_clock(100);
-        schedule();
+        wait_clock(2);
+        //schedule();
     }
     return 0;
 }

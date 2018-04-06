@@ -149,23 +149,30 @@ void preparingContextSwitch(){
     //Wake up sleeping processus
     unsigned long current_time = current_clock();
 
-		//Reveille tous les processus qu'il faut et les ajoute dans la file de priorite
-		struct processus* ptr = sleepingProcs;
-		struct processus* previous_ptr = sleepingProcs;
-		while (ptr != NULL) {
-			if (ptr->sleep_time < current_time) {
-				ptr->state = ACTIVABLE;
-				queue_add(ptr, &procsPrioQueue, processus, queueLink, prio);
-				if (ptr == sleepingProcs) {//If the first process We need to move the head.
-					sleepingProcs = ptr->nextSleepingProcs;
-				}
-				else{
-					previous_ptr->nextSleepingProcs = ptr->nextSleepingProcs;
-				}
+	//Reveille tous les processus qu'il faut et les ajoute dans la file de priorite
+	struct processus* ptr = sleepingProcs;
+	struct processus* previous_ptr = sleepingProcs;
+	while (ptr != NULL) {
+		if (ptr->sleep_time < current_time) {//delete processus from Sleeping_queue
+			ptr->state = ACTIVABLE;
+			queue_add(ptr, &procsPrioQueue, processus, queueLink, prio);
+			if (ptr == sleepingProcs) {//If the first process We need to move the head.
+				sleepingProcs = ptr->nextSleepingProcs;
+                ptr->nextSleepingProcs = NULL; // break link
+                ptr = sleepingProcs;
+                previous_ptr = ptr;
 			}
-			previous_ptr = ptr;
-			ptr = ptr->nextSleepingProcs;
-		}
+			else{
+				previous_ptr->nextSleepingProcs = ptr->nextSleepingProcs;
+                ptr->nextSleepingProcs = NULL;
+                ptr = previous_ptr->nextSleepingProcs;
+			}
+		}else{//Not deleting processus
+            previous_ptr = ptr;
+    		ptr = ptr->nextSleepingProcs;
+        }
+
+	}
 }
 
 /**
