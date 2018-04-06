@@ -4,40 +4,59 @@
 #include "processus.h"
 #include "stdint.h"
 #include "segment.h"
+#include "fileMessage.h"
 #include "cpu.h"
+#include "queue.h"
+#include "mem.h"
 
 #define TABLE_VECTEURS 0x1000
 
 int ms, second, minute, heure;
-int totalSeconds;
+//int totalSeconds;
+//PLINK sleeping_queue;
+extern struct processus* active; //TODO: à vérifier, éventuellement erreur
+extern struct processus* sleepingProcs;
+
 
 void traitant_IT_32();
 
 unsigned long numberInterruptions;
 
+//renvoie la fréquence du quartz et le nombre d'oscillations entre chaque interruption
 void clock_settings(unsigned long *quartz, unsigned long *ticks){
-
-  *quartz = QUARTZ;
+  *quartz = (unsigned long) QUARTZ;
   //TODO vérifier si on doit faire %256
-  *ticks = QUARTZ/CLOCKFREQ;
+  *ticks = (unsigned long) QUARTZ/ (unsigned long) CLOCKFREQ;
 }
 
+//Retourne le nombre d'interruptions d'horloge depuis le démarrage du noyau.
 unsigned long current_clock(){
-
     return numberInterruptions;
 }
 
-/*void wait_clock(unsigned long clock){
+//Passe le processus dans l'état endormi jusqu'à ce que le nombre d'interruptions horloge passé en paramètre soit atteint ou dépassé
+void wait_clock(unsigned long clock){
+    // we suppose that sleeping_queue is initialized
+    active->state = ENDORMI;
+    active->sleep_time = current_clock() + clock; // On affecte l'heure où le processus dois être réveillé
+    if (sleepingProcs == NULL) { // On vérifie que si la liste des processus endormi sont vide ou pas
+      sleepingProcs = active; //Si la liste est vide, on met directement le processus actif dans la liste
+    }else{
+      struct processus* ptr = sleepingProcs;
+      while (ptr->nextSleepingProcs != NULL) { // On vérifie si le prochain processus endormi est null,
+        ptr = ptr->nextSleepingProcs; // sinon on rentre dans la boucle, jusqu'à trouver la queue
+      }
+      ptr->nextSleepingProcs = active;
+      active->nextSleepingProcs = NULL;
+    }
+    schedule();
+}
 
-  actif->etat = ENDORMI;
-  actif->reveille = current_clock() + clock;
-  ordonnance();
-}*/
-
+/*l'acquittement de l'interruption et la partie gérant l'affichage*/
 void tic_PIT(){
 
 	outb(0x20, 0x20);
-  numberInterruptions++;
+    numberInterruptions++;
 	schedule();
 }
 
@@ -97,6 +116,9 @@ void masque_IRQ(uint32_t num_IRQ, bool masque){
 	outb(tableBool, 0x21);
 }
 
-int nbr_secondes(){
-	return totalSeconds;
+//int nbr_secondes(){
+//	return totalSeconds;
+//}
+unsigned long getNumberInterruptions(){
+    return numberInterruptions;
 }

@@ -3,6 +3,9 @@
 #include <malloc.c>
 #include <cpu.h>
 #include <stdbool.h>
+#include "fileMessage.h"
+#include "horloge.h"
+#include "mem.h"
 
 // These variables definitions were originally in the header file
 // but as the start.c file also includes that header, the compiler
@@ -14,7 +17,9 @@ int freePID = NBPROC;
 
 processus *procs[NBPROC + 1];
 link procsPrioQueue = LIST_HEAD_INIT(procsPrioQueue);
+//link dyingProcessesQueue = LIST_HEAD_INIT(dyingProcessesQueue);
 processus *dyingProcessesQueue;
+processus *sleepingProcs;
 
 /*
  * Primitive to properly finish a process
@@ -66,6 +71,7 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 	newProc->regs.esp = (uint32_t)current;
 	newProc->pile = pile;
 	newProc->dyingProcsLink = NULL;
+	newProc->nextSleepingProcs = NULL;
 	newProc->expectedChild = 0;
 
 	if (active->pid == 0) {	// IDLE process is active
@@ -162,6 +168,26 @@ void preparingContextSwitch(){
 		}
 		currentProc = prevProc->dyingProcsLink;
 	}
+    //Wake up sleeping processus
+    unsigned long current_time = current_clock();
+
+		//Reveille tous les processus qu'il faut et les ajoute dans la file de priorite
+		struct processus* ptr = sleepingProcs;
+		struct processus* previous_ptr = sleepingProcs;
+		while (ptr != NULL) {
+			if (ptr->sleep_time < current_time) {
+				ptr->state = ACTIVABLE;
+				queue_add(ptr, &procsPrioQueue, processus, queueLink, prio);
+				if (ptr == sleepingProcs) {//If the first process We need to move the head.
+					sleepingProcs = ptr->nextSleepingProcs;
+				}
+				else{
+					previous_ptr->nextSleepingProcs = ptr->nextSleepingProcs;
+				}
+			}
+			previous_ptr = ptr;
+			ptr = ptr->nextSleepingProcs;
+		}
 }
 
 /**
@@ -227,12 +253,10 @@ char *mon_nom(void){
 }
 
 int idle(){
-	unsigned long i;
 	while(1){
-		printf("IDLE\n");
-		for(i = 0; i < 5000000; i++){
-			schedule();
-		}
+		sti();
+        hlt();
+        cli();
 	}
 	return 0;
 }
@@ -352,5 +376,4 @@ void freeProcessus(int pid){
 	free(procs[pid]);
 	/* After freeing the procs array position it has to be set to NULL papapa */
 	procs[pid] = NULL;
-
 }

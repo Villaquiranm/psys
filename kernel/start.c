@@ -4,6 +4,7 @@
 #include "console.h"
 #include <processus.h>
 #include "horloge.h"
+#include "prueba.h"
 #include "tests.h"
 #include <mallocfreelist.h>
 
@@ -72,6 +73,8 @@ void kernel_start(void)
 
 	printf("teste\n");
 	initProc();
+  masque_IRQ(32,false);
+  initFile();
 
 	//execute_tests();
 
@@ -80,6 +83,8 @@ void kernel_start(void)
 	//printf("Mal = %d", *mal);
 
 	idle();
+	//démasquer les interruptions externes
+	//sti();
 
 	return;
 }

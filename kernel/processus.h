@@ -38,7 +38,9 @@ typedef struct processus{
 	struct processus *parent, *children;
 	struct processus *nextSibling;
 	struct processus *dyingProcsLink;
-	link queueLink;
+	struct processus *nextSleepingProcs;
+	link queueLink; // la structure link est définie dans le fichier queue.h, qui est une liste chaînée
+  unsigned long sleep_time; // lors que le sleep_time est dépassé, il faut réveiller le processus endormi
 } processus;
 
 processus *active;
@@ -63,6 +65,12 @@ void freeProcessus(int pid);
 void zombifyProc(int pid);
 void schedulePID(int pid);
 void schedule();
+
+/*TODO: Fonction suivante à créer qui prend en paramètre le code de
+la fonction à exécuter et renvoie le pid du processus créé, ou -1 en cas d'erreur */
+
+//int cree_processus(void (*code)(void));
+
 
 
 #endif
