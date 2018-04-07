@@ -168,7 +168,7 @@ void preparingContextSwitch(){
                 ptr = previous_ptr->nextSleepingProcs;
 			}
 		}else{//Not deleting processus
-            previous_ptr = ptr;
+        previous_ptr = ptr;
     		ptr = ptr->nextSleepingProcs;
         }
 

@@ -27,7 +27,7 @@ int pcreate(int count);
 int pdelete(int fid);
 //La primitive pcount lit la quantité de données et de processus en attente sur la file fid.
 int pcount(int fid, int *count);
-//La primitive preceive lit et enlève le premier (plus ancien) message de la file fid. 
+//La primitive preceive lit et enlève le premier (plus ancien) message de la file fid.
 int preceive(int fid,int *message);
 //La primitive preset vide la file identifiée par la valeur de fid et fait passer dans l'état activable ou actif (selon les priorités) tous les processus
 int preset(int fid);
