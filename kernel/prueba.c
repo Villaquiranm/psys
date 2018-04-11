@@ -59,14 +59,14 @@ int prod(){
 int eliminateur(){
   while (1) {
     wait_clock(11);
-    //preset(0);
-    //printf("Resetting fileMessage : 0....\n");
+    preset(0);
+    printf("Resetting fileMessage : 0....\n");
     //wait_clock(10);
     //printf("deleting fileMessage : 0 ....\n");
-    pdelete(0);
-    wait_clock(10);
-    int a = pcreate(3);
-    printf("Creating fileMessage : %d ....\n",a);
+    //pdelete(0);
+    //wait_clock(10);
+    //int a = pcreate(3);
+    //printf("Creating fileMessage : %d ....\n",a);
   }
   return 0;
 }

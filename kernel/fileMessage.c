@@ -58,9 +58,11 @@ int pdelete(int fid) {
   //fait passer dans l'état activable tous les processus, s'il en existe, qui se trouvaient bloqués sur la file
   //Les processus libérés auront une valeur strictement négative comme retour de psend ou preceive.
   while ((plink_it = queue_out(&queues[fid]->process_send.head, PLINK, head)) != NULL) {
+    plink_it->actuel->state = ACTIVABLE;
     queue_add(plink_it->actuel, &procsPrioQueue, processus, queueLink, prio);
   }
   while ((plink_it = queue_out(&queues[fid]->process_receive.head, PLINK, head)) != NULL) {
+    plink_it->actuel->state = ACTIVABLE;
     queue_add(plink_it->actuel, &procsPrioQueue, processus, queueLink, prio);
   }
 
@@ -72,7 +74,6 @@ int pdelete(int fid) {
   mem_free(queues[fid], sizeof(QUEUE));
   queues[fid] = NULL;
   return 0;
-
 }
 
 
