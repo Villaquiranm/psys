@@ -23,7 +23,7 @@ int fact(int n)
 
 void kernel_start(void)
 {
-	void * myblock = malloc(MALLOC_SIZE);
+	/*void * myblock = malloc(MALLOC_SIZE);
 
 	int i;
 	malloc_addblock(myblock, MALLOC_SIZE);
@@ -59,7 +59,7 @@ void kernel_start(void)
 	printf("Factoriel de %d:",i);
 
 	i = fact(i);
-	printf("%d\n",i);
+	printf("%d\n",i);*/
 
 	unsigned long quartz;
 	unsigned long ticks;
@@ -74,9 +74,9 @@ void kernel_start(void)
 	printf("teste\n");
 	initProc();
   masque_IRQ(32,false);
-  initFile();
+  //initFile();
 
-	//execute_tests();
+	execute_tests();
 
 	//*mal = 10;
 
