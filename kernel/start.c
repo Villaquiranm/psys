@@ -17,7 +17,6 @@ int fact(int n)
 
 void kernel_start(void)
 {
-
 	unsigned long quartz;
 	unsigned long ticks;
 
@@ -30,9 +29,11 @@ void kernel_start(void)
 
 	printf("teste\n");
 	initProc();
-    masque_IRQ(32,false);
-    initFile();
+  masque_IRQ(32,false);
+  initFile();
 	idle();
+	//démasquer les interruptions externes
+	//sti();
 
 	return;
 }
