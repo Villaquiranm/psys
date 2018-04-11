@@ -60,10 +60,12 @@ int pdelete(int fid) {
   while ((plink_it = queue_out(&queues[fid]->process_send.head, PLINK, head)) != NULL) {
     plink_it->actuel->state = ACTIVABLE;
     queue_add(plink_it->actuel, &procsPrioQueue, processus, queueLink, prio);
+    mem_free(plink_it, sizeof(PLINK));
   }
   while ((plink_it = queue_out(&queues[fid]->process_receive.head, PLINK, head)) != NULL) {
     plink_it->actuel->state = ACTIVABLE;
     queue_add(plink_it->actuel, &procsPrioQueue, processus, queueLink, prio);
+    mem_free(plink_it, sizeof(PLINK));
   }
 
   numberQueues--;
@@ -71,6 +73,7 @@ int pdelete(int fid) {
   if(queues[fid]->message != NULL) {
     mem_free(queues[fid]->message, sizeof(int) * queues[fid]->capacite);
   }
+  //mem_free(&queues[fid]->process_send.head, sizeof(link));
   mem_free(queues[fid], sizeof(QUEUE));
   queues[fid] = NULL;
   return 0;
@@ -223,9 +226,11 @@ int preset(int fid){
     queues[fid]->numberMessages = 0; //Reset numberMessages
     while ((plink_it = queue_out(&queues[fid]->process_send.head, PLINK, head)) != NULL) {
       queue_add(plink_it->actuel, &procsPrioQueue, processus, queueLink, prio);
+      mem_free(plink_it, sizeof(PLINK));
     }
     while ((plink_it = queue_out(&queues[fid]->process_receive.head, PLINK, head)) != NULL) {
       queue_add(plink_it->actuel, &procsPrioQueue, processus, queueLink, prio);
+      mem_free(plink_it, sizeof(PLINK));
     }
     return 0;
 }
