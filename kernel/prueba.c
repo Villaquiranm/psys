@@ -9,10 +9,12 @@
 QUEUE* newQueue;
 
 void initFile(){
-     int a = pcreate(2);
+     int a = pcreate(3);
      printf("Creating file : %d\n",a);
      start(&prod,"Producteur", 1024, 10, NULL);
      start(&eliminateur,"Eliminateur", 1024, 10, NULL);
+     //start(&cons,"Consommateur", 1024, 10, NULL);
+
 }
 void addProcessus(struct processus * proc, int prio){
     PLINK * ptr = (PLINK *)mem_alloc(sizeof(PLINK));
@@ -30,13 +32,16 @@ void showProcessus(){
 int cons() {
     for (;;) {
         int message;
+        int count;
         int error = preceive(0,&message);
         if (error >= 0) {
             printf("J'ai recu le message : %d\n",message);
         }else{
             return 0; //printf("Consomateur : erreur\n");
         }
-        wait_clock(2);
+        count = pcount(0, &count);
+        printf("Pcount: %d\n",count);
+        wait_clock(100);
         //schedule();
     }
     return 0;
@@ -51,7 +56,7 @@ int prod(){
         }else{
             printf("Producteur : erreur\n");
         }
-        wait_clock(1);
+        wait_clock(10);
         //schedule();
     }
     return 0;
