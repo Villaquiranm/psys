@@ -7,6 +7,8 @@
 QUEUE* queues[NBQUEUE]={[0 ... NBQUEUE-1] = NULL};
 int numberQueues = 0;
 
+extern link procsPrioQueue;
+
 extern struct processus* active; //TODO: à vérifier, éventuellement erreur
 //struct processus* procBloque;
 
@@ -96,15 +98,17 @@ void updateReadPointer(int fid, int capacite){
 int psend(int fid, int message){
 
   //valider FID
-  if(fid < 0 || fid > NBQUEUE-1 || queues[fid] == NULL)
+  if(fid < 0 || fid > NBQUEUE-1 || queues[fid] == NULL){
     return -1;
+  }
 
   int nbMsgs = queues[fid]->numberMessages;
   int capacite = queues[fid]->capacite;
 
   //défensive, ce cas ne doit jamais arriver
-  if(nbMsgs > capacite || nbMsgs < 0)
+  if(nbMsgs > capacite || nbMsgs < 0){
     return -1;
+  }
 
   //si la file est vide
   //et que des processus sont bloqués en attente de message,
@@ -139,8 +143,10 @@ int psend(int fid, int message){
     queue_add(processus_bloque,&queues[fid]->process_send.head, PLINK, head, prio);
     /*ordonnanceur(); We need to call ordonnanceur to block the processus
     and then we need to check again if queues[fid]->numberMessages == capacite if so preceive has failed.*/
+    schedule();
     if (queues[fid]->numberMessages == capacite) {//
-        return -1;
+      printf("Err\n");
+      return -1;
     }
   }
 
@@ -178,6 +184,7 @@ int preceive(int fid,int *message){
     queue_add(processus_bloque,&queues[fid]->process_receive.head, PLINK, head, prio);
     /*ordonnanceur(); We need to call ordonnanceur to block the processus
     and then we need to check again if nbMsgs == 0 if so preceive has failed.*/
+    schedule();
     if (nbMsgs == 0) {
         return -1;
     }
@@ -191,12 +198,16 @@ int preceive(int fid,int *message){
 
     //si la file était pleine, débloque un processus
     if(nbMsgs == capacite){
-      if (!queue_empty(&queues[fid]->process_send.head)) {// There is a processus to unblock?
+      if (!queue_empty(&queues[fid]->process_send.head)) { // There is a processus to unblock?
+          printf("Scheduler: THERE IS a process blocked to write\n");
           PLINK * processus_to_unblock = queue_out(&queues[fid]->process_send.head, PLINK, head);
           processus_to_unblock->actuel->state = ACTIVABLE;
+          queue_add(processus_to_unblock->actuel, &procsPrioQueue, processus, queueLink, prio);
+
           //ctx_sw(&active->regs ,&processus_to_unblock->actuel->regs)  Giving execution time to unblocked processus
           //Just realized that it'is not necessary because l'ordonnanceur will do it.
-      }
+      }else
+        printf("Scheduler: no processes blocked to write\n");
     }
 
   }

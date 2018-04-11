@@ -12,8 +12,6 @@ void initFile(){
      start(&prod,"Producteur", 1024, 10, NULL);
      start(&cons,"Consomateur", 1024, 10, NULL);
 
-
-
 }
 void addProcessus(struct processus * proc, int prio){
     PLINK * ptr = (PLINK *)mem_alloc(sizeof(PLINK));
@@ -32,7 +30,7 @@ int cons() {
         int message;
         int error = preceive(0,&message);
         if (error >= 0) {
-            printf("J'ai resu le message : %d\n",message);
+            printf("J'ai recu le message : %d\n",message);
         }else{
             printf("Consomateur : erreur\n");
         }
