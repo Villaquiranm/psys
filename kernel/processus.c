@@ -24,20 +24,25 @@ processus *sleepingProcs;
 #define PAGE_DIR_FLAGS     0x00000003u
 extern unsigned pgtab[];
 
-static void early_mm_fill_pgdir(unsigned pagedir[],
+static void fill_pgdir(unsigned pagedir[],
                                 unsigned pagetab[],
                                 unsigned count)
 {
-        unsigned i;
+        unsigned int *i = (unsigned int *)malloc(sizeof(unsigned int));
         unsigned pgdir_entry;
+
+        if(i==NULL){
+          printf("NULLLLL");
+          return;
+        }
 
         pgdir_entry = (unsigned)pagetab;
 
-        for (i = 0; i < count; i++) {
-                pagedir[i] = (pgdir_entry + i * 0x1000) | PAGE_DIR_FLAGS;
+        for (*i = 0; *i < count; (*i)++) {
+                pagedir[*i] = (pgdir_entry + (*i) * 0x1000) | PAGE_DIR_FLAGS;
         }
-        for (i = count; i < 1024; i++) {
-                pagedir[i] = 0;
+        for (*i = count; *i < 1024; (*i)++) {
+                pagedir[*i] = 0;
         }
 }
 
@@ -61,7 +66,8 @@ void exitFunction(int retval){
 	processus *nextProc = queue_out(&procsPrioQueue, processus, queueLink);
 	nextProc->state = ACTIF;
 	active = nextProc;
-	ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, nextProc->pagedir);
+	//ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, nextProc->pagedir);
+  ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
 }
 
 /*
@@ -71,11 +77,12 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 	// Create a pointer to a new process structure with the
 	// appropiate size
 	processus *newProc = (processus*)malloc(sizeof(processus));
+  if(newProc==NULL){
+    printf("newProc==NULL !!!\n");
+  }
 
-	newProc->pagedir = (unsigned*)malloc(1024);
-
-	/* Fill page directory for the first 256MB of memory */
-	early_mm_fill_pgdir(newProc->pagedir, pgtab, 64);
+	// Fill page directory for the first 256MB of memory
+	fill_pgdir(newProc->pagedir, pgtab, 64);
 
 	// Allocate the required space for the execution stack plus the
 	// function pointer, termination function pointer and the argument
@@ -229,7 +236,8 @@ void schedule(){
 	processus *nextProc = queue_out(&procsPrioQueue, processus, queueLink);
 	nextProc->state = ACTIF;
 	active = nextProc;
-	ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, nextProc->pagedir);
+	//ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, nextProc->pagedir);
+  ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
 }
 
 /**
@@ -243,7 +251,7 @@ void schedulePID(int pid){
 		processus *nextProc = procs[pid];
 		nextProc->state = ACTIF;
 		active = nextProc;
-		ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, nextProc->pagedir);
+		ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
 	}
 }
 
