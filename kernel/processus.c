@@ -28,21 +28,16 @@ static void fill_pgdir(unsigned pagedir[],
                                 unsigned pagetab[],
                                 unsigned count)
 {
-        unsigned int *i = (unsigned int *)malloc(sizeof(unsigned int));
+        unsigned int i;
         unsigned pgdir_entry;
-
-        if(i==NULL){
-          printf("NULLLLL");
-          return;
-        }
 
         pgdir_entry = (unsigned)pagetab;
 
-        for (*i = 0; *i < count; (*i)++) {
-                pagedir[*i] = (pgdir_entry + (*i) * 0x1000) | PAGE_DIR_FLAGS;
+        for (i = 0; i < count; (i)++) {
+                pagedir[i] = (pgdir_entry + (i) * 0x1000) | PAGE_DIR_FLAGS;
         }
-        for (*i = count; *i < 1024; (*i)++) {
-                pagedir[*i] = 0;
+        for (i = count; i < 1024; (i)++) {
+                pagedir[i] = 0;
         }
 }
 
