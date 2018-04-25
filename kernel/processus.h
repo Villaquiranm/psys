@@ -10,7 +10,7 @@
 #define MAXPRIO 256
 
 //extern void ctx_sw(uint32_t* pointeur1, uint32_t* pointeur2, uint32_t* pagedir_addr);
-extern void ctx_sw(uint32_t* pointeur1, uint32_t* pointeur2);
+extern void ctx_sw(uint32_t* pointeur1, uint32_t* pointeur2, uint32_t* pagedir_addr);
 extern void ret_exit(void);
 
 typedef struct regs{
@@ -41,7 +41,7 @@ typedef struct processus{
 	struct processus *dyingProcsLink;
 	struct processus *nextSleepingProcs;
 	link queueLink; // la structure link est définie dans le fichier queue.h, qui est une liste chaînée
-  unsigned long sleep_time; // lors que le sleep_time est dépassé, il faut réveiller le processus endormi
+    unsigned long sleep_time; // lors que le sleep_time est dépassé, il faut réveiller le processus endormi
 	unsigned pagedir[1024];
 } processus;
 

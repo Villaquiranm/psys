@@ -23,6 +23,8 @@ processus *sleepingProcs;
 
 #define PAGE_DIR_FLAGS     0x00000003u
 extern unsigned pgtab[];
+extern unsigned pgdir[];
+extern unsigned testaddr;
 
 static void fill_pgdir(unsigned pagedir[],
                                 unsigned pagetab[],
@@ -62,7 +64,8 @@ void exitFunction(int retval){
 	nextProc->state = ACTIF;
 	active = nextProc;
 	//ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, nextProc->pagedir);
-  ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
+    uint32_t *jesus = (uint32_t *)&(nextProc->pagedir);
+    ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, jesus);
 }
 
 /*
@@ -71,25 +74,25 @@ void exitFunction(int retval){
 int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, int prio, void *arg) {
 	// Create a pointer to a new process structure with the
 	// appropiate size
-	processus *newProc = (processus*)malloc(sizeof(processus));
-  if(newProc==NULL){
-    printf("newProc==NULL !!!\n");
-  }
+	processus *newProc = (processus*)mem_alloc(sizeof(processus));
+    if(newProc==NULL){
+        printf("newProc==NULL !!!\n");
+    }
 
 	// Fill page directory for the first 256MB of memory
 	fill_pgdir(newProc->pagedir, pgtab, 64);
-
+    ssize = ssize + 1;
 	// Allocate the required space for the execution stack plus the
 	// function pointer, termination function pointer and the argument
-  uint32_t *pile = malloc(ssize + 3);
-  uint32_t *current = (pile + ssize + 3);
+    uint32_t *pile = mem_alloc(4096);
+    uint32_t *current = (pile + (4096)/4);
 
 	// Put the function pointer, termination function pointer and the
 	// argument on the top of the queue
 	*(current--) = (uint32_t)arg;
 	//*(current--) = (uint32_t)exitFunction;
 	*(current--) = (uint32_t)ret_exit;
-  *(current) = (uint32_t)pt_func;
+    *(current) = (uint32_t)pt_func;
 
 	// Set the process' fields with the appropiate values
 	sprintf(newProc->nom, "%s", process_name);
@@ -232,7 +235,8 @@ void schedule(){
 	nextProc->state = ACTIF;
 	active = nextProc;
 	//ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, nextProc->pagedir);
-  ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
+    uint32_t *jesus = (uint32_t *)&(nextProc->pagedir);
+    ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, jesus);
 }
 
 /**
@@ -246,7 +250,8 @@ void schedulePID(int pid){
 		processus *nextProc = procs[pid];
 		nextProc->state = ACTIF;
 		active = nextProc;
-		ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
+        uint32_t *jesus = (uint32_t *)&(nextProc->pagedir);
+		ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, jesus);
 	}
 }
 
@@ -256,7 +261,7 @@ void initProc(void){
 		procs[i] = NULL;
 	}
 
-	processus *idle = (processus*)malloc(sizeof(processus));
+	processus *idle = (processus*)mem_alloc(sizeof(processus));
 
 
 	idle->pid = 0;
@@ -265,7 +270,7 @@ void initProc(void){
 	sprintf(idle->nom, "idle");
 	active = idle;
 
-	processus *sentinel = (processus*)malloc(sizeof(processus));
+	processus *sentinel = (processus*)mem_alloc(sizeof(processus));
 	sentinel->dyingProcsLink = NULL;
 	dyingProcessesQueue = sentinel;
 
@@ -401,8 +406,8 @@ void zombifyProc(int pid){
 }
 
 void freeProcessus(int pid){
-	free(procs[pid]->pile);
-	free(procs[pid]);
+	mem_free(procs[pid]->pile, sizeof(procs[pid]->pile));
+	mem_free(procs[pid], sizeof(procs[pid]));
 	/* After freeing the procs array position it has to be set to NULL papapa */
 	procs[pid] = NULL;
 }
