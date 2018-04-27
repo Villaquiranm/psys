@@ -10,7 +10,8 @@
 #define MAXPRIO 256
 
 //extern void ctx_sw(uint32_t* pointeur1, uint32_t* pointeur2, uint32_t* pagedir_addr);
-extern void ctx_sw(uint32_t* pointeur1, uint32_t* pointeur2, uint32_t* pagedir_addr);
+extern void ctx_sw(uint32_t* pointeur1, uint32_t* pointeur2);
+extern void cr3_sw(uint32_t* pagedir_addr);
 extern void ret_exit(void);
 
 typedef struct regs{

@@ -4,15 +4,6 @@
 #   %esp + 4 : adresse de l'ancien contexte
 #   %esp + 8 : adresse du nouveau contexte
 ctx_sw:
-
-    #.global testaddr
-
-    #test
-    #leal	testaddr,%eax
-	  #movl	12(%esp), %edx
-    #movl %edx, (%eax)
-    #endtest
-
     # sauvegarde du contexte de l'ancien processus
     movl 4(%esp), %eax
     movl %ebx, (%eax)
@@ -20,10 +11,6 @@ ctx_sw:
     movl %ebp, 8(%eax)
     movl %esi, 12(%eax)
     movl %edi, 16(%eax)
-
-    movl 12(%esp), %eax
-    movl %eax, %cr3
-    movl %eax, tss+28
 
     # restauration du contexte du nouveau processus
     movl 8(%esp), %eax

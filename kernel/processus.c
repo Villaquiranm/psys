@@ -72,8 +72,9 @@ void exitFunction(int retval){
 	nextProc->state = ACTIF;
 	active = nextProc;
 	//ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, nextProc->pagedir);
-    uint32_t *pgdir_addr = (uint32_t *)&(nextProc->pagedir);
-    ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, pgdir_addr);
+    uint32_t *pgdir_addr = (uint32_t *)(nextProc->pagedir);
+    cr3_sw(pgdir_addr);
+    ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
 }
 
 /*
@@ -244,8 +245,9 @@ void schedule(){
 	nextProc->state = ACTIF;
 	active = nextProc;
 	//ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, nextProc->pagedir);
-    uint32_t *pgdir_addr = (uint32_t *)&(nextProc->pagedir);
-    ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, pgdir_addr);
+    uint32_t *pgdir_addr = (uint32_t *)(nextProc->pagedir);
+    cr3_sw(pgdir_addr);
+    ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
 }
 
 /**
@@ -259,9 +261,9 @@ void schedulePID(int pid){
 		processus *nextProc = procs[pid];
 		nextProc->state = ACTIF;
 		active = nextProc;
-    //unsigned testvar = testaddr;
-        uint32_t *pgdir_addr = (uint32_t *)&(nextProc->pagedir);
-		ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, pgdir_addr);
+    uint32_t *pgdir_addr = (uint32_t *)(nextProc->pagedir);
+    cr3_sw(pgdir_addr);
+    ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
 	}
 }
 
@@ -277,6 +279,7 @@ void initProc(void){
 	idle->pid = 0;
 	idle->state = ACTIF;
 	idle->prio = 1;
+  idle->pagedir = (unsigned *)0x101000;
 	sprintf(idle->nom, "idle");
 	active = idle;
 
