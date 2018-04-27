@@ -86,13 +86,14 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
     if(newProc==NULL){
         printf("newProc==NULL !!!\n");
     }
-
+    newProc->pagedir = memalign(4096, 4096);
 	// Fill page directory for the first 256MB of memory fill_pgdir(newProc->pagedir, pgtab, 64);
 	copy_pgdir(newProc->pagedir, pgdir);
     ssize = ssize + 1;
 	// Allocate the required space for the execution stack plus the
 	// function pointer, termination function pointer and the argument
     uint32_t *pile = mem_alloc(4096);
+
     uint32_t *current = (pile + (4096)/4);
 
 	// Put the function pointer, termination function pointer and the

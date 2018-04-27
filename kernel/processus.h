@@ -42,7 +42,7 @@ typedef struct processus{
 	struct processus *nextSleepingProcs;
 	link queueLink; // la structure link est définie dans le fichier queue.h, qui est une liste chaînée
     unsigned long sleep_time; // lors que le sleep_time est dépassé, il faut réveiller le processus endormi
-	unsigned pagedir[1024];
+	unsigned *pagedir;
 } processus;
 
 processus *active;
