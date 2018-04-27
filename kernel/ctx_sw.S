@@ -5,13 +5,6 @@
 #   %esp + 8 : adresse du nouveau contexte
 ctx_sw:
 
-    .globl testaddr
-
-    #test
-    #leal	testaddr,%eax
-	#movl	12(%esp),(%eax)
-    #endtest
-
     # sauvegarde du contexte de l'ancien processus
     movl 4(%esp), %eax
     movl %ebx, (%eax)
