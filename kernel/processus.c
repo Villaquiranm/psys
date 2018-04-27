@@ -26,7 +26,7 @@ extern unsigned pgtab[];
 extern unsigned pgdir[];
 extern unsigned testaddr;
 
-static void fill_pgdir(unsigned pagedir[],
+/*static void fill_pgdir(unsigned pagedir[],
                                 unsigned pagetab[],
                                 unsigned count)
 {
@@ -41,6 +41,14 @@ static void fill_pgdir(unsigned pagedir[],
         for (i = count; i < 1024; (i)++) {
                 pagedir[i] = 0;
         }
+}*/
+
+static void copy_pgdir(unsigned pagedir[],
+                       unsigned pagedir_kernel[]) {
+    unsigned int i;
+    for (i = 0; i < 1024; (i)++) {
+      pagedir[i] = pagedir_kernel[i];
+    }
 }
 
 /*
@@ -64,8 +72,8 @@ void exitFunction(int retval){
 	nextProc->state = ACTIF;
 	active = nextProc;
 	//ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, nextProc->pagedir);
-    uint32_t *jesus = (uint32_t *)&(nextProc->pagedir);
-    ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, jesus);
+    uint32_t *pgdir_addr = (uint32_t *)&(nextProc->pagedir);
+    ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, pgdir_addr);
 }
 
 /*
@@ -79,8 +87,8 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
         printf("newProc==NULL !!!\n");
     }
 
-	// Fill page directory for the first 256MB of memory
-	fill_pgdir(newProc->pagedir, pgtab, 64);
+	// Fill page directory for the first 256MB of memory fill_pgdir(newProc->pagedir, pgtab, 64);
+	copy_pgdir(newProc->pagedir, pgdir);
     ssize = ssize + 1;
 	// Allocate the required space for the execution stack plus the
 	// function pointer, termination function pointer and the argument
@@ -235,8 +243,8 @@ void schedule(){
 	nextProc->state = ACTIF;
 	active = nextProc;
 	//ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, nextProc->pagedir);
-    uint32_t *jesus = (uint32_t *)&(nextProc->pagedir);
-    ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, jesus);
+    uint32_t *pgdir_addr = (uint32_t *)&(nextProc->pagedir);
+    ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, pgdir_addr);
 }
 
 /**
@@ -250,8 +258,9 @@ void schedulePID(int pid){
 		processus *nextProc = procs[pid];
 		nextProc->state = ACTIF;
 		active = nextProc;
-        uint32_t *jesus = (uint32_t *)&(nextProc->pagedir);
-		ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, jesus);
+    //unsigned testvar = testaddr;
+        uint32_t *pgdir_addr = (uint32_t *)&(nextProc->pagedir);
+		ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, pgdir_addr);
 	}
 }
 
