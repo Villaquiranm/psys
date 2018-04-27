@@ -5,7 +5,7 @@
 #   %esp + 8 : adresse du nouveau contexte
 ctx_sw:
 
-    .global testaddr
+    #.global testaddr
 
     #test
     #leal	testaddr,%eax
