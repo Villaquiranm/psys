@@ -93,9 +93,9 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
     ssize = ssize + 1;
 	// Allocate the required space for the execution stack plus the
 	// function pointer, termination function pointer and the argument
-    uint32_t *pile = mem_alloc(4096);
+    uint32_t *pile = (uint32_t *)mem_alloc(4096);
 
-    uint32_t *current = (pile + (4096)/4);
+    uint32_t *current = (pile + (4096)/4) - 1;
 
 	// Put the function pointer, termination function pointer and the
 	// argument on the top of the queue
@@ -279,7 +279,7 @@ void initProc(void){
 	idle->pid = 0;
 	idle->state = ACTIF;
 	idle->prio = 1;
-  idle->pagedir = (unsigned *)0x101000;
+    idle->pagedir = (unsigned *)0x101000;
 	sprintf(idle->nom, "idle");
 	active = idle;
 
@@ -419,8 +419,8 @@ void zombifyProc(int pid){
 }
 
 void freeProcessus(int pid){
-	mem_free(procs[pid]->pile, sizeof(procs[pid]->pile));
-	mem_free(procs[pid], sizeof(procs[pid]));
+	mem_free(procs[pid]->pile, 4096);
+	mem_free(procs[pid], sizeof(processus));
 	/* After freeing the procs array position it has to be set to NULL papapa */
 	procs[pid] = NULL;
 }
