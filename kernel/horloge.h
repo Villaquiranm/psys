@@ -17,11 +17,13 @@ void wait_clock(unsigned long clock);
 void printDroite(char* contenu);
 
 void tic_PIT();
+void traitant_appels_systeme(uint32_t args[]);
 void init_traitant_IT(uint32_t num_IT, void (*traitant)(void));
 //démasquer l'IRQ0 pour autoriser les signaux en provenance de l'horloge
 void masque_IRQ(uint32_t num_IRQ, bool masque);
 //initialiser l'entrée 32 dans la table des vecteurs d'interruptions
 void traitant_IT_32();
+void traitant_IT_49();
 int nbr_secondes();
 unsigned long current_clock();
 #endif

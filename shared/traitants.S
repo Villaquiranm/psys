@@ -1,7 +1,7 @@
     .text
 # cette directive sert a rendre l'etiquette publique
     .globl traitant_IT_32
-# debut du traitant 
+# debut du traitant
 traitant_IT_32:
 # sauvegarde des registres importants
     pushl %eax
@@ -17,3 +17,29 @@ traitant_IT_32:
 # fin du traitant
     iret
 
+# cette directive sert a rendre l'etiquette publique
+    .globl traitant_IT_49
+# debut du traitant
+traitant_IT_49:
+# sauvegarde des registres
+# On ne bouge pas EAX puisqu'il est utilise pour le retour
+    pushl %ebx
+    pushl %ecx
+    pushl %edx
+    pushl %edi
+    pushl %esi
+    pushl %ebp
+    pushl %esp
+# appel a la fonction C realisant le traitant
+    call traitant_appels_systeme
+# restauration des registres
+    popl %esp
+    popl %ebp
+    popl %esi
+    popl %edi
+    popl %edx
+    popl %ecx
+    popl %ebx
+# On ne bouge pas EAX puisqu'il est utilise pour le retour
+# fin du traitant
+    iret
