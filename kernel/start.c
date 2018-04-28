@@ -75,8 +75,8 @@ void kernel_start(void)
 
 	printf("teste\n");
 	initProc();
-  masque_IRQ(32, false);
-	masque_IRQ(49, false);
+  //masque_IRQ(32, false);
+
   //initFile();
 
 	execute_tests();
