@@ -229,7 +229,7 @@ char *mon_nom(void){
 int idle(){
 	unsigned long i;
 	while(1){
-		printf("IDLE\n");
+		//printf("IDLE\n");
 		sti();
 		for(i = 0; i < 5000000; i++){
 			//schedule();
