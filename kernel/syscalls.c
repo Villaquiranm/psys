@@ -11,6 +11,9 @@
 #include "horloge.h"
 #include "syscalls.h"
 
+typedef unsigned long long uint_fast64_t;
+typedef unsigned long uint_fast32_t;
+
 void traitant_appels_systeme(uint32_t args[]){
 
     printf("traitant_appels_systeme\n");
@@ -47,8 +50,6 @@ void traitant_appels_systeme(uint32_t args[]){
             break;
         case PSEND: psend(args[1], (int)args[2]);
             break;
-
-
         case CLOCK_SETTINGS: clock_settings((unsigned long *)args[1], (unsigned long *)args[2]);
             break;
         case CURRENT_CLOCK: current_clock(void);
@@ -75,16 +76,18 @@ void traitant_appels_systeme(uint32_t args[]){
             break;
         case ASSERT_FAILED: assert_failed((const char *)args[1], (const char *)args[2], (int) args[3]);
             break;
-
-
-            typedef unsigned long long uint_fast64_t;
-            typedef unsigned long uint_fast32_t;
-            short randShort(void);
-            void setSeed(uint_fast64_t _s);
-            unsigned long rand();
-            unsigned long long div64(unsigned long long num, unsigned long long div, unsigned long long *rem);
-            void test_it(void);
-
+        case RANDSHORT: randShort(void);
+            break;
+        case SETSEED: setSeed((uint_fast64_t) args[1]);
+            break;
+        case RAND: rand();
+            break;
+        case DIV64: div64((unsigned long long) args[1], (unsigned long long) args[2], (unsigned long long *)args[3]);
+            break;
+        case TEST_IT: test_it(void);
+            break;
+        default:
+            printf("Appel systeme inconnu\n", );
     }
 
 }
