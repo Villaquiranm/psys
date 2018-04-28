@@ -70,7 +70,6 @@ movl $3, %eax
 #on met des paramètres des fonctions dans des registres
 movl 4(%esp), %ebx
 movl 8(%esp), %ecx
-movl 12(%esp), %edx
 #interruption
 int $49
 #restauration des registres
@@ -101,7 +100,6 @@ movl $4, %eax
 #if defined CONS_READ_LINE
 movl 4(%esp), %ebx
 movl 8(%esp), %ecx
-movl 12(%esp), %edx
 #endif
 #interruption
 int $49

@@ -17,7 +17,21 @@ void traitant_appels_systeme(uint32_t args[]){
     uint32_t numAppel = args[0];
 
     switch (numAppel) {
-        case PCREATE: pcreate(args[2]);
+        case CHPRIO: chprio(args[1], args[2]);
+            break;
+        /*case CONS_WRITE: cons_write(args[1], args[2]);
+            break;
+        case CONS_READ: cons_read(args[1], args[2]);
+            break;
+        case CONS_ECHO: cons_echo(args[1]);
+            break;
+        case EXIT: exit(args[1]);
+            break;  */
+        case GETPID:  getpid();
+            break;
+        case GETPRIO: getprio(args[1]);
+            break;
+        case KILL: kill(args[1]);
             break;
     }
 
