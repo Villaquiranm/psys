@@ -7,6 +7,8 @@
 #include "queue.h"
 #include "mem.h"
 #include "syscalls.h"
+#include "fileMessage.h"
+#include "horloge.h"
 
 void traitant_appels_systeme(uint32_t args[]){
 
