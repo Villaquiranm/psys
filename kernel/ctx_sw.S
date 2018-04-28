@@ -21,4 +21,6 @@ ctx_sw:
     movl 16(%eax), %edi
 
     # on passe la main au nouveau processus
-    ret
+
+    #TODO ici faire des pushes qu'il faut pour garantir le mode user!
+    iret
