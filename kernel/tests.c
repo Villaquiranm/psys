@@ -2,7 +2,6 @@
 #include "processus.h"
 #include "tests.h"
 #include <stddef.h>
-#include "sysapi.h"
 
 #define TESTS_NUMBER 3
 
@@ -23,7 +22,7 @@ int test_suite(){
   int pid;
   int ret;
 
-  int file = pcreate(10);
+  //int file = pcreate(10);
 
   for (i = 0; i < TESTS_NUMBER; i++) {
     printf("Executing test %d\n", i+1);
