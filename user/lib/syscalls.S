@@ -1,5 +1,5 @@
-.text
-.globl kill
+    .text
+    .globl kill
 
 kill:
 #on sauvegarde des valeurs des registres
@@ -25,9 +25,8 @@ popl %edx
 popl %ecx
 popl %ebx
 ret
-################################################################################
-.text
-.globl chprio
+#-------------------------------------------------------------------------------
+    .globl chprio
 
 chprio:
 #on sauvegarde des valeurs des registres
@@ -54,9 +53,8 @@ popl %edx
 popl %ecx
 popl %ebx
 ret
-################################################################################
-.text
-.globl cons_write
+#-------------------------------------------------------------------------------
+    .globl cons_write
 
 cons_write:
 #on sauvegarde des valeurs des registres
@@ -84,9 +82,8 @@ popl %edx
 popl %ecx
 popl %ebx
 ret
-################################################################################
-.text
-.globl cons_read
+#-------------------------------------------------------------------------------
+    .globl cons_read
 
 cons_read:
 #on sauvegarde des valeurs des registres
@@ -117,9 +114,8 @@ popl %edx
 popl %ecx
 popl %ebx
 ret
-################################################################################
-.text
-.globl cons_echo
+#-------------------------------------------------------------------------------
+    .globl cons_echo
 
 cons_echo:
 #on sauvegarde des valeurs des registres
@@ -145,9 +141,8 @@ popl %edx
 popl %ecx
 popl %ebx
 ret
-################################################################################
-.text
-.globl exit
+#-------------------------------------------------------------------------------
+    .globl exit
 
 exit:
 #on sauvegarde des valeurs des registres
@@ -173,9 +168,8 @@ popl %edx
 popl %ecx
 popl %ebx
 ret
-################################################################################
-.text
-.globl getpid
+#-------------------------------------------------------------------------------
+    .globl getpid
 
 getpid:
 #on sauvegarde des valeurs des registres
@@ -201,9 +195,8 @@ popl %edx
 popl %ecx
 popl %ebx
 ret
-################################################################################
-.text
-.globl getprio
+#-------------------------------------------------------------------------------
+    .globl getprio
 
 getprio:
 #on sauvegarde des valeurs des registres
@@ -229,9 +222,8 @@ popl %edx
 popl %ecx
 popl %ebx
 ret
-################################################################################
-.text
-.globl pcount
+#-------------------------------------------------------------------------------
+    .globl pcount
 
 pcount:
 #on sauvegarde des valeurs des registres
@@ -258,9 +250,8 @@ popl %edx
 popl %ecx
 popl %ebx
 ret
-################################################################################
-.text
-.globl pcreate
+#-------------------------------------------------------------------------------
+    .globl pcreate
 
 pcreate:
 #on sauvegarde des valeurs des registres
@@ -286,9 +277,8 @@ popl %edx
 popl %ecx
 popl %ebx
 ret
-################################################################################
-.text
-.globl pdelete
+#-------------------------------------------------------------------------------
+    .globl pdelete
 
 pdelete:
 #on sauvegarde des valeurs des registres
@@ -314,11 +304,10 @@ popl %edx
 popl %ecx
 popl %ebx
 ret
-################################################################################
-.text
-.globl preceive
+#-------------------------------------------------------------------------------
+    .globl preceive
 
-pdelete:
+preceive:
 #on sauvegarde des valeurs des registres
 pushl %ebx
 pushl %ecx
@@ -343,9 +332,8 @@ popl %edx
 popl %ecx
 popl %ebx
 ret
-################################################################################
-.text
-.globl preset
+#-------------------------------------------------------------------------------
+    .globl preset
 
 preset:
 #on sauvegarde des valeurs des registres
@@ -371,9 +359,8 @@ popl %edx
 popl %ecx
 popl %ebx
 ret
-################################################################################
-.text
-.globl psend
+#-------------------------------------------------------------------------------
+    .globl psend
 
 psend:
 #on sauvegarde des valeurs des registres
@@ -400,4 +387,4 @@ popl %edx
 popl %ecx
 popl %ebx
 ret
-################################################################################
+#-------------------------------------------------------------------------------
