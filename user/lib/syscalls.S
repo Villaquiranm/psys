@@ -105,7 +105,7 @@ movl $4, %eax
 movl 4(%esp), %ebx
 movl 8(%esp), %ecx
 movl 12(%esp), %edx
-
+#endif
 #interruption
 int $49
 #restauration des registres
