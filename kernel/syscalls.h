@@ -6,6 +6,25 @@
 #define GETPID 5
 #define GETPRIO 6
 #define KILL 7
+#define CLOCK_SETTINGS 8
+#define CURRENT_CLOCK 9
+#define WAIT_CLOCK 10
+#define START 11
+#define WAITPID 12
+#define SYS_INFO 13
+#define STRPCMP 14
+#define STRLEN 15
+#define STRNCPY 16
+#define MEMSET 17
+#define SAFE_PRINTF 18
+#define CONS_GETS 19
+#define SAFE_PRINTF 20
+#define ASSERT_FAILED 21
+#define RANDSHORT 22
+#define SETSEED 23
+#define RAND 24
+#define DIV64 25
+#define TEST_IT 26
 
 void traitant_appels_systeme(uint32_t args[]);
 void traitant_IT_49();
