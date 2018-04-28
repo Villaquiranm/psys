@@ -4,4 +4,6 @@
 unsigned long cons_read(char * string, unsigned long length);
 int cons_write(const char *str, long size);
 void cons_echo(int on);
+void keyboard_data(char * string);
+void it_clavier();
 #endif

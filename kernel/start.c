@@ -5,6 +5,7 @@
 #include <processus.h>
 #include "horloge.h"
 #include "tests.h"
+#include "pilote.h"
 
 int fact(int n)
 {
@@ -27,12 +28,11 @@ void kernel_start(void)
 //	call_debugger();
 
 	init_traitant_IT(32, traitant_IT_32);
+	init_traitant_IT(33, traitant_IT_33);
 
 	printf("teste\n");
 	initProc();
-
-	execute_tests();
-
+	//execute_tests();
 	idle();
 
 	return;
