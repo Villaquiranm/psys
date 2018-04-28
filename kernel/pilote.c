@@ -10,24 +10,28 @@ int numMessages = 0;
 
 unsigned long cons_read(char * string, unsigned long length){
   while (numMessages < 1) {
-    
+    wait_clock(20);
   }
-  if (length == 0) {
+  if (length < 1) {
     return 0;
   }
+  int chara;
   unsigned long position = 0;
-  while (string[position] != 13 && position < length) {
+  preceive(fid, &chara);
+  string[position] = (char)(chara);
+  while (chara != 13 && position < length) {
     position++;
-    if (string[position] == 13) {
-      numMessages--;
-    }
+    preceive(fid, &chara);
+    string[position] = (char)(chara);
+  }
+  if (position > length) {
+    numMessages--;
   }
   return position;
 }
 int cons_write(const char *str, long size){
-  //I supose that we will use fileMessage
   for (int i = 0; i < size ;i++) {
-    psend(fid , str[i]);
+    printf("%c", str[i]);
   }
   return 0;
 }
@@ -60,7 +64,7 @@ void keyboard_data(char * string){
         printf("^%c",actuelChar + 64);
       }
     }
-    //psend(fid, actuelChar); //Il faut les envoyer bien sur.
+    psend(fid, actuelChar); //Il faut les envoyer bien sur.
   }
 }
 void it_clavier(){

@@ -6,6 +6,7 @@
 #include "horloge.h"
 #include "tests.h"
 #include "pilote.h"
+#include "prueba.h"
 
 int fact(int n)
 {
@@ -18,7 +19,6 @@ int fact(int n)
 
 void kernel_start(void)
 {
-
 	unsigned long quartz;
 	unsigned long ticks;
 
@@ -33,8 +33,13 @@ void kernel_start(void)
 	//cons_echo(false);
 	printf("teste\n");
 	initProc();
+
 	//execute_tests();
+	//cons_echo(false);
+  initFile();
 	idle();
+	//démasquer les interruptions externes
+	//sti();
 
 
 	return;

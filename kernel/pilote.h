@@ -1,6 +1,7 @@
 #ifndef PILOTE_H
 #define PILOTE_H
 #include "stdbool.h"
+#include "horloge.h"
 unsigned long cons_read(char * string, unsigned long length);
 int cons_write(const char *str, long size);
 void cons_echo(bool on);
