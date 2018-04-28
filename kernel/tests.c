@@ -22,6 +22,8 @@ int test_suite(){
   int pid;
   int ret;
 
+  //int file = pcreate(10);
+
   for (i = 0; i < TESTS_NUMBER; i++) {
     printf("Executing test %d\n", i+1);
     pid = start(functions[i], function_names[i], 4000, 128, NULL);

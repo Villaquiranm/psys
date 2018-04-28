@@ -22,7 +22,7 @@ traitant_IT_32:
 # debut du traitant
 traitant_IT_49:
 # sauvegarde des registres
-# On ne bouge pas EAX puisqu'il est utilise pour le retour
+    pushl %eax
     pushl %ebx
     pushl %ecx
     pushl %edx
@@ -40,6 +40,7 @@ traitant_IT_49:
     popl %edx
     popl %ecx
     popl %ebx
-# On ne bouge pas EAX puisqu'il est utilise pour le retour
+    addl %esp,4     #on enleve eax de la pile
+# On n'ecrit pas sur EAX puisqu'il est utilise pour le retour
 # fin du traitant
     iret
