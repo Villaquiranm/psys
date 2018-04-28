@@ -172,7 +172,7 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
     processus *newProc = (processus*)mem_alloc(sizeof(processus));
     newProc->pagedir = memalign(4096, 4096);
 
-    int app_size = (int)current_app->end - (int)current_app->start;
+    int app_size = (int)current_app->end - (int)current_app->start + 4;
     unsigned *space_app = (unsigned *)fl_malloc(app_size);
 
     // unsigned *current_mem = space_app;
@@ -180,7 +180,7 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
     //   *current_mem = *i;
     //   current_mem++;
     // }
-    memcpy(space_app, current_app->start, app_size);
+    MALLOC_COPY(space_app, current_app->start, app_size);
 
     // Fill page directory for the first 256MB of memory
     copy_pgdir(newProc->pagedir, pgdir);
