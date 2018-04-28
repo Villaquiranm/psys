@@ -6,6 +6,7 @@
 ll_m freelist = { NULL, &(freelist), &(freelist) };
 ll_m occupiedlist = { NULL, &(occupiedlist), &(occupiedlist) };
 
+
 void malloc_addblock(void *addr, size_t size) {
     alloc_node_t *blk;
 
