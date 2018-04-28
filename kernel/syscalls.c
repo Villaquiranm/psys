@@ -10,6 +10,7 @@
 #include "fileMessage.h"
 #include "horloge.h"
 #include "syscalls.h"
+#include "string.h"
 
 typedef unsigned long long uint_fast64_t;
 typedef unsigned long uint_fast32_t;
@@ -52,15 +53,15 @@ void traitant_appels_systeme(uint32_t args[]){
             break;
         case CLOCK_SETTINGS: clock_settings((unsigned long *)args[1], (unsigned long *)args[2]);
             break;
-        case CURRENT_CLOCK: current_clock(void);
+        case CURRENT_CLOCK: current_clock();
             break;
         case WAIT_CLOCK: wait_clock((unsigned long) args[1]);
             break;
-        case START: start((const char *)args[1], (unsigned long) args[2], (int) args[3], (void *)args[4]);
+        case START: //start((const char *)args[1], (unsigned long)args[2], (int)args[3], (void *)args[4]);
             break;
         case WAITPID: waitpid((int) args[1], (int *)args[2]);
             break;
-        case SYS_INFO: sys_info(void);
+        case SYS_INFO: //sys_info();
             break;
         case STRCMP: strcmp((const char *)args[1], (const char *)args[2]);
             break;
@@ -76,7 +77,7 @@ void traitant_appels_systeme(uint32_t args[]){
             break;
         case ASSERT_FAILED: assert_failed((const char *)args[1], (const char *)args[2], (int) args[3]);
             break;
-        case RANDSHORT: randShort(void);
+        case RANDSHORT: randShort();
             break;
         case SETSEED: setSeed((uint_fast64_t) args[1]);
             break;

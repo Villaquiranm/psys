@@ -18,7 +18,7 @@
 #define START 17
 #define WAITPID 18
 #define SYS_INFO 19
-#define STRNCMP 20
+#define STRCMP 20
 #define STRLEN 21
 #define STRNCPY 22
 #define MEMSET 23

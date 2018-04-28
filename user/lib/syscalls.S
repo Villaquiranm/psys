@@ -554,9 +554,9 @@ popl %ecx
 popl %ebx
 ret
 #-------------------------------------------------------------------------------
-.globl strncmp
+.globl strcmp
 
-strncmp:
+strcmp:
 #on sauvegarde des valeurs des registres
 pushl %ebx
 pushl %ecx
