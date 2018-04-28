@@ -1,18 +1,18 @@
-#define CHPRIO 0 ok
-#define CONS_WRITE 1 ok
-#define CONS_READ 2 ok
-#define CONS_ECHO 3 ok
-#define EXIT 4 ok
-#define GETPID 5 ok
-#define GETPRIO 6 ok
-#define KILL 7 ok
-#define PCOUNT 8 ok
-#define PCREATE 9 ok
-#define PDELETE 10 ok
-#define PRECEIVE 11 ok
-#define PRESET 12 ok
-#define PSEND 13 ok
-#define CLOCK_SETTINGS 14 ok
+#define CHPRIO 0
+#define CONS_WRITE 1
+#define CONS_READ 2
+#define CONS_ECHO 3
+#define EXIT 4
+#define GETPID 5
+#define GETPRIO 6
+#define KILL 7
+#define PCOUNT 8
+#define PCREATE 9
+#define PDELETE 10
+#define PRECEIVE 11
+#define PRESET 12
+#define PSEND 13
+#define CLOCK_SETTINGS 14
 #define CURRENT_CLOCK 15
 #define WAIT_CLOCK 16
 #define START 17
