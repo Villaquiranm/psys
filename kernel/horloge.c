@@ -81,8 +81,18 @@ void init_traitant_IT(uint32_t num_IT, void (*traitant)(void)){
 
 	adresseN++;
 
+  uint32_t constant;
+
+  if(num_IT==49){
+    //Pour les interruption d'appel de systeme, on utilise ça pour permettre
+    //que les utilisateurs fassent l'interruption
+    constant = (uint32_t)0xEE00;
+  }else{
+    constant = (uint32_t)0x8E00;
+  }
+
 	*adresseN = traitantFort;
-	*adresseN = *adresseN | (uint32_t)0x8E00;
+	*adresseN = *adresseN | constant;
 
     if(num_IT==32){
         ms=0;
