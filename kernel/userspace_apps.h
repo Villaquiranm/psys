@@ -28,4 +28,3 @@ struct uapps {
 extern const struct uapps symbols_table[];
 
 #endif
-
