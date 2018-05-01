@@ -10,9 +10,9 @@
 QUEUE* newQueue;
 
 void initFile(){
-     int a = pcreate(3);
-     printf("Creating file : %d\n",a);
-     start(&ecriteur,"Ecriteur", 1024, 10, NULL);
+     //int a = pcreate(3);
+     //printf("Creating file : %d\n",a);
+     //start(&ecriteur,"Ecriteur", 1024, 10, NULL);
      //start(&eliminateur,"Eliminateur", 1024, 10, NULL);
      //start(&cons,"Consommateur", 1024, 10, NULL);
 

@@ -29,6 +29,7 @@ unsigned long cons_read(char * string, unsigned long length){
   }
   return position;
 }
+
 int cons_write(const char *str, long size){
   for (int i = 0; i < size ;i++) {
     printf("%c", str[i]);
@@ -44,29 +45,75 @@ void cons_echo(bool on){
   }
 }
 void keyboard_data(char * string){
-  for (int i = 0; string[i] != '\0';i++) {
-    char actuelChar = string[i];
-    if (echo){
-      if (actuelChar == 9 || (actuelChar > 31 && actuelChar < 127)) {//Characteres affichables
-        printf("%s",string);
-      }
-      else if (actuelChar == 13){//Caracter Enter We need to unblock the read line here.
-        char s = 0xA;
-        printf("%c",s);
-        numMessages++;
-      }
-      else if (actuelChar == 127){// character BackSpace
-        printf("\b");
-        printf(" ");
-        printf("\b");
-      }
-      else if (actuelChar < 33) { //Characteres de control, sont affiches comme sa
-        printf("^%c",actuelChar + 64);
-      }
+  if ((string[0] >= 32) && (string[0] < 127)) {
+    if (echo) {
+      printf("%c",string[0]);
     }
-    psend(fid, actuelChar); //Il faut les envoyer bien sur.
+    psend(fid, string[0]); //Il faut les envoyer bien sur.
+  }
+  else if (string[0] == 127){// character BackSpace
+    if (echo) {
+      printf("\b");
+      printf(" ");
+      printf("\b");
+    }
+    last_char(fid);
+  }
+  else if (string[0] == 13){//Caracter Enter We need to unblock the read line here.
+    char s = 0xA;
+    if (echo) {
+      printf("%c",s);
+    }
+    psend(fid, string[0]); //Il faut les envoyer bien sur.
+    numMessages++;
+    unsigned long length = cons_read(string, 10);
+    cons_write(string, length);
+  }
+  else if (string[0] < 33) { //Characteres de control, sont affiches comme sa
+    if (echo) {
+      printf("^%c",string[0] + 64);
+    }
   }
 }
+/*void keyboard_data(char * string){
+  for (int i = 0; string[i] != '\0';i++) {
+    int var = 0;
+    char actuelChar = string[i];
+
+      if (actuelChar == 9 || (actuelChar > 31 && actuelChar < 127)) {//Characteres affichables
+        if (echo) {
+          printf("%c",actuelChar);
+        }
+        psend(fid, actuelChar); //Il faut les envoyer bien sur.
+      }
+      else if (actuelChar == 13){//Caracter Enter We need to unblock the read line here.
+        var++;
+        printf("%d",var);
+        char s = 0xA;
+        if (echo) {
+          printf("%c",s);
+        }
+        psend(fid, actuelChar); //Il faut les envoyer bien sur.
+        numMessages++;
+        //unsigned long length =
+         cons_read(string, 10);
+        //cons_write(string, length);
+      }
+      else if (actuelChar == 127){// character BackSpace
+        if (echo) {
+          printf("\b");
+          printf(" ");
+          printf("\b");
+        }
+        last_char(fid);
+      }
+      else if (actuelChar < 33) { //Characteres de control, sont affiches comme sa
+        if (echo) {
+          printf("^%c",actuelChar + 64);
+        }
+      }
+  }
+}*/
 void it_clavier(){
   if (!initialized) {
     fid = pcreate(100);
