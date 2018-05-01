@@ -128,6 +128,7 @@ int psend(int fid, int message){
         PLINK * processus_to_unblock = queue_out(&queues[fid]->process_receive.head, PLINK, head);
         processus_to_unblock->actuel->state = ACTIVABLE;
         queue_add(processus_to_unblock->actuel, &procsPrioQueue, processus, queueLink, prio);
+        mem_free(processus_to_unblock, sizeof(PLINK));
         //ctx_sw(&active->regs ,&processus_to_unblock->actuel->regs)  Giving execution time to unblocked processus
         //Just realized that it'is not necessary because l'ordonnanceur will do it.
     }
@@ -208,6 +209,7 @@ int preceive(int fid,int *message){
           PLINK * processus_to_unblock = queue_out(&queues[fid]->process_send.head, PLINK, head);
           processus_to_unblock->actuel->state = ACTIVABLE;
           queue_add(processus_to_unblock->actuel, &procsPrioQueue, processus, queueLink, prio);
+          mem_free(processus_to_unblock, sizeof(PLINK));
           //ctx_sw(&active->regs ,&processus_to_unblock->actuel->regs)  Giving execution time to unblocked processus
           //Just realized that it'is not necessary because l'ordonnanceur will do it.
       }else
@@ -271,4 +273,18 @@ int pcount(int fid, int *count){
   }
   else
     return -1;
+}
+int last_char(int fid){
+  if(fid < 0 || fid > NBQUEUE-1 || queues[fid] == NULL)
+      return -1;
+  if (queues[fid]->numberMessages > 0) {
+    queues[fid]->numberMessages--;
+    if (queues[fid]->write == (queues[fid]->message) ){ //If Write points to the begining of the vector
+      queues[fid]->write = &queues[fid]->message[queues[fid]->capacite-1];// moves to last position.
+    }
+    else{
+        queues[fid]->write--;// move to next memory position.
+    }
+  }
+  return 0;
 }

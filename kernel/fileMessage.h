@@ -33,4 +33,6 @@ int preceive(int fid,int *message);
 int preset(int fid);
 //La primitive psend envoie le message dans la file identifiée par fid.
 int psend(int fid, int message);
+//eliminates last character
+int last_char(int fid);
 #endif
