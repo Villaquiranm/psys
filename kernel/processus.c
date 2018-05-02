@@ -74,7 +74,7 @@ static void map_page(unsigned *pdir, unsigned *physaddr, unsigned virtualaddr, u
   // allocate the page table
   if (pdir[pd_index] == 0) {
     unsigned * new_ptable = memalign(4096, 1024);
-    pdir[pd_index] = (unsigned)new_ptable;
+    pdir[pd_index] = (unsigned)new_ptable | PAGE_DIR_FLAGS;
   }
 
   // Get page table
@@ -124,7 +124,7 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
     ssize = ssize + 1;
 	// Allocate the required space for the execution stack plus the
 	// function pointer, termination function pointer and the argument
-    uint32_t *pile = (uint32_t *)mem_alloc(4096);
+    uint32_t *pile = (uint32_t *)fl_malloc(4096);
 
     uint32_t *current = (pile + (4096)/4) - 1;
 
@@ -201,16 +201,17 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
 
     // Allocate the required space for the execution stack plus the
     // function pointer, termination function pointer and the argument
-    uint32_t *pile = (uint32_t *)mem_alloc(4096);
-    uint32_t *current = (pile + (4096)/4) - 1;
+    uint32_t *pile = (uint32_t *)fl_malloc(ssize);
+    uint32_t *current = (pile + (ssize)/4) - 1;
 
     map_page(newProc->pagedir, space_app, 0x40000000, 0x000000003u);
+    map_page(newProc->pagedir, pile, 0x80000000, 0x000000003u);
 
     // Put the function pointer, termination function pointer and the
     // argument on the top of the queue
     *(current--) = (uint32_t)arg;
     *(current--) = (uint32_t)ret_exit;
-    *(current) = (uint32_t)space_app;
+    *(current) = (uint32_t)0x40000000;
 
     // Set the process' fields with the appropiate values
     sprintf(newProc->nom, "%s", process_name);
@@ -529,7 +530,7 @@ void zombifyProc(int pid){
 }
 
 void freeProcessus(int pid){
-	mem_free(procs[pid]->pile, 4096);
+	fl_free(procs[pid]->pile);
 	mem_free(procs[pid], sizeof(processus));
 	/* After freeing the procs array position it has to be set to NULL papapa */
 	procs[pid] = NULL;
