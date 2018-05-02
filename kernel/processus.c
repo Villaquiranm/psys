@@ -66,6 +66,22 @@ static void init_apps_table() {
   }
 }
 
+static void map_page(unsigned *pdir, unsigned *physaddr, unsigned virtualaddr, unsigned flags){
+  unsigned pd_index = virtualaddr >> 22;
+  unsigned pt_index = (virtualaddr >> 12) & 0x3FFu;
+
+  // If the entry of the page directory is not yet filled, you need to
+  // allocate the page table
+  if (pdir[pd_index] == 0) {
+    unsigned * new_ptable = memalign(4096, 1024);
+    pdir[pd_index] = (unsigned)new_ptable;
+  }
+
+  // Get page table
+  unsigned *ptable = (unsigned*) (pdir[pd_index] & 0xFFFFF000);
+  ptable[pt_index] = ((unsigned)physaddr & 0xFFFFF000) | flags;
+}
+
 /*
  * Primitive to properly finish a process
  */
@@ -173,13 +189,10 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
     newProc->pagedir = memalign(4096, 4096);
 
     int app_size = (int)current_app->end - (int)current_app->start + 4;
+
+    // Does this block has to be page-aligned?
     unsigned *space_app = (unsigned *)fl_malloc(app_size);
 
-    // unsigned *current_mem = space_app;
-    // for (unsigned *i = (unsigned *)current_app->start; i < (unsigned)current_app->end; i++) {
-    //   *current_mem = *i;
-    //   current_mem++;
-    // }
     MALLOC_COPY(space_app, current_app->start, app_size);
 
     // Fill page directory for the first 256MB of memory
@@ -191,11 +204,13 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
     uint32_t *pile = (uint32_t *)mem_alloc(4096);
     uint32_t *current = (pile + (4096)/4) - 1;
 
+    map_page(newProc->pagedir, space_app, 0x40000000, 0x000000003u);
+
     // Put the function pointer, termination function pointer and the
     // argument on the top of the queue
     *(current--) = (uint32_t)arg;
     *(current--) = (uint32_t)ret_exit;
-    *(current) = (uint32_t)(space_app);
+    *(current) = (uint32_t)space_app;
 
     // Set the process' fields with the appropiate values
     sprintf(newProc->nom, "%s", process_name);
@@ -383,7 +398,6 @@ void initProc(void){
 	sentinel->dyingProcsLink = NULL;
 	dyingProcessesQueue = sentinel;
 
-	start2("test1", 512, 5, NULL);
 	//start(proc3, "proc3", 512, 10, NULL);
 }
 

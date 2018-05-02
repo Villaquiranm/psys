@@ -49,6 +49,7 @@ typedef struct processus{
 processus *active;
 
 int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, int prio, void *arg);
+int start2(const char *process_name, unsigned long ssize, int prio, void *arg);
 int waitpid(int pid, int *retvalp);
 void exitFunction(int retval);
 int kill(int pid);
