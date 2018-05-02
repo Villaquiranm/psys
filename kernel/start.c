@@ -30,7 +30,6 @@ void kernel_start(void)
 
 	init_traitant_IT(32, traitant_IT_32);
 	init_traitant_IT(33, traitant_IT_33);
-	//cons_echo(false);
 	printf("teste\n");
 	initProc();
 

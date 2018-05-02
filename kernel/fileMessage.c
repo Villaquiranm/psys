@@ -277,7 +277,7 @@ int pcount(int fid, int *count){
 int last_char(int fid){
   if(fid < 0 || fid > NBQUEUE-1 || queues[fid] == NULL)
       return -1;
-  if (queues[fid]->numberMessages > 0) {
+  if (queues[fid]->numberMessages > 0 && (*(queues[fid]->write - 1)  != 13)) {
     queues[fid]->numberMessages--;
     if (queues[fid]->write == (queues[fid]->message) ){ //If Write points to the begining of the vector
       queues[fid]->write = &queues[fid]->message[queues[fid]->capacite-1];// moves to last position.
@@ -287,4 +287,7 @@ int last_char(int fid){
     }
   }
   return 0;
+}
+bool estPleine(int fid){
+  return (queues[fid]->numberMessages == queues[fid]->capacite);
 }

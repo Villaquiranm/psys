@@ -2,6 +2,7 @@
 #define FILEMESSAGE_H
 #include "queue.h"
 #include "processus.h"
+#include "stdbool.h"
 #define NBQUEUE 20
 
 typedef struct plink{
@@ -35,4 +36,6 @@ int preset(int fid);
 int psend(int fid, int message);
 //eliminates last character
 int last_char(int fid);
+//File pleine;
+bool estPleine(int fid);
 #endif

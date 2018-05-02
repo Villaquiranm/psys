@@ -3,6 +3,7 @@
 #include "stddef.h"
 #include "cpu.h"
 #include "kbd.h"
+#include "console.h"
 bool echo = true;
 bool initialized = false;
 int fid;
@@ -24,16 +25,15 @@ unsigned long cons_read(char * string, unsigned long length){
     preceive(fid, &chara);
     string[position] = (char)(chara);
   }
-  if (position > length) {
+  if (position < length) {
     numMessages--;
   }
   return position;
 }
 
 int cons_write(const char *str, long size){
-  for (int i = 0; i < size ;i++) {
-    printf("%c", str[i]);
-  }
+  console_putbytes(str,size);
+  printf("\n");
   return 0;
 }
 void cons_echo(bool on){
@@ -44,62 +44,20 @@ void cons_echo(bool on){
     echo = false;
   }
 }
-void keyboard_data(char * string){
-  if ((string[0] >= 32) && (string[0] < 127)) {
-    if (echo) {
-      printf("%c",string[0]);
-    }
-    psend(fid, string[0]); //Il faut les envoyer bien sur.
-  }
-  else if (string[0] == 127){// character BackSpace
-    if (echo) {
-      printf("\b");
-      printf(" ");
-      printf("\b");
-    }
-    last_char(fid);
-  }
-  else if (string[0] == 13){//Caracter Enter We need to unblock the read line here.
-    char s = 0xA;
-    if (echo) {
-      printf("%c",s);
-    }
-    psend(fid, string[0]); //Il faut les envoyer bien sur.
-    numMessages++;
-    unsigned long length = cons_read(string, 10);
-    cons_write(string, length);
-  }
-  else if (string[0] < 33) { //Characteres de control, sont affiches comme sa
-    if (echo) {
-      printf("^%c",string[0] + 64);
-    }
-  }
-}
-/*void keyboard_data(char * string){
-  for (int i = 0; string[i] != '\0';i++) {
-    int var = 0;
-    char actuelChar = string[i];
 
-      if (actuelChar == 9 || (actuelChar > 31 && actuelChar < 127)) {//Characteres affichables
+void keyboard_data(char * string){
+  if (estPleine(fid)) {
+    //Faire le beep;
+  }else{
+    for (int i = 0; string[i] != '\0';i++) {
+      char actuel = string[i];
+      if ((actuel >= 32) && (actuel < 127)) {
         if (echo) {
-          printf("%c",actuelChar);
+          printf("%c",actuel);
         }
-        psend(fid, actuelChar); //Il faut les envoyer bien sur.
+        psend(fid, actuel); //Il faut les envoyer bien sur.
       }
-      else if (actuelChar == 13){//Caracter Enter We need to unblock the read line here.
-        var++;
-        printf("%d",var);
-        char s = 0xA;
-        if (echo) {
-          printf("%c",s);
-        }
-        psend(fid, actuelChar); //Il faut les envoyer bien sur.
-        numMessages++;
-        //unsigned long length =
-         cons_read(string, 10);
-        //cons_write(string, length);
-      }
-      else if (actuelChar == 127){// character BackSpace
+      else if (actuel == 127){// character BackSpace
         if (echo) {
           printf("\b");
           printf(" ");
@@ -107,17 +65,29 @@ void keyboard_data(char * string){
         }
         last_char(fid);
       }
-      else if (actuelChar < 33) { //Characteres de control, sont affiches comme sa
+      else if (actuel == 13){//Caracter Enter We need to unblock the read line here.
+        char s = 0xA;
         if (echo) {
-          printf("^%c",actuelChar + 64);
+          printf("%c",s);
+        }
+        psend(fid, actuel); //Il faut les envoyer bien sur.
+        numMessages++;
+        //char bola[10] ;
+        //unsigned long length = cons_read(bola, 10); //Uncomment to test
+        //cons_write(bola, length);
+      }
+      else if (actuel < 33) { //Characteres de control, sont affiches comme sa
+        if (echo) {
+          printf("^%c",actuel + 64);
         }
       }
+    }
   }
-}*/
+}
+
 void it_clavier(){
   if (!initialized) {
     fid = pcreate(100);
-    printf("Creating file de message FID : %d\n",fid);
     initialized = true;
   }
   do_scancode(inb(0x60));
