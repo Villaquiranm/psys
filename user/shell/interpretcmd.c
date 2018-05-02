@@ -26,7 +26,7 @@ char* read_cmd_line(char** cmd_line) {
   }
   buffer[current_pos] = '\0';
 
-  if(current_pos >= buffer_size) {
+  if(current_pos >= buffer_size) { 
     printf("buffer overflow\n" );
   }
   return buffer;
