@@ -21,6 +21,7 @@ link procsPrioQueue = LIST_HEAD_INIT(procsPrioQueue);
 processus *dyingProcessesQueue;
 processus *sleepingProcs;
 
+
 #define PAGE_DIR_FLAGS     0x00000003u
 extern unsigned pgtab[];
 extern unsigned pgdir[];
@@ -50,6 +51,7 @@ static void copy_pgdir(unsigned pagedir[],
       pagedir[i] = pagedir_kernel[i];
     }
 }
+
 
 /*
  * Primitive to properly finish a process
@@ -113,6 +115,7 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 	newProc->dyingProcsLink = NULL;
 	newProc->nextSleepingProcs = NULL;
 	newProc->expectedChild = 0;
+
 
 	if (active->pid == 0) {	// IDLE process is active
 		newProc->parent = NULL;
@@ -211,23 +214,30 @@ void preparingContextSwitch(){
     //Wake up sleeping processus
     unsigned long current_time = current_clock();
 
-		//Reveille tous les processus qu'il faut et les ajoute dans la file de priorite
-		struct processus* ptr = sleepingProcs;
-		struct processus* previous_ptr = sleepingProcs;
-		while (ptr != NULL) {
-			if (ptr->sleep_time < current_time) {
-				ptr->state = ACTIVABLE;
-				queue_add(ptr, &procsPrioQueue, processus, queueLink, prio);
-				if (ptr == sleepingProcs) {//If the first process We need to move the head.
-					sleepingProcs = ptr->nextSleepingProcs;
-				}
-				else{
-					previous_ptr->nextSleepingProcs = ptr->nextSleepingProcs;
-				}
+	//Reveille tous les processus qu'il faut et les ajoute dans la file de priorite
+	struct processus* ptr = sleepingProcs;
+	struct processus* previous_ptr = sleepingProcs;
+	while (ptr != NULL) {
+		if (ptr->sleep_time < current_time) {//delete processus from Sleeping_queue
+			ptr->state = ACTIVABLE;
+			queue_add(ptr, &procsPrioQueue, processus, queueLink, prio);
+			if (ptr == sleepingProcs) {//If the first process We need to move the head.
+				sleepingProcs = ptr->nextSleepingProcs;
+                ptr->nextSleepingProcs = NULL; // break link
+                ptr = sleepingProcs;
+                previous_ptr = ptr;
 			}
-			previous_ptr = ptr;
-			ptr = ptr->nextSleepingProcs;
-		}
+			else{
+				previous_ptr->nextSleepingProcs = ptr->nextSleepingProcs;
+                ptr->nextSleepingProcs = NULL;
+                ptr = previous_ptr->nextSleepingProcs;
+			}
+		}else{//Not deleting processus
+        previous_ptr = ptr;
+    		ptr = ptr->nextSleepingProcs;
+        }
+
+	}
 }
 
 /**
@@ -301,9 +311,12 @@ char *mon_nom(void){
 
 int idle(){
 	while(1){
+		//printf("IDLE\n");
 		sti();
-        hlt();
-        cli();
+		for(int i = 0; i < 5000000; i++){
+			//schedule();
+		}
+		cli();
 	}
 	return 0;
 }

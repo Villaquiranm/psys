@@ -22,6 +22,7 @@ void init_traitant_IT(uint32_t num_IT, void (*traitant)(void));
 void masque_IRQ(uint32_t num_IRQ, bool masque);
 //initialiser l'entrée 32 dans la table des vecteurs d'interruptions
 void traitant_IT_32();
+void traitant_IT_33();
 int nbr_secondes();
 unsigned long current_clock();
 #endif

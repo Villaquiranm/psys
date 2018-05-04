@@ -102,7 +102,7 @@ char* read_cmd_line(char** cmd_line) {
         printf("\n\t============================================\n");
         printf("\t               Simple C Shell\n");
         printf("\t--------------------------------------------\n");
-        printf("\t            projet Systeme -- 2A ENSIMAG:\n");
+        printf("\t            Projet Systeme -- 2A ENSIMAG:\n");
         printf("\t============================================\n");
         printf("\n\n");
   }
