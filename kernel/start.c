@@ -7,6 +7,7 @@
 #include "prueba.h"
 #include "tests.h"
 #include <mallocfreelist.h>
+#include "test_shell.h"
 
 #define MALLOC_SIZE (4 * 1024 * 1024) //4MB
 
@@ -71,12 +72,12 @@ void kernel_start(void)
 
 	init_traitant_IT(32, traitant_IT_32);
 
-	printf("teste\n");
+	//printf("teste\n");
 	initProc();
   masque_IRQ(32,false);
   //initFile();
-
-	execute_tests();
+	test_shell();
+	//execute_tests();
 
 	//*mal = 10;
 
