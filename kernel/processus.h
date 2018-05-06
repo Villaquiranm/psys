@@ -37,6 +37,7 @@ typedef struct processus{
 	int expectedChild;
 	regs regs;
 	uint32_t *pile;
+	uint32_t *pile_kernel;
 	struct processus *parent, *children;
 	struct processus *nextSibling;
 	struct processus *dyingProcsLink;

@@ -204,6 +204,8 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
     uint32_t *pile = (uint32_t *)fl_malloc(ssize);
     uint32_t *current = (pile + (ssize)/4) - 1;
 
+    newProc->pile_kernel = (uint32_t *) mem_alloc(4096);
+
     map_page(newProc->pagedir, space_app, 0x40000000, 0x000000003u);
     map_page(newProc->pagedir, pile, 0x80000000, 0x000000003u);
 
