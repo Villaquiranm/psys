@@ -150,7 +150,7 @@ void select_color(){
     //unsigned long size_cmd_line;
     char **tokens;
     char *cmd;
-    //char **param;
+    char **param;
     welcomeScreen();
     while(true) {
       type_prompt();
