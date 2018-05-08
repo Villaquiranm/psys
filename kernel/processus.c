@@ -26,7 +26,7 @@ processus *sleepingProcs;
 
 hash_t apps_table;
 
-#define PAGE_DIR_FLAGS     0x00000003u
+#define PAGE_DIR_FLAGS     0x00000007u
 extern unsigned pgtab[];
 extern unsigned pgdir[];
 extern unsigned testaddr;
@@ -115,10 +115,7 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 	// Create a pointer to a new process structure with the
 	// appropiate size
 	processus *newProc = (processus*)mem_alloc(sizeof(processus));
-    if(newProc==NULL){
-        printf("newProc==NULL !!!\n");
-    }
-    newProc->pagedir = memalign(4096, 4096);
+  newProc->pagedir = memalign(4096, 4096);
 	// Fill page directory for the first 256MB of memory fill_pgdir(newProc->pagedir, pgtab, 64);
 	copy_pgdir(newProc->pagedir, pgdir);
     ssize = ssize + 1;
@@ -209,14 +206,16 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
     newProc->pile_kernel = (uint32_t *) mem_alloc(4096);
     uint32_t *pile_kernel = (newProc->pile_kernel + 4096/4) - 1;
 
-    map_page(newProc->pagedir, space_app, 0x40000000, 0x000000003u);
-    map_page(newProc->pagedir, pile, 0x80000000, 0x000000003u);
+    map_page(newProc->pagedir, space_app, 0x40000000, PAGE_DIR_FLAGS);
+    map_page(newProc->pagedir, pile, 0x80000000, PAGE_DIR_FLAGS);
 
     // Put the function pointer, termination function pointer and the
     // argument on the top of the queue
     *(current--) = (uint32_t)arg;
     *(current) = (uint32_t)ret_exit;
 
+    *(pile_kernel--) = (uint32_t)space_app;
+    *(pile_kernel--) = *(current);
     *(pile_kernel) = (uint32_t)kernel2user;
 
     // Set the process' fields with the appropiate values
