@@ -6,7 +6,7 @@
 #include "horloge.h"
 #include "prueba.h"
 #include "tests.h"
-#include "syscalls.h
+#include "syscalls.h"
 #include "pilote.h"
 #include <mallocfreelist.h>
 
@@ -39,7 +39,6 @@ void kernel_start(void)
 //	call_debugger();
 
 	init_traitant_IT(32, traitant_IT_32);
-<<<<<<< HEAD
 	init_traitant_IT(49, traitant_IT_49);
 
 	printf("teste\n");
@@ -54,15 +53,13 @@ void kernel_start(void)
 
 	//printf("Mal = %d", *mal);
 
-=======
 	init_traitant_IT(33, traitant_IT_33);
 	printf("teste\n");
 	initProc();
 
 	//execute_tests();
 	//cons_echo(false);
-  initFile();
->>>>>>> origin/master
+  	initFile();
 	idle();
 	//démasquer les interruptions externes
 	//sti();

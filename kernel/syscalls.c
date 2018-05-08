@@ -10,6 +10,7 @@
 #include "fileMessage.h"
 #include "horloge.h"
 #include "syscalls.h"
+#include "pilote.h"
 #include "string.h"
 #include "div64.h"
 
@@ -29,9 +30,9 @@ void traitant_appels_systeme(uint32_t args[]){
 
         case CHPRIO: chprio(args[4], args[3]);
             break;
-        /*case CONS_WRITE: cons_write(args[4], args[3]);
+        case CONS_WRITE: cons_write((const char*)args[4], args[3]);
             break;
-        case CONS_READ: cons_read(args[4], args[3]);
+        /*case CONS_READ: cons_read(args[4], args[3]);
             break;
         case CONS_ECHO: cons_echo(args[4]);
             break;
