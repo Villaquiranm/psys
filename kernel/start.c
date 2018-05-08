@@ -40,6 +40,7 @@ void kernel_start(void)
 	init_traitant_IT(33, traitant_IT_33);
 
 	//printf("teste\n");
+	//change_couleur(2);
 	initProc();
   //masque_IRQ(32,false);
   initFile();

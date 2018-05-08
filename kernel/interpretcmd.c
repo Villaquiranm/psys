@@ -5,7 +5,9 @@
 #include <stdbool.h>
 #include "mem.h"
 #include "pilote.h"
+#include "console.h"
 
+char * buffer;
 static int compare(const char* chaine1, const char* chaine2)
 {   unsigned int i=0;
     if( strlen(chaine1) != strlen(chaine2) )
@@ -15,9 +17,48 @@ static int compare(const char* chaine1, const char* chaine2)
             return faux;
     return vrai;
 }
+void select_color(){
+  int choix = 0;
+  printf("\n\t============================================\n");
+  printf("\t               Select color\n");
+  printf("\t--------------------------------------------\n");
+  printf("\t   0 : Black     1 : Blue      2 : Green       \n");
+  printf("\t   3 : Cyan      4 : Red       5 : Magenta     \n");
+  printf("\t   6 : Brown     7 : Gray      8 : Dark Gray   \n");
+  printf("\t   9 : BlueII    10: GreenII   11: CyanII       \n");
+  printf("\t   12: RedII     13: MagentaII 14: Yellow       \n");
+  printf("\t                 15: White                      \n");
+  printf("\t============================================\n");
+  printf("\n\n");
+  switch (cons_read(buffer, CMD_LINE_BUFFER_SIZE)) {
+    case 1:
+      choix += buffer[0]-'0';
+    break;
+    case 2:
+      choix += (buffer[0]-'0')*10 + buffer[1]-'0';
+    break;
+  };
+  if (choix >= 0 && choix <= 15) {
+      change_couleur(choix);
+  }
+}
+
 
  int builtin_command(char* cmd, char** param) {
-    if(compare(cmd, "echo") == vrai) {
+    if(compare(cmd, "change") == vrai) {
+      //printf("Je suis la commande echo\n");
+      /*if (param[0][0] == '\"') {
+        //printf("je commence a lire! Le contenu de echo est suivant:\n");
+        int i = 1;
+        while(param[0][i] != '\"') {
+        printf("%c",param[0][i]);
+        i++;
+        if(i>50){
+          printf("erreur!");
+        }
+        }
+      }*/select_color();
+    } else if(compare(cmd, "echo") == vrai){
       //printf("Je suis la commande echo\n");
       if (param[0][0] == '\"') {
         //printf("je commence a lire! Le contenu de echo est suivant:\n");
@@ -29,8 +70,8 @@ static int compare(const char* chaine1, const char* chaine2)
           printf("erreur!");
         }
         }
-      }
-    } else {
+    }}
+    else{
       printf("La commande n'est pas reconnue!\n");
     }
     return -1;
@@ -79,32 +120,6 @@ static int compare(const char* chaine1, const char* chaine2)
     return new_tokens;
   }
 
-  int builtin_commande(char *cmd, char **param) {
-      if(strcmp(cmd, "exit") == 0) {
-        return -1;
-      }
-
-      else if(strcmp(cmd, "cd") == 0) {
-        char *cd_path = NULL;
-        if(param[0][0] == '~'){
-          cd_path = mem_alloc(sizeof(char)*strlen("/home/user/"));
-          if(cd_path == NULL) {
-            printf("allocation error\n");
-          }
-          strcpy(cd_path,"/home/user/");
-        } else {
-          cd_path = mem_alloc(strlen(param[1]+1));
-          if(cd_path == NULL) {
-            printf("allocation error\n");
-          }
-          strcpy(cd_path, param[1]);
-        }
-      }
-
-      return 0;
-  }
-
-
   void type_prompt() {
       char hostName[] = "yum";
       printf("[Minishell %s@%s]$",hostName,hostName);
@@ -121,12 +136,12 @@ static int compare(const char* chaine1, const char* chaine2)
   }
 
   int miniShell() {
-    char * buffer = createBuffer(CMD_LINE_BUFFER_SIZE);
+    buffer = createBuffer(CMD_LINE_BUFFER_SIZE);
     unsigned long nb_wd = 0;
     //unsigned long size_cmd_line;
     char **tokens;
     char *cmd;
-    char **param;
+    //char **param;
     welcomeScreen();
     type_prompt();
     /*unsigned long length =*/ cons_read(buffer, CMD_LINE_BUFFER_SIZE);
@@ -134,12 +149,12 @@ static int compare(const char* chaine1, const char* chaine2)
     //printf("%lu\n",length);
     tokens = split_cmd_line(buffer, &nb_wd);
     cmd = extraire_cmd(tokens);
-    param = extraire_param(tokens);
-    builtin_command(cmd, param);
-    /*
-    while(tokens != NULL) {
-      printf("%s\n", *tokens++);
-    }*/
+    //param = extraire_param(tokens);
+    if (strcmp(cmd, "change") == 0) {
+      select_color();
+    }
+    //builtin_command(cmd, param);
+
 
     return 0;
   }
