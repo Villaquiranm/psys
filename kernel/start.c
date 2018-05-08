@@ -26,6 +26,7 @@ int fact(int n)
 
 void kernel_start(void)
 {
+
 	//Creates the block of the memory between 64Mo and 256Mo
 	malloc_addblock((void *)0x4000000, 0xBFFFFFC);
 

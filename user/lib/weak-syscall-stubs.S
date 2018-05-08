@@ -16,7 +16,7 @@ WEAK_STUB(chprio)
 WEAK_STUB(kill)
 WEAK_STUB(waitpid)
 WEAK_STUB(exit)
-WEAK_STUB(cons_write)
+/*WEAK_STUB(cons_write)*/
 WEAK_STUB(cons_read)
 WEAK_STUB(cons_echo)
 WEAK_STUB(scount)

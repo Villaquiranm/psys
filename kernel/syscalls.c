@@ -25,6 +25,8 @@ void traitant_appels_systeme(uint32_t args[]){
 
     printf("numero appel: %d", numAppel);
     printf("parametres: %d, %d, %d, %d, %d, %d", args[0], args[1], args[2], args[3], args[4], args[5]);
+    printf("string: ");
+    printf("%d", (*((int *)args[4])));
 
     switch (numAppel) {
 
