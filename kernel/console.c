@@ -25,6 +25,11 @@ uint16_t cling = 0;
 uint16_t *ptr_mem(uint32_t lig, uint32_t col) {
   return (uint16_t*)(MEM_VIDEO + 2*(lig*NB_COL + col));
 }
+void change_couleur(int couleur){
+  if (couleur >= 0 && couleur <= 15) {
+    couleur_c = couleur;
+  }
+}
 
 void ecrit_car(uint32_t lig, uint32_t col, char c) {
   uint16_t *position = ptr_mem(lig, col);

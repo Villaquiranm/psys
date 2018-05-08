@@ -86,6 +86,8 @@ void keyboard_data(char * string){
         if (echo) {
           printf("^%c",actuel + 64);
         }
+      psend(fid,'^');  
+      psend(fid, actuel+64);
       }
     }
   }
