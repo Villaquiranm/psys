@@ -45,6 +45,7 @@ void kernel_start(void)
 
   //initFile();
 
+	// Execution de tests
 	execute_tests();
 
 	//*mal = 10;
