@@ -3,7 +3,9 @@
 
 
 #define CMD_LINE_BUFFER_SIZE 50
+#define HIS_BUFFER_SIZE 50
 #define TOKEN_BUFFER_SIZE 50
+#define MIX_WORDS_ECO 30
 #define TOKEN_DELIMITERS " \t\r\n\a"
 
 #define vrai  1
