@@ -115,10 +115,7 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 	// Create a pointer to a new process structure with the
 	// appropiate size
 	processus *newProc = (processus*)mem_alloc(sizeof(processus));
-    if(newProc==NULL){
-        printf("newProc==NULL !!!\n");
-    }
-    newProc->pagedir = memalign(4096, 4096);
+  newProc->pagedir = memalign(4096, 4096);
 	// Fill page directory for the first 256MB of memory fill_pgdir(newProc->pagedir, pgtab, 64);
 	copy_pgdir(newProc->pagedir, pgdir);
     ssize = ssize + 1;
@@ -218,7 +215,7 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
     *(current) = (uint32_t)ret_exit;
 
     *(pile_kernel--) = (uint32_t)space_app;
-    *(pile_kernel--) = (uint32_t) (pile + (ssize)/4) - 1;
+    *(pile_kernel--) = *(current);
     *(pile_kernel) = (uint32_t)kernel2user;
 
     // Set the process' fields with the appropiate values
