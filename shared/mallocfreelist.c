@@ -105,7 +105,7 @@ void fl_free(void * ptr) {
     if(ptr) {
         while(!isOccupied && current != NULL) {
             block = current->node;
-            if(&(block->block) == ptr) {
+            if(((block) + 4096/8) == ptr) {
                 isOccupied = true;
             } else if (current->next == NULL) {
                 break;
@@ -131,7 +131,7 @@ bool merge_blocks(ll_m *block) {
     bool blockMerge = false;
 
     while(current->node != NULL) {
-        if((void *)((int)&(block->node->block) + block->node->size) == (current->node)) { //if block is immediately before current
+        if((void *)((int)(block->node) + block->node->size) == (current->node)) { //if block is immediately before current
             block->node->size = current->node->size + block->node->size;
             block->node->block = NULL;
             blockMerge = true;
@@ -140,7 +140,7 @@ bool merge_blocks(ll_m *block) {
             current->prev->next = current->next;
             //free current
             //free(current);
-        } else if ((void *)((int)&(current->node->block) + current->node->size) == (block->node)) { //if block comes immediately after current
+        } else if ((void *)((int)(current->node) + current->node->size) == (block->node)) { //if block comes immediately after current
             current->node->size = current->node->size + block->node->size;
             current->node->block = NULL;
             //Delete it from freelist
