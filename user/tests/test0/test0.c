@@ -3,19 +3,19 @@
  *
  * A simple test that probes a classic system call.
  ******************************************************************************/
-#include"../lib/sysapi.h"
+#include "sysapi.h"
 
-// int main()
-int main(void *arg)
+int main()
+// int main(void *arg)
 {
 
+
         // getpid();
-        (void)arg;
+    /*    (void)arg;
         register unsigned reg1 = 1u;
         register unsigned reg2 = 0xFFFFFFFFu;
         register unsigned reg3 = 0xBADB00B5u;
         register unsigned reg4 = 0xDEADBEEFu;
-
 
         printf("I'm a simple process running ...");
 
@@ -28,6 +28,6 @@ int main(void *arg)
         }
 
         printf(" and I'm healthy. Leaving.\n");
-
+*/
         return 0;
 }

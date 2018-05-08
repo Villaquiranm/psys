@@ -6,8 +6,18 @@ int main(void *arg)
 
 //        pcreate(10);
 
-        //char str[10] = "Hello\0";
-        cons_write("Hello\0",sizeof("Hello\0"));
+        char str[10];
+        //"Hello\0";
+        strncpy(str,"Hello\0",5);
+        cons_write(str,strlen(str));
 
-        return 32832;
+        cons_write("Salut\0",6);
+
+        //printf("S: %s\n", str);
+        //printf(str);
+
+        if(str==NULL)
+          return 32832;
+        else
+          return 32832;
 }

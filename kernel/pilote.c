@@ -4,6 +4,7 @@
 #include "cpu.h"
 #include "kbd.h"
 #include "console.h"
+#include "string.h"
 bool echo = true;
 bool initialized = false;
 int fid;
@@ -33,8 +34,13 @@ unsigned long cons_read(char * string, unsigned long length){
 
 int cons_write(const char *str, long size){
   printf("Dans cons_write\n");
-  printf("String: %s\n",str);
+  //printf("String: %s\n",str);
+  //char string[size];
+  //strncpy(string, str, size);
+
+  //console_putbytes(string,size);
   console_putbytes(str,size);
+  printf("Apres console\n");
   printf("\n");
   return 0;
 }
