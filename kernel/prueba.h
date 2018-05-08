@@ -6,5 +6,7 @@ void addProcessus(struct processus * proc, int priorite);
 void showProcessus();
 int cons();
 int prod();
+int eliminateur();
+int ecriteur();
 
 #endif
