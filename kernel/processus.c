@@ -6,6 +6,9 @@
 #include "fileMessage.h"
 #include "horloge.h"
 #include "mem.h"
+#include <userspace_apps.h>
+#include <hash.h>
+#include "mallocfreelist.h"
 
 // These variables definitions were originally in the header file
 // but as the start.c file also includes that header, the compiler
@@ -22,6 +25,7 @@ processus *dyingProcessesQueue;
 processus *sleepingProcs;
 
 
+hash_t apps_table;
 #define PAGE_DIR_FLAGS     0x00000003u
 extern unsigned pgtab[];
 extern unsigned pgdir[];
@@ -47,11 +51,36 @@ extern unsigned testaddr;
 static void copy_pgdir(unsigned pagedir[],
                        unsigned pagedir_kernel[]) {
     unsigned int i;
-    for (i = 0; i < 1024; (i)++) {
+    for (i = 0; i < 64; (i)++) {
       pagedir[i] = pagedir_kernel[i];
     }
 }
 
+static void init_apps_table() {
+  hash_init_string(&apps_table);
+
+  int i = 0;
+  while (symbols_table[i].name != NULL) {
+    hash_set(&apps_table, (void *)symbols_table[i].name, (void *)&symbols_table[i]);
+    i++;
+  }
+}
+
+static void map_page(unsigned *pdir, unsigned *physaddr, unsigned virtualaddr, unsigned flags){
+  unsigned pd_index = virtualaddr >> 22;
+  unsigned pt_index = (virtualaddr >> 12) & 0x3FFu;
+
+  // If the entry of the page directory is not yet filled, you need to
+  // allocate the page table
+  if (pdir[pd_index] == 0) {
+    unsigned * new_ptable = memalign(4096, 1024);
+    pdir[pd_index] = (unsigned)new_ptable | PAGE_DIR_FLAGS;
+  }
+
+  // Get page table
+  unsigned *ptable = (unsigned*) (pdir[pd_index] & 0xFFFFF000);
+  ptable[pt_index] = ((unsigned)physaddr & 0xFFFFF000) | flags;
+}
 
 /*
  * Primitive to properly finish a process
@@ -95,7 +124,7 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
     ssize = ssize + 1;
 	// Allocate the required space for the execution stack plus the
 	// function pointer, termination function pointer and the argument
-    uint32_t *pile = (uint32_t *)mem_alloc(4096);
+    uint32_t *pile = (uint32_t *)fl_malloc(4096);
 
     uint32_t *current = (pile + (4096)/4) - 1;
 
@@ -149,6 +178,88 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 
 		return newProc->pid;
 	}
+}
+
+int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
+  if (hash_isset(&apps_table, (void *)process_name) != 0) {
+    struct uapps *current_app = (struct uapps *)(hash_get(&apps_table, (void *)process_name, 0));
+
+    // Create a pointer to a new process structure with the
+    // appropiate size
+    processus *newProc = (processus*)mem_alloc(sizeof(processus));
+    newProc->pagedir = memalign(4096, 4096);
+
+    int app_size = (int)current_app->end - (int)current_app->start + 4;
+
+    // Does this block has to be page-aligned?
+    unsigned *space_app = (unsigned *)fl_malloc(app_size);
+
+    MALLOC_COPY(space_app, current_app->start, app_size);
+
+    // Fill page directory for the first 256MB of memory
+    copy_pgdir(newProc->pagedir, pgdir);
+    ssize = ssize + 1;
+
+    // Allocate the required space for the execution stack plus the
+    // function pointer, termination function pointer and the argument
+    uint32_t *pile = (uint32_t *)fl_malloc(ssize);
+    uint32_t *current = (pile + (ssize)/4) - 1;
+
+    newProc->pile_kernel = (uint32_t *) mem_alloc(4096);
+
+    map_page(newProc->pagedir, space_app, 0x40000000, 0x000000003u);
+    map_page(newProc->pagedir, pile, 0x80000000, 0x000000003u);
+
+    // Put the function pointer, termination function pointer and the
+    // argument on the top of the queue
+    *(current--) = (uint32_t)arg;
+    *(current--) = (uint32_t)ret_exit;
+    *(current) = (uint32_t)0x40000000;
+
+    // Set the process' fields with the appropiate values
+    sprintf(newProc->nom, "%s", process_name);
+    newProc->state = ACTIVABLE;
+    newProc->prio = prio;
+    newProc->regs.esp = (uint32_t)current;
+    newProc->pile = pile;
+    newProc->dyingProcsLink = NULL;
+    newProc->nextSleepingProcs = NULL;
+    newProc->expectedChild = 0;
+
+    if (active->pid == 0) {	// IDLE process is active
+      newProc->parent = NULL;
+      newProc->children = NULL;
+      newProc->nextSibling = NULL;
+    } else {
+      newProc->parent = active;
+      newProc->children = NULL;
+      if (newProc->parent->children != NULL) {
+        newProc->nextSibling = newProc->parent->children;
+      }
+      newProc->parent->children = newProc;
+    }
+
+    // Add the process to the priority queue if there is enough available space
+    if(freePID == 0) {
+      return -1;
+    } else {
+      procs[nextPID] = newProc;
+      newProc->pid = nextPID;
+      nextPID++;
+      freePID--;
+
+      if (newProc->prio > active->prio) {
+        schedulePID(newProc->pid);
+      } else {
+        queue_add(newProc, &procsPrioQueue, processus, queueLink, prio);
+      }
+
+      return newProc->pid;
+    }
+  } else {
+    printf("La fonction %s n'a pas été trouvée\n", process_name);
+    return -1;
+  }
 }
 
 int kill(int pid) {
@@ -282,6 +393,7 @@ void initProc(void){
 	for (size_t i = 0; i < NBPROC + 1; i++) {
 		procs[i] = NULL;
 	}
+  init_apps_table();
 
 	processus *idle = (processus*)mem_alloc(sizeof(processus));
 
@@ -297,7 +409,6 @@ void initProc(void){
 	sentinel->dyingProcsLink = NULL;
 	dyingProcessesQueue = sentinel;
 
-	//start(proc1, "proc1", 512, 5, NULL);
 	//start(proc3, "proc3", 512, 10, NULL);
 }
 
@@ -432,7 +543,7 @@ void zombifyProc(int pid){
 }
 
 void freeProcessus(int pid){
-	mem_free(procs[pid]->pile, 4096);
+	fl_free(procs[pid]->pile);
 	mem_free(procs[pid], sizeof(processus));
 	/* After freeing the procs array position it has to be set to NULL papapa */
 	procs[pid] = NULL;
