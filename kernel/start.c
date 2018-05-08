@@ -7,11 +7,10 @@
 #include "prueba.h"
 #include "tests.h"
 #include <mallocfreelist.h>
-
+#include "test_shell.h"
 #define MALLOC_SIZE (4 * 1024 * 1024) //4MB
-
 extern void * malloc(size_t n);
-extern void * memalign(size_t alignment, size_t n);
+#include "pilote.h"
 
 int fact(int n)
 {
@@ -33,24 +32,24 @@ void kernel_start(void)
 	//TODO VERIFIER CE QU'ON DOIT FAIRE AVEC LES POINTERS quartz ET ticks
 	clock_settings(&quartz, &ticks);
 	efface_ecran();
+	kdb_leds(0);
 //	call_debugger();
 
-	init_traitant_IT(32, traitant_IT_32);
-
-	printf("teste\n");
+	init_traitant_IT(33, traitant_IT_33);
+	//printf("teste\n");
 	initProc();
   masque_IRQ(32,false);
   //initFile();
-
-	execute_tests();
+	test_shell();
+	//execute_tests();
 
 	//*mal = 10;
 
 	//printf("Mal = %d", *mal);
-
 	idle();
 	//démasquer les interruptions externes
 	//sti();
+
 
 	return;
 }

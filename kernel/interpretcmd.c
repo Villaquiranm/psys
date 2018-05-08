@@ -26,7 +26,7 @@ char* read_cmd_line(char** cmd_line) {
   }
   buffer[current_pos] = '\0';
 
-  if(current_pos >= buffer_size) { 
+  if(current_pos >= buffer_size) {
     printf("buffer overflow\n" );
   }
   return buffer;
@@ -57,19 +57,21 @@ char* read_cmd_line(char** cmd_line) {
     return tokens;
   }
 
-  char* extraire_cmd(char **tokens) {
+   char* extraire_cmd(char **tokens) {
     return tokens[0];
   }
 
-  char** extraire_param(char **tokens) {
+   char** extraire_param(char **tokens) {
     char** new_tokens = tokens + 1;
     return new_tokens;
   }
 
   int builtin_commande(char *cmd, char **param) {
       if(strcmp(cmd, "exit") == 0) {
-        exit(0);
-      } else if(strcmp(cmd, "cd") == 0) {
+        return -1;
+      }
+
+      else if(strcmp(cmd, "cd") == 0) {
         char *cd_path = NULL;
         if(param[0][0] == '~'){
           cd_path = mem_alloc(sizeof(char)*strlen("/home/user/"));
@@ -85,13 +87,22 @@ char* read_cmd_line(char** cmd_line) {
           strcpy(cd_path, param[1]);
         }
       }
+
       return 0;
   }
-  
-/*
-  void prompt_msg(char* msg) {
-    char hostName[MAX_LENGTH_HN];
-    char pathName[MAX_LENGTH_PN];
 
+
+  void type_prompt() {
+      char hostName[] = "yum";
+      printf("[Minishell %s@%s]$",hostName,hostName);
+      return;
   }
-  */
+
+  void welcomeScreen() {
+        printf("\n\t============================================\n");
+        printf("\t               Simple C Shell\n");
+        printf("\t--------------------------------------------\n");
+        printf("\t            Projet Systeme -- 2A ENSIMAG:\n");
+        printf("\t============================================\n");
+        printf("\n\n");
+  }
