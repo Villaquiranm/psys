@@ -12,6 +12,7 @@
 #define MALLOC_SIZE (4 * 1024 * 1024) //4MB
 extern void * malloc(size_t n);
 #include "pilote.h"
+#include "mem.h"
 
 int fact(int n)
 {
@@ -41,12 +42,11 @@ void kernel_start(void)
 	//printf("teste\n");
 	initProc();
   //masque_IRQ(32,false);
-  //initFile();
+  initFile();
 	//test_shell();
 	//execute_tests();
 	//miniShell();
 	//*mal = 10;
-
 	//printf("Mal = %d", *mal);
 	idle();
 	//démasquer les interruptions externes

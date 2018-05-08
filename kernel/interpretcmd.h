@@ -23,7 +23,7 @@ char **split_cmd_line(char *line);
 void welcomeScreen();
 
 void type_prompt();
+int miniShell();
 
-void miniShell();
 
 #endif

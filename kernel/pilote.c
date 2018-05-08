@@ -4,6 +4,7 @@
 #include "cpu.h"
 #include "kbd.h"
 #include "console.h"
+#include "mem.h"
 bool echo = true;
 bool initialized = false;
 int fid;
@@ -97,4 +98,7 @@ void it_clavier(){
 void kdb_leds(unsigned char leds){
   outb(0x60, 0xED);
   outb(0x60, leds);
+}
+char * createBuffer(int length){
+  return mem_alloc(sizeof(char*) * length);
 }

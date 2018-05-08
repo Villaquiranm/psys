@@ -6,6 +6,7 @@
 #include "prueba.h"
 #include "cpu.h"
 #include "pilote.h"
+#include "interpretcmd.h"
 
 QUEUE* newQueue;
 
@@ -14,7 +15,7 @@ void initFile(){
      //printf("Creating file : %d\n",a);
      //start(&ecriteur,"Ecriteur", 1024, 10, NULL);
      //start(&eliminateur,"Eliminateur", 1024, 10, NULL);
-     //start(&cons,"Consommateur", 1024, 10, NULL);
+     start(&miniShell,"Consommateur", 1024, 10, NULL);
 }
 void addProcessus(struct processus * proc, int prio){
     PLINK * ptr = (PLINK *)mem_alloc(sizeof(PLINK));

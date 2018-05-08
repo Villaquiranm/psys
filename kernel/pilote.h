@@ -8,4 +8,5 @@ void cons_echo(bool on);
 void keyboard_data(char * string);
 void kdb_leds(unsigned char leds);
 void it_clavier();
+char * createBuffer();
 #endif

@@ -108,12 +108,14 @@ char* read_cmd_line(char** cmd_line) {
         printf("\n\n");
   }
 
-  void miniShell() {
-    char *buffer = mem_alloc(sizeof(char*) * CMD_LINE_BUFFER_SIZE);
+  int miniShell() {
+    char * buffer = createBuffer(CMD_LINE_BUFFER_SIZE);
     //unsigned long size_cmd_line;
-  //  char **tokens;
+    //char **tokens;
     welcomeScreen();
     type_prompt();
-    cons_read(buffer, CMD_LINE_BUFFER_SIZE);
-    split_cmd_line(buffer);
+    unsigned long length = cons_read(buffer, CMD_LINE_BUFFER_SIZE);
+    cons_write(buffer, length);
+    //split_cmd_line(buffer);
+    return 0;
   }
