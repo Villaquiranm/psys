@@ -77,33 +77,34 @@ void select_color(){
     return -1;
   }
 
-  char **split_cmd_line(char* line, unsigned long* length) {
-    int buffer_size = TOKEN_BUFFER_SIZE;
-    int current_pos = 0;
-    char **tokens = mem_alloc(buffer_size * sizeof(char*));
-    char *token;
-    *length = 0;
-
-    if(tokens == NULL) {
-      printf("Allocation error \n");
+  
+//-----------------------------------
+/*char **split_cmd_line(char* line, unsigned long length) {
+  int number_cmd = 1;
+  int current_pos = 0;
+  char * token;
+  for (unsigned long i = 0; i<length ; i++) {
+    if (line[i] ==' ') {
+      number_cmd++;
     }
-    // Retourner le premier token, Null si il y n'a plus de token
-    token = strtok(line, TOKEN_DELIMITERS);
-    // passe tous les autres tokens
-    while(token != NULL) {
-    //  printf("%s\n", token);
-      tokens[current_pos] = token;
-      current_pos++;
-      if(current_pos >= buffer_size) {
-        printf("buffer overflow\n" );
-      }
-      token = strtok(NULL, TOKEN_DELIMITERS);
-    }
-    *length = current_pos;
-    //printf("%lu\n", *length); //pour test
-    return tokens;
   }
+  token = strtok(line, TOKEN_DELIMITERS);
+  //printf("Soy el token 1: %s\n",token);
+  char **tokens = mem_alloc(number_cmd * sizeof(char*));
 
+  while(token != NULL) {
+  //  printf("%s\n", token);
+    tokens[current_pos] = token;
+    current_pos++;
+    token = strtok(NULL, TOKEN_DELIMITERS);
+    mem_free(tokens,sizeof())
+  }
+  for (int s = 0 ; s < current_pos; s++) {
+    printf("%s\n",tokens[s]);
+  }
+  return tokens;
+}*/
+//-----------------------------------
 
    char* extraire_cmd(char **tokens) {
      //printf("%s\n",tokens[0] ); //pour tester
@@ -137,24 +138,32 @@ void select_color(){
 
   int miniShell() {
     buffer = createBuffer(CMD_LINE_BUFFER_SIZE);
-    unsigned long nb_wd = 0;
+    //unsigned long nb_wd = 0;
     //unsigned long size_cmd_line;
     char **tokens;
-    char *cmd;
+    //char *cmd;
     //char **param;
     welcomeScreen();
+    while (1) {
+      type_prompt();
+      unsigned long length = cons_read(buffer, CMD_LINE_BUFFER_SIZE);
+      //cons_write(buffer, length);
+      //printf("%lu\n",length);
+      tokens = split_cmd_line(buffer, length);
+      extraire_cmd(tokens);
+    }
     type_prompt();
-    /*unsigned long length =*/ cons_read(buffer, CMD_LINE_BUFFER_SIZE);
+    unsigned long length = cons_read(buffer, CMD_LINE_BUFFER_SIZE);
     //cons_write(buffer, length);
     //printf("%lu\n",length);
-    tokens = split_cmd_line(buffer, &nb_wd);
-    cmd = extraire_cmd(tokens);
-    //param = extraire_param(tokens);
+    tokens = split_cmd_line(buffer, length);
+    extraire_cmd(tokens);
+    /*//param = extraire_param(tokens);
     if (strcmp(cmd, "change") == 0) {
       select_color();
     }
     //builtin_command(cmd, param);
-
+*/
 
     return 0;
   }

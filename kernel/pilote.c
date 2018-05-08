@@ -6,7 +6,7 @@
 #include "console.h"
 #include "mem.h"
 
-#define TAILLE_TAMPON 20
+#define TAILLE_TAMPON 100
 
 bool echo = true;
 bool initialized = false;
@@ -86,7 +86,7 @@ void keyboard_data(char * string){
         if (echo) {
           printf("^%c",actuel + 64);
         }
-      psend(fid,'^');  
+      psend(fid,'^');
       psend(fid, actuel+64);
       }
     }
