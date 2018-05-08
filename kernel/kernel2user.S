@@ -7,7 +7,7 @@ kernel2user:
     pushl 0x10;     # SS
     movl  4(%esp), %eax;
     pushl %eax;     # PILE USER
-    pushl 0x202;    # EFLAGS
+    pushf    # EFLAGS pushl 0x202
     pushl 0x18;     # CS
     movl  8(%esp), %eax;
     pushl %eax;     # DÉBUT DU CODE PROCESSUS

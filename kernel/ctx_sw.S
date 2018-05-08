@@ -38,4 +38,4 @@ ctx_sw:
     #pushl $0x18    #kernel mode,   pour user mode: $0x43
     #push $1f    #TODO mettre eip, l'adresse du debut du processus a executer
 
-    iret
+    ret
