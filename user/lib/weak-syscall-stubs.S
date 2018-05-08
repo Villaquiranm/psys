@@ -9,6 +9,8 @@
 
 #define WEAK_STUB(symbol)       .weak symbol; symbol:
 
+/*on les commente parce qu'on les a déjà implémentées*/
+/*
 WEAK_STUB(start)
 WEAK_STUB(getpid)
 WEAK_STUB(getprio)
@@ -37,6 +39,7 @@ WEAK_STUB(clock_settings)
 WEAK_STUB(current_clock)
 WEAK_STUB(wait_clock)
 WEAK_STUB(sys_info)
+*/
 WEAK_STUB(shm_create)
 WEAK_STUB(shm_acquire)
 WEAK_STUB(shm_release)
