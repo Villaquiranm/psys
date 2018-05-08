@@ -4,7 +4,7 @@
 
 #define CMD_LINE_BUFFER_SIZE 50
 #define TOKEN_BUFFER_SIZE 50
-#define TOKEN_DELIMITERS " "
+#define TOKEN_DELIMITERS " \t\r\n\a"
 
 #define vrai  1
 #define faux  0
@@ -39,7 +39,7 @@ When the user enters an empty line, seq[0] is NULL.
 //une fonction qui lit et retourne la ligne de commande
 char *read_cmd_line(char** cmd_line);
 //classifier les tokens
-char **split_cmd_line(char *line, unsigned long length);
+char **split_cmd_line(char *line, unsigned long* length);
 //commencer un processus
 //int launch_processus(char **args);
 
