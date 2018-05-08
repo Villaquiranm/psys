@@ -87,6 +87,7 @@ char* read_cmd_line(char** cmd_line) {
       }
       return 0;
   }
+  
 /*
   void prompt_msg(char* msg) {
     char hostName[MAX_LENGTH_HN];
