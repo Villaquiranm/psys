@@ -74,7 +74,7 @@ void select_color(){
 
     } else if(compare(cmd, "help") == vrai) {
         printf("les commandes disponibles:\n");
-        printf(" echo : afficher un string entre guillemets");
+        printf("        echo : afficher un string entre guillemets");
       }
 
      else {
@@ -102,7 +102,7 @@ void select_color(){
     // passe tous les autres tokens
     while(token != NULL) {
       tokens[current_pos] = token;
-      printf("%s\n", tokens[current_pos]);
+      //printf("%s\n", tokens[current_pos]);
       current_pos++;
       if(current_pos >= buffer_size) {
         printf("buffer overflow\n" );
@@ -116,7 +116,7 @@ void select_color(){
 
 
    char* extraire_cmd(char **tokens) {
-    printf("%s\n",tokens[0] ); //pour tester
+    //printf("%s\n",tokens[0] ); //pour tester
     return tokens[0];
   }
 
@@ -158,7 +158,7 @@ void select_color(){
       //cons_write(buffer, length);
       //printf("%lu\n",length);
       tokens = split_cmd_line(buffer, &nb_wd);
-      printf("%lu\n", nb_wd);
+    //  printf("%lu\n", nb_wd);
       cmd = extraire_cmd(tokens);
       param = extraire_param(tokens, &nb_wd);
       builtin_command(cmd, param);
