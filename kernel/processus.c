@@ -121,7 +121,8 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
     ssize = ssize + 1;
 	// Allocate the required space for the execution stack plus the
 	// function pointer, termination function pointer and the argument
-    uint32_t *pile = (uint32_t *)fl_malloc(4096);
+    //uint32_t *pile = (uint32_t *)fl_malloc(4096);
+    uint32_t *pile = (uint32_t *)pagealloc();
 
 
     uint32_t *current = (pile + (4096)/4) - 1;
@@ -189,7 +190,13 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
     int app_size = (int)current_app->end - (int)current_app->start + 4;
 
     // Does this block has to be page-aligned?
-    unsigned *space_app = (unsigned *)fl_malloc(app_size);
+    //unsigned *space_app = (unsigned *)memalign(4096,app_size);
+    unsigned *space_app = (unsigned *)pagealloc();
+    unsigned *pagedeux;
+    if(app_size % 4096 > 0) {
+      pagedeux = (unsigned *)pagealloc();
+    }
+
 
     // Fill page directory for the first 256MB of memory
     copy_pgdir(newProc->pagedir, pgdir);
@@ -197,7 +204,8 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
 
     // Allocate the required space for the execution stack plus the
     // function pointer, termination function pointer and the argument
-    uint32_t *pile = (uint32_t *)fl_malloc(ssize);
+    //uint32_t *pile = (uint32_t *)memalign(4096,ssize);
+    uint32_t *pile = (uint32_t *)pagealloc();
 
     uint32_t *current = (pile + (ssize)/4) - 1;
 
@@ -205,19 +213,27 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
     uint32_t *pile_kernel = (newProc->pile_kernel + 4096/4) - 1;
 
     map_page(newProc->pagedir, space_app, 0x40000000, PAGE_DIR_FLAGS);
+    map_page(newProc->pagedir, pagedeux, 0x40001000, PAGE_DIR_FLAGS);
     MALLOC_COPY(space_app, current_app->start, app_size);
-
     map_page(newProc->pagedir, pile, 0x80000000, PAGE_DIR_FLAGS);
 
     // Put the function pointer, termination function pointer and the
     // argument on the top of the queue
     *(current--) = (uint32_t)arg;
     *(current) = (uint32_t)ret_exit;
+    //*(current) = (uint32_t)0x40000000;
+
+    /*
+    *(pile_kernel--) = (uint32_t)arg;
+    *(pile_kernel--) = (uint32_t)ret_exit;
+    *(pile_kernel) = (uint32_t)0x40000000;
+    */
+
 
     *(pile_kernel--) = (uint32_t)0x40000000;
     //*(pile_kernel--) = (uint32_t)space_app;
-    *(pile_kernel--) = *(current);
-    //*(pile_kernel--) = (uint32_t)0x80000000;
+    //*(pile_kernel--) = *(current);
+    *(pile_kernel--) = (uint32_t)(0x80000000 + 0x1000) - 9;
     *(pile_kernel) = (uint32_t)kernel2user;
 
     // Set the process' fields with the appropiate values
@@ -225,7 +241,9 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
     newProc->state = ACTIVABLE;
     newProc->prio = prio;
     newProc->regs.esp = (uint32_t)pile_kernel;
+    //newProc->regs.esp = (uint32_t) current;
     newProc->pile = pile;
+    //newProc->pile = newProc->pile_kernel;
     newProc->dyingProcsLink = NULL;
     newProc->nextSleepingProcs = NULL;
     newProc->expectedChild = 0;
