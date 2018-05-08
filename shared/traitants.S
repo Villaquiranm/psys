@@ -22,12 +22,11 @@ traitant_IT_32:
 # debut du traitant
 traitant_IT_49:
 # sauvegarde des registres
-    pushl %eax
+    pushl %esi
     pushl %ebx
     pushl %ecx
     pushl %edx
     pushl %edi
-    pushl %esi
     pushl %ebp
     pushl %esp
 # appel a la fonction C realisant le traitant
@@ -35,12 +34,11 @@ traitant_IT_49:
 # restauration des registres
     popl %esp
     popl %ebp
-    popl %esi
     popl %edi
     popl %edx
     popl %ecx
     popl %ebx
-    addl %esp,4     #on enleve eax de la pile
+    popl %esi
 # On n'ecrit pas sur EAX puisqu'il est utilise pour le retour
 # fin du traitant
     iret
