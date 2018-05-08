@@ -19,20 +19,27 @@ static int compare(const char* chaine1, const char* chaine2)
  int builtin_command(char* cmd, char** param) {
     if(compare(cmd, "echo") == vrai) {
       //printf("Je suis la commande echo\n");
-      if (param[0][0] == '\"') {
+      if(param[0][0] == '\"') {
         //printf("je commence a lire! Le contenu de echo est suivant:\n");
         int i = 1;
         while(param[0][i] != '\"') {
-        printf("%c",param[0][i]);
-        i++;
-        if(i>50){
-          printf("erreur!");
-        }
+          printf("%c",param[0][i]);
+          i++;
+          if(i>50){
+            printf("erreur!\n");
+          }
         }
       }
-    } else {
-      printf("La commande n'est pas reconnue!\n");
-    }
+
+    } else if(compare(cmd, "help") == vrai) {
+        printf("les commandes disponibles:\n");
+        printf(" echo : afficher un string entre guillemets");
+      }
+      /*
+     else {
+       printf("La commande n'est pas reconnue!\n");
+      }
+      */
     return -1;
   }
 
@@ -48,10 +55,13 @@ static int compare(const char* chaine1, const char* chaine2)
     }
     // Retourner le premier token, Null si il y n'a plus de token
     token = strtok(line, TOKEN_DELIMITERS);
+    tokens[current_pos] = token;
+    //printf("%s\n", tokens[current_pos]);
+    //current_pos++;
     // passe tous les autres tokens
     while(token != NULL) {
-    //  printf("%s\n", token);
       tokens[current_pos] = token;
+      printf("%s\n", tokens[current_pos]);
       current_pos++;
       if(current_pos >= buffer_size) {
         printf("buffer overflow\n" );
@@ -59,23 +69,22 @@ static int compare(const char* chaine1, const char* chaine2)
       token = strtok(NULL, TOKEN_DELIMITERS);
     }
     *length = current_pos;
-    //printf("%lu\n", *length); //pour test
+  //  printf("%lu\n", *length); //pour test
     return tokens;
   }
 
 
    char* extraire_cmd(char **tokens) {
-     //printf("%s\n",tokens[0] ); //pour tester
+    printf("%s\n",tokens[0] ); //pour tester
     return tokens[0];
   }
 
-   char** extraire_param(char **tokens) {
+   char** extraire_param(char **tokens, unsigned long* length) {
+     if(*length ==1) {
+       return NULL;
+     }
     char** new_tokens = tokens + 1;
-  //  char** test = new_tokens;
-    //while(**test != '\0'){
-    //  printf("%c\n", **test); //pour tester
-    //  test ++;
-    //}
+    //printf("%s\n", *new_tokens++ );
     return new_tokens;
   }
 
@@ -128,14 +137,18 @@ static int compare(const char* chaine1, const char* chaine2)
     char *cmd;
     char **param;
     welcomeScreen();
-    type_prompt();
-    /*unsigned long length =*/ cons_read(buffer, CMD_LINE_BUFFER_SIZE);
-    //cons_write(buffer, length);
-    //printf("%lu\n",length);
-    tokens = split_cmd_line(buffer, &nb_wd);
-    cmd = extraire_cmd(tokens);
-    param = extraire_param(tokens);
-    builtin_command(cmd, param);
+    while(true) {
+      type_prompt();
+      /*unsigned long length =*/ cons_read(buffer, CMD_LINE_BUFFER_SIZE);
+      //cons_write(buffer, length);
+      //printf("%lu\n",length);
+      tokens = split_cmd_line(buffer, &nb_wd);
+      printf("%lu\n", nb_wd);
+      cmd = extraire_cmd(tokens);
+      param = extraire_param(tokens, &nb_wd);
+      builtin_command(cmd, param);
+      printf("\n");
+    }
     /*
     while(tokens != NULL) {
       printf("%s\n", *tokens++);

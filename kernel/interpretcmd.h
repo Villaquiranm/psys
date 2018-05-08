@@ -4,7 +4,7 @@
 
 #define CMD_LINE_BUFFER_SIZE 50
 #define TOKEN_BUFFER_SIZE 50
-#define TOKEN_DELIMITERS " "
+#define TOKEN_DELIMITERS " \t\r\n\a"
 
 #define vrai  1
 #define faux  0
