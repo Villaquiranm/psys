@@ -80,7 +80,7 @@ void * pagealloc(void) {
     }
 
       if(ptr) {
-          newBlock = (alloc_node_t *) ((ptrdiff_t)(&blk->block) + 8192);
+          newBlock = (alloc_node_t *) ((ptrdiff_t)(blk) + 8192);
           newBlock->size = blk->size - 8192;
           blk->size = 8192; //int size
           ADD_LIST_NEWNODE(freelist, newBlock)
