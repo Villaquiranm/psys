@@ -3,8 +3,7 @@
  *
  * A simple test that probes a classic system call.
  ******************************************************************************/
-
-#include "sysapi.h"
+#include"sysapi.h"
 
 int main(void *arg)
 {
