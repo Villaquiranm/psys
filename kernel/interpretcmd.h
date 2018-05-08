@@ -24,5 +24,6 @@ void welcomeScreen();
 
 void type_prompt();
 
+void miniShell();
 
 #endif

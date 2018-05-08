@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "mem.h"
+#include "pilote.h"
 
 
 char* read_cmd_line(char** cmd_line) {
@@ -105,4 +106,14 @@ char* read_cmd_line(char** cmd_line) {
         printf("\t            Projet Systeme -- 2A ENSIMAG:\n");
         printf("\t============================================\n");
         printf("\n\n");
+  }
+
+  void miniShell() {
+    char *buffer = mem_alloc(sizeof(char*) * CMD_LINE_BUFFER_SIZE);
+    //unsigned long size_cmd_line;
+  //  char **tokens;
+    welcomeScreen();
+    type_prompt();
+    cons_read(buffer, CMD_LINE_BUFFER_SIZE);
+    split_cmd_line(buffer);
   }
