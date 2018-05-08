@@ -71,6 +71,7 @@ void kernel_start(void)
 //	call_debugger();
 
 	init_traitant_IT(33, traitant_IT_33);
+	init_traitant_IT(32, traitant_IT_33);
 	//printf("teste\n");
 	initProc();
   masque_IRQ(32,false);

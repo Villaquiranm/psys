@@ -14,7 +14,7 @@ typedef struct cmd_lines {
 } CMD_LINES;
 
 //une fonction qui lit et retourne la ligne de commande
-char *read_cmd_line();
+char *read_cmd_line(char** cmd_line);
 //classifier les tokens
 char **split_cmd_line(char *line);
 //commencer un processus
