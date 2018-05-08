@@ -126,6 +126,7 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 	// function pointer, termination function pointer and the argument
     uint32_t *pile = (uint32_t *)fl_malloc(4096);
 
+
     uint32_t *current = (pile + (4096)/4) - 1;
 
 	// Put the function pointer, termination function pointer and the
@@ -202,6 +203,7 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
     // Allocate the required space for the execution stack plus the
     // function pointer, termination function pointer and the argument
     uint32_t *pile = (uint32_t *)fl_malloc(ssize);
+
     uint32_t *current = (pile + (ssize)/4) - 1;
 
     newProc->pile_kernel = (uint32_t *) mem_alloc(4096);

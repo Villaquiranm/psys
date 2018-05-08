@@ -37,7 +37,7 @@ void kernel_start(void)
 //	call_debugger();
 
 	init_traitant_IT(32, traitant_IT_32);
-	init_traitant_IT(49, traitant_IT_49);
+	//init_traitant_IT(49, traitant_IT_49);
 
 	printf("teste\n");
 	initProc();
