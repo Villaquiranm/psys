@@ -30,6 +30,7 @@ void select_color(){
   printf("\t                 15: White                      \n");
   printf("\t============================================\n");
   printf("\n\n");
+  printf("Veuillez choisir un couleur en tapant le numero correspondant:");
   switch (cons_read(buffer, CMD_LINE_BUFFER_SIZE)) {
     case 1:
       choix += buffer[0]-'0';
@@ -45,7 +46,7 @@ void select_color(){
 
 
  int builtin_command(char* cmd, char** param) {
-    if(compare(cmd, "change") == vrai) {
+    if(compare(cmd, "color") == vrai) {
       //printf("Je suis la commande echo\n");
       /*if (param[0][0] == '\"') {
         //printf("je commence a lire! Le contenu de echo est suivant:\n");
@@ -57,7 +58,8 @@ void select_color(){
           printf("erreur!");
         }
         }
-      }*/select_color();
+      }*/
+      select_color();
     } else if(compare(cmd, "echo") == vrai){
       //printf("Je suis la commande echo\n");
       if(param[0][0] == '\"') {
@@ -71,6 +73,7 @@ void select_color(){
           }
         }
       }
+
 
     } else if(compare(cmd, "help") == vrai) {
         printf("les commandes disponibles:\n");
