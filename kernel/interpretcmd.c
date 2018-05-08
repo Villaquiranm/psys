@@ -6,7 +6,7 @@
 #include "mem.h"
 #include "pilote.h"
 
-int compare(const char* chaine1, const char* chaine2)
+static int compare(const char* chaine1, const char* chaine2)
 {   unsigned int i=0;
     if( strlen(chaine1) != strlen(chaine2) )
         return faux;
@@ -18,14 +18,16 @@ int compare(const char* chaine1, const char* chaine2)
 
  int builtin_command(char* cmd, char** param) {
     if(compare(cmd, "echo") == vrai) {
-      printf("Je suis la commande echo\n");
+      //printf("Je suis la commande echo\n");
       if (param[0][0] == '\"') {
-        while( **param != '\"'){
-          param ++;
-          if(**param == '\0') {
-            printf("la paramètre n'est pas reconnu!");
-            break;
-          }
+        //printf("je commence a lire! Le contenu de echo est suivant:\n");
+        int i = 1;
+        while(param[0][i] != '\"') {
+        printf("%c",param[0][i]);
+        i++;
+        if(i>50){
+          printf("erreur!");
+        }
         }
       }
     } else {
@@ -48,7 +50,7 @@ int compare(const char* chaine1, const char* chaine2)
     token = strtok(line, TOKEN_DELIMITERS);
     // passe tous les autres tokens
     while(token != NULL) {
-      printf("%s\n", token);
+    //  printf("%s\n", token);
       tokens[current_pos] = token;
       current_pos++;
       if(current_pos >= buffer_size) {
@@ -57,18 +59,23 @@ int compare(const char* chaine1, const char* chaine2)
       token = strtok(NULL, TOKEN_DELIMITERS);
     }
     *length = current_pos;
-    printf("%lu\n", *length); //pour test
+    //printf("%lu\n", *length); //pour test
     return tokens;
   }
 
 
    char* extraire_cmd(char **tokens) {
-     printf("%s\n",tokens[0] ); //pour tester
+     //printf("%s\n",tokens[0] ); //pour tester
     return tokens[0];
   }
 
    char** extraire_param(char **tokens) {
     char** new_tokens = tokens + 1;
+  //  char** test = new_tokens;
+    //while(**test != '\0'){
+    //  printf("%c\n", **test); //pour tester
+    //  test ++;
+    //}
     return new_tokens;
   }
 
@@ -118,13 +125,17 @@ int compare(const char* chaine1, const char* chaine2)
     unsigned long nb_wd = 0;
     //unsigned long size_cmd_line;
     char **tokens;
+    char *cmd;
+    char **param;
     welcomeScreen();
     type_prompt();
     /*unsigned long length =*/ cons_read(buffer, CMD_LINE_BUFFER_SIZE);
     //cons_write(buffer, length);
     //printf("%lu\n",length);
     tokens = split_cmd_line(buffer, &nb_wd);
-    extraire_cmd(tokens);
+    cmd = extraire_cmd(tokens);
+    param = extraire_param(tokens);
+    builtin_command(cmd, param);
     /*
     while(tokens != NULL) {
       printf("%s\n", *tokens++);
