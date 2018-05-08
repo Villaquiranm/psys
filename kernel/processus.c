@@ -207,6 +207,7 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
     uint32_t *current = (pile + (ssize)/4) - 1;
 
     newProc->pile_kernel = (uint32_t *) mem_alloc(4096);
+    uint32_t *pile_kernel = (newProc->pile_kernel + 4096/4) - 1;
 
     map_page(newProc->pagedir, space_app, 0x40000000, 0x000000003u);
     map_page(newProc->pagedir, pile, 0x80000000, 0x000000003u);
@@ -214,14 +215,15 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
     // Put the function pointer, termination function pointer and the
     // argument on the top of the queue
     *(current--) = (uint32_t)arg;
-    *(current--) = (uint32_t)ret_exit;
-    *(current) = (uint32_t)0x40000000;
+    *(current) = (uint32_t)ret_exit;
+
+    *(pile_kernel) = (uint32_t)kernel2user;
 
     // Set the process' fields with the appropiate values
     sprintf(newProc->nom, "%s", process_name);
     newProc->state = ACTIVABLE;
     newProc->prio = prio;
-    newProc->regs.esp = (uint32_t)current;
+    newProc->regs.esp = (uint32_t)pile_kernel;
     newProc->pile = pile;
     newProc->dyingProcsLink = NULL;
     newProc->nextSleepingProcs = NULL;
