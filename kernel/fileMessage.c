@@ -266,8 +266,9 @@ int pcount(int fid, int *count){
         queue_for_each(plink_it, &queues[fid]->process_send.head, PLINK, head){
             processusEnAttente++; //Count all processus bloques sur file pleine.
         }
-        *count = queues[fid]->numberMessages + processusEnAttente;
+
       }
+      *count = queues[fid]->numberMessages + processusEnAttente;
     }
     return 0;
   }

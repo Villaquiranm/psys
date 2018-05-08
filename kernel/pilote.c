@@ -5,10 +5,14 @@
 #include "kbd.h"
 #include "console.h"
 #include "mem.h"
+
+#define TAILLE_TAMPON 20
+
 bool echo = true;
 bool initialized = false;
 int fid;
 int numMessages = 0;
+
 
 unsigned long cons_read(char * string, unsigned long length){
   while (numMessages < 1) {
@@ -48,7 +52,8 @@ void cons_echo(bool on){
 
 void keyboard_data(char * string){
   if (estPleine(fid)) {
-    //Faire le beep;
+    //do beep
+
   }else{
     for (int i = 0; string[i] != '\0';i++) {
       char actuel = string[i];
@@ -88,7 +93,7 @@ void keyboard_data(char * string){
 
 void it_clavier(){
   if (!initialized) {
-    fid = pcreate(100);
+    fid = pcreate(TAILLE_TAMPON);
     initialized = true;
   }
   do_scancode(inb(0x60));
