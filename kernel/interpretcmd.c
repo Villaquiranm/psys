@@ -2,43 +2,44 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "mem.h"
 #include "pilote.h"
 
-
-char* read_cmd_line(char** cmd_line) {
-  int buffer_size = CMD_LINE_BUFFER_SIZE;
-  int current_pos = 0; // indice utilisée pour parcourir toute la ligne
-
-  char* buffer = (char*) mem_alloc(sizeof(char)*buffer_size);
-  if(buffer == NULL) {
-    printf("Allocation error \n");
-  }
-
-//TODO: a verifier si c'est correcte
-  while(**cmd_line != '\n') {
-    //On saute les espaces vides
-    while(**cmd_line == ' ') {
-      cmd_line++;
-    }
-    buffer[current_pos] = **cmd_line;
-    current_pos++;
-    cmd_line++;
-  }
-  buffer[current_pos] = '\0';
-
-  if(current_pos >= buffer_size) {
-    printf("buffer overflow\n" );
-  }
-  return buffer;
+int compare(const char* chaine1, const char* chaine2)
+{   unsigned int i=0;
+    if( strlen(chaine1) != strlen(chaine2) )
+        return faux;
+    for(i=0;i<strlen(chaine1);i++)
+        if( chaine1[i] != chaine2[i])
+            return faux;
+    return vrai;
 }
 
-  char **split_cmd_line(char* line) {
+ int builtin_command(char* cmd, char** param) {
+    if(compare(cmd, "echo") == vrai) {
+      printf("Je suis la commande echo\n");
+      if (param[0][0] == '\"') {
+        while( **param != '\"'){
+          param ++;
+          if(**param == '\0') {
+            printf("la paramètre n'est pas reconnu!");
+            break;
+          }
+        }
+      }
+    } else {
+      printf("La commande n'est pas reconnue!\n");
+    }
+    return -1;
+  }
+
+  char **split_cmd_line(char* line, unsigned long* length) {
     int buffer_size = TOKEN_BUFFER_SIZE;
     int current_pos = 0;
     char **tokens = mem_alloc(buffer_size * sizeof(char*));
     char *token;
-
+    *length = 0;
 
     if(tokens == NULL) {
       printf("Allocation error \n");
@@ -55,10 +56,14 @@ char* read_cmd_line(char** cmd_line) {
       }
       token = strtok(NULL, TOKEN_DELIMITERS);
     }
+    *length = current_pos;
+    printf("%lu\n", *length); //pour test
     return tokens;
   }
 
+
    char* extraire_cmd(char **tokens) {
+     printf("%s\n",tokens[0] ); //pour tester
     return tokens[0];
   }
 
@@ -110,12 +115,20 @@ char* read_cmd_line(char** cmd_line) {
 
   int miniShell() {
     char * buffer = createBuffer(CMD_LINE_BUFFER_SIZE);
+    unsigned long nb_wd = 0;
     //unsigned long size_cmd_line;
-    //char **tokens;
+    char **tokens;
     welcomeScreen();
     type_prompt();
-    unsigned long length = cons_read(buffer, CMD_LINE_BUFFER_SIZE);
-    cons_write(buffer, length);
-    //split_cmd_line(buffer);
+    /*unsigned long length =*/ cons_read(buffer, CMD_LINE_BUFFER_SIZE);
+    //cons_write(buffer, length);
+    //printf("%lu\n",length);
+    tokens = split_cmd_line(buffer, &nb_wd);
+    extraire_cmd(tokens);
+    /*
+    while(tokens != NULL) {
+      printf("%s\n", *tokens++);
+    }*/
+
     return 0;
   }
