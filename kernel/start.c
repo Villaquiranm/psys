@@ -35,16 +35,16 @@ void kernel_start(void)
 	efface_ecran();
 	kdb_leds(0);
 //	call_debugger();
-
+	init_traitant_IT(32, traitant_IT_32);
 	init_traitant_IT(33, traitant_IT_33);
-	init_traitant_IT(32, traitant_IT_33);
+
 	//printf("teste\n");
-	//initProc();
-  masque_IRQ(32,false);
+	initProc();
+  //masque_IRQ(32,false);
   //initFile();
 	//test_shell();
 	//execute_tests();
-	miniShell();
+	//miniShell();
 	//*mal = 10;
 
 	//printf("Mal = %d", *mal);
