@@ -6,6 +6,7 @@
 ll_m freelist = { NULL, &(freelist), &(freelist) };
 ll_m occupiedlist = { NULL, &(occupiedlist), &(occupiedlist) };
 
+
 void malloc_addblock(void *addr, size_t size) {
     alloc_node_t *blk;
 
@@ -75,7 +76,7 @@ void fl_free(void * ptr) {
             }
         }
         if(isOccupied) {
-            free(ptr);
+            //free(ptr);
             //Delete it from the occupiedlist
             current->next->prev = current->prev;
             current->prev->next = current->next;
@@ -100,7 +101,7 @@ bool merge_blocks(ll_m *block) {
             current->next->prev = current->prev;
             current->prev->next = current->next;
             //free current
-            free(current);
+            //free(current);
         } else if ((void *)((int)&(current->node->block) + current->node->size) == (block->node)) { //if block comes immediately after current
             current->node->size = current->node->size + block->node->size + sizeof(size_t);
             current->node->block = NULL;
@@ -108,7 +109,7 @@ bool merge_blocks(ll_m *block) {
             block->next->prev = block->prev;
             block->prev->next = block->next;
             //free block
-            free(block);
+            //free(block);
             block = current;
             blockMerge = true;
         }
