@@ -194,17 +194,25 @@ void affiche_history(int pos) {
       char hostName[] = "BestTeam";
       char domainName[] = "grenoble-inp";
       change_couleur(2);
-      printf("[Minishell %s@%s]$",hostName,domainName);
+      printf("[Minishell %s@%s]$ ",hostName,domainName);
       change_couleur(prechoix);
       return;
   }
 
   void welcomeScreen() {
-        printf("\n\t============================================\n");
-        printf("\t               Simple C Shell\n");
-        printf("\t--------------------------------------------\n");
-        printf("\t            Projet Systeme -- 2A ENSIMAG:\n");
-        printf("\t============================================\n");
+        printf("\t  #     # ####### #        #####  ####### #     # #######\n");
+        printf("\t  #  #  # #       #       #     # #     # ##   ## #      \n");
+        printf("\t  #  #  # #       #       #       #     # # # # # #      \n");
+        printf("\t  #  #  # #####   #       #       #     # #  #  # #####  \n");
+        printf("\t  #  #  # #       #       #       #     # #     # #      \n");
+        printf("\t  #  #  # #       #       #     # #     # #     # #      \n");
+        printf("\t   ## ##  ####### #######  #####  ####### #     # #######\n");
+        printf("\n");
+        printf("\n\t      ============================================\n");
+        printf("\t                      Mini C Shell\n");
+        printf("\t      --------------------------------------------\n");
+        printf("\t                  Projet Systeme -- 2A ENSIMAG:\n");
+        printf("\t      ============================================\n");
         printf("\n\n");
   }
 
