@@ -42,7 +42,7 @@ void kernel_start(void)
 	init_traitant_IT(32, traitant_IT_32);
 	init_traitant_IT(49, traitant_IT_49);
 
-	printf("teste\n");
+	//printf("teste\n");
 	initProc();
   //masque_IRQ(32, false);
 
@@ -56,12 +56,12 @@ void kernel_start(void)
 	//printf("Mal = %d", *mal);
 
 	init_traitant_IT(33, traitant_IT_33);
-	printf("teste\n");
+	//printf("teste\n");
 	initProc();
 
 	//execute_tests();
 	//cons_echo(false);
-  	initFile();
+  initFile();
 	idle();
 	//démasquer les interruptions externes
 	//sti();
