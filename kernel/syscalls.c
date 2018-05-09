@@ -68,7 +68,7 @@ void traitant_appels_systeme(uint32_t args[]){
             break;
         case WAITPID: waitpid((int) args[4], (int *)args[3]);
             break;
-        case SYS_INFO: //sys_info();
+        case SYS_INFO: sys_info();
             break;
 
             /*

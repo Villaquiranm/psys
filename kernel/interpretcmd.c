@@ -73,6 +73,16 @@ static void affiche_history(int pos) {
 }
 
 static int builtin_command(char* cmd, char** param, unsigned long* param_length) {
+      if(compare(cmd, "ps") == vrai) {
+        save_cmd(buffer);
+        sys_info();
+        return 6;
+      }
+      if(compare(cmd, "exit") == vrai) {
+        save_cmd(buffer);
+        exitFunction(1);
+        return 5;
+      }
       if(compare(cmd, "color") == vrai) {
         save_cmd(buffer);
         select_color();
