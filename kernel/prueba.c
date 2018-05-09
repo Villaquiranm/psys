@@ -15,11 +15,12 @@ void initFile(){
      //printf("Creating file : %d\n",a);
      //start(&ecriteur,"Ecriteur", 1024, 10, NULL);
 
+
+     //start(&miniShell,"Consommateur", 1024, 10, NULL);
+     //start(&miniShell,"Consommateur", 1024, 10, NULL);
+     start(&cons,"Consommateur", 1024, 10, NULL);
+     start(&cons,"Eliminateur", 1024, 10, NULL);
      start(&miniShell,"Consommateur", 1024, 10, NULL);
-     //start(&miniShell,"Consommateur", 1024, 10, NULL);
-     //start(&miniShell,"Consommateur", 1024, 10, NULL);
-     //start(&miniShell,"Consommateur", 1024, 10, NULL);
-     //start(&cons,"Eliminateur", 1024, 10, NULL);
 }
 void addProcessus(struct processus * proc, int prio){
     PLINK * ptr = (PLINK *)mem_alloc(sizeof(PLINK));
@@ -36,7 +37,7 @@ void showProcessus(){
 }
 int cons() {
     while (1) {
-      sys_information();
+      //sys_information();
       wait_clock(200);
     }
 

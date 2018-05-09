@@ -617,10 +617,12 @@ void freeProcessus(int pid){
 	/* After freeing the procs array position it has to be set to NULL papapa */
 	procs[pid] = NULL;
 }
-void sys_information(){
+void sys_info(){
   int i = 0;
-  while (procs[i] != NULL) {
-    printf("[%d]\t%-20s\t\t\t%s\n",procs[i]->pid,procs[i]->nom,states[procs[i]->state]);
+  while (i <= NBPROC) {
+    if (procs[i] != NULL) {
+      printf("[%d]\t%-20s\t\t\t%s\n",procs[i]->pid,procs[i]->nom,states[procs[i]->state]);
+    }
     i++;
   }
 }

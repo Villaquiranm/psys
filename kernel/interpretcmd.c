@@ -6,6 +6,7 @@
 #include "mem.h"
 #include "pilote.h"
 #include "console.h"
+#include "tests.h"
 //#include "mem_allocfreelist.h"
 
 //les variables globales
@@ -73,6 +74,21 @@ static void affiche_history(int pos) {
 }
 
 static int builtin_command(char* cmd, char** param, unsigned long* param_length) {
+      if(compare(cmd, "test") == vrai) {
+        save_cmd(buffer);
+        execute_tests();
+        return 7;
+      }
+      if(compare(cmd, "ps") == vrai) {
+        save_cmd(buffer);
+        sys_info();
+        return 6;
+      }
+      if(compare(cmd, "exit") == vrai) {
+        save_cmd(buffer);
+        exitFunction(1);
+        return 5;
+      }
       if(compare(cmd, "color") == vrai) {
         save_cmd(buffer);
         select_color();
@@ -104,7 +120,12 @@ static int builtin_command(char* cmd, char** param, unsigned long* param_length)
         return 3;
       } else if(compare(cmd, "help") == vrai) {
           printf("les commandes disponibles:\n");
-          printf("\techo : afficher un string entre guillemets\n");
+          printf("\techo    : afficher un string sans guilletmet ou entre guilletmets\n");
+          printf("\tcolor   : changer color teste\n");
+          printf("\texit    : sortir de la console\n");
+          printf("\tps      : afficher les processus\n");
+          printf("\ttest    : lancer tous les testes\n");
+          printf("\thistory : afficher les commandes recemment tapees\n");
           save_cmd(buffer);
           return 2;
       } else if(compare(cmd, "history") == vrai) {
@@ -163,13 +184,15 @@ static int builtin_command(char* cmd, char** param, unsigned long* param_length)
   }
 
   static void welcomeScreen() {
-        printf("\t  #     # ####### #        #####  ####### #     # #######\n");
-        printf("\t  #  #  # #       #       #     # #     # ##   ## #      \n");
-        printf("\t  #  #  # #       #       #       #     # # # # # #      \n");
-        printf("\t  #  #  # #####   #       #       #     # #  #  # #####  \n");
-        printf("\t  #  #  # #       #       #       #     # #     # #      \n");
-        printf("\t  #  #  # #       #       #     # #     # #     # #      \n");
-        printf("\t   ## ##  ####### #######  #####  ####### #     # #######\n");
+    change_couleur(5);
+
+        printf("\t  _____                      _            _      ____   _____ \n");
+        printf("\t |  __ \\                    | |          | |    / __ \\ / ____|\n");
+        printf("\t | |__) |___ _ __ ___   ___ | | __ _  ___| |__ | |  | | (___    \n");
+        printf("\t |  _  // _ \\ '_ ` _ \\ / _ \\| |/ _` |/ __| '_ \\| |  | |\\___ \\  \n");
+        printf("\t | | \\ \\  __/ | | | | | (_) | | (_| | (__| | | | |__| |____) |    \n");
+        printf("\t |_|  \\_\\___|_| |_| |_|\\___/|_|\\__,_|\\___|_| |_|\\____/|_____/     \n");
+        change_couleur(prechoix);
         printf("\n");
         printf("\n\t      ============================================\n");
         printf("\t                      Mini C Shell\n");
@@ -177,6 +200,7 @@ static int builtin_command(char* cmd, char** param, unsigned long* param_length)
         printf("\t                  Projet Systeme -- 2A ENSIMAG:\n");
         printf("\t      ============================================\n");
         printf("\n\n");
+
   }
 
 
