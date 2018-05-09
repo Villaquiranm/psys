@@ -26,7 +26,8 @@ void traitant_appels_systeme(uint32_t args[]){
     printf("numero appel: %d\n", numAppel);
     printf("parametres: %d, %d, %d, %d, %d, %d\n", args[0], args[1], args[2], args[3], args[4], args[5]);
 
-  //  printf("String: %s\n",(char *)(args[4]));
+    printf("String: %s\n",(char *)(args[4]));
+    printf("Len: %d\n",strlen((char *)(args[4])));
 
     switch (numAppel) {
 
@@ -34,11 +35,11 @@ void traitant_appels_systeme(uint32_t args[]){
             break;
         case CONS_WRITE: cons_write((const char*)args[4], args[3]);
             break;
-        /*case CONS_READ: cons_read(args[4], args[3]);
+        case CONS_READ: cons_read((char*)args[4], args[3]);
             break;
         case CONS_ECHO: cons_echo(args[4]);
             break;
-        case EXIT: exit(args[4]);
+        /*case EXIT: exit(args[4]);
             break;  */
         case GETPID: printf("olha soh! estou na getpid!!");
                     getpid();
