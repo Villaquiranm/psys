@@ -18,8 +18,6 @@ typedef unsigned long long uint_fast64_t;
 typedef unsigned long uint_fast32_t;
 
 void traitant_appels_systeme(uint32_t args[]){
-
-<<<<<<< HEAD
     //printf("traitant_appels_systeme\n");
 
     uint32_t numAppel = args[5];
@@ -30,16 +28,6 @@ void traitant_appels_systeme(uint32_t args[]){
     //printf("String: %s\n",(char *)(args[4]));
     //printf("Len: %d\n",strlen((char *)(args[4])));
 
-=======
-
-    uint32_t numAppel = args[5];
-
-    // printf("Numero Appel: %d\n", numAppel);
-    // printf("Parametres: %d, %d, %d, %d\n", args[5], args[4], args[3], args[2]);
-    // printf("String: %s\n",(char *)(args[4]));
-    // printf("Len: %d\n",strlen((char *)(args[4])));
-
->>>>>>> ef51bbbae2069d0569bfd3c41df5ea5c8e22b317
     switch (numAppel) {
 
         case CHPRIO: chprio(args[4], args[3]);
