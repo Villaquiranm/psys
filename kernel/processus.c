@@ -555,12 +555,7 @@ void freeProcessus(int pid){
 }
 void sys_information(){
   int i = 0;
-  //char *
   while (procs[i] != NULL) {
-    /*char[20] ="\t\t";
-    for (int = 0; i < (strlen(procs[i]))%; i++) {
-
-    }*/
     printf("[%d]\t%-20s\t\t\t%s\n",procs[i]->pid,procs[i]->nom,states[procs[i]->state]);
     i++;
   }
