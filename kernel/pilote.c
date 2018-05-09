@@ -40,8 +40,8 @@ int cons_write(const char *str, long size){
 
   //console_putbytes(string,size);
   console_putbytes(str,size);
-  // printf("Apres console\n");
   printf("\n");
+  printf("Apres console\n");
   return 0;
 }
 void cons_echo(bool on){

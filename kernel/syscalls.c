@@ -24,7 +24,9 @@ void traitant_appels_systeme(uint32_t args[]){
 
     // printf("Numero Appel: %d\n", numAppel);
     // printf("Parametres: %d, %d, %d, %d\n", args[5], args[4], args[3], args[2]);
-
+    // printf("String: %s\n",(char *)(args[4]));
+    // printf("Len: %d\n",strlen((char *)(args[4])));
+    
     switch (numAppel) {
 
         case CHPRIO: chprio(args[4], args[3]);
