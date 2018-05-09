@@ -10,7 +10,7 @@
         pushl %ebp
         pushl %esp
         movl $4, %esi
-        movl 32(%esp), %ebx
+        movl %eax, %ebx
         int $49
         popl %esp
         popl %ebp
