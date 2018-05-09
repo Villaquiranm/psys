@@ -7,7 +7,6 @@
 #include "prueba.h"
 #include "tests.h"
 #include <mallocfreelist.h>
-#include "test_shell.h"
 #include "interpretcmd.h"
 #define MALLOC_SIZE (4 * 1024 * 1024) //4MB
 extern void * malloc(size_t n);
