@@ -102,7 +102,6 @@ static int builtin_command(char* cmd, char** param, unsigned long* param_length)
         printf("\n");
         save_cmd(buffer);
         return 3;
-        //affiche_history(his_current_pos);
       } else if(compare(cmd, "help") == vrai) {
           printf("les commandes disponibles:\n");
           printf("\techo : afficher un string entre guillemets\n");

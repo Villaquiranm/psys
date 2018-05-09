@@ -12,7 +12,6 @@
 #define faux  0
 
 extern void exit(int retval);
-
 int miniShell();
 
 
