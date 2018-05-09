@@ -623,7 +623,6 @@ void sys_info(){
     if (procs[i] != NULL) {
       printf("[%d]\t%-20s\t\t\t%s\n",procs[i]->pid,procs[i]->nom,states[procs[i]->state]);
     }
-
     i++;
   }
 }

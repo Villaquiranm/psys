@@ -6,6 +6,7 @@
 #include "mem.h"
 #include "pilote.h"
 #include "console.h"
+#include "tests.h"
 //#include "mem_allocfreelist.h"
 
 //les variables globales
@@ -73,6 +74,11 @@ static void affiche_history(int pos) {
 }
 
 static int builtin_command(char* cmd, char** param, unsigned long* param_length) {
+      if(compare(cmd, "test") == vrai) {
+        save_cmd(buffer);
+        execute_tests();
+        return 7;
+      }
       if(compare(cmd, "ps") == vrai) {
         save_cmd(buffer);
         sys_info();
@@ -114,7 +120,12 @@ static int builtin_command(char* cmd, char** param, unsigned long* param_length)
         return 3;
       } else if(compare(cmd, "help") == vrai) {
           printf("les commandes disponibles:\n");
-          printf("\techo : afficher un string entre guillemets\n");
+          printf("\techo  : afficher un string entre guillemets\n");
+          printf("\tcolor : changer color teste\n");
+          printf("\texit  : sortir de la fonction\n");
+          printf("\tps    : afficher les processus\n");
+          printf("\ttest  : lancer tous les testes\n");
+
           save_cmd(buffer);
           return 2;
       } else if(compare(cmd, "history") == vrai) {
