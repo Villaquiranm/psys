@@ -5,13 +5,9 @@
  ******************************************************************************/
 #include "sysapi.h"
 
-int main()
-// int main(void *arg)
+int main(void *arg)
 {
-
-
-        // getpid();
-    /*    (void)arg;
+        (void)arg;
         register unsigned reg1 = 1u;
         register unsigned reg2 = 0xFFFFFFFFu;
         register unsigned reg3 = 0xBADB00B5u;
@@ -28,6 +24,6 @@ int main()
         }
 
         printf(" and I'm healthy. Leaving.\n");
-*/
+
         return 0;
 }
