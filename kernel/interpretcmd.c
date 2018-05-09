@@ -120,12 +120,12 @@ static int builtin_command(char* cmd, char** param, unsigned long* param_length)
         return 3;
       } else if(compare(cmd, "help") == vrai) {
           printf("les commandes disponibles:\n");
-          printf("\techo  : afficher un string entre guillemets\n");
-          printf("\tcolor : changer color teste\n");
-          printf("\texit  : sortir de la fonction\n");
-          printf("\tps    : afficher les processus\n");
-          printf("\ttest  : lancer tous les testes\n");
-
+          printf("\techo    : afficher un string sans guilletmet ou entre guilletmets\n");
+          printf("\tcolor   : changer color teste\n");
+          printf("\texit    : sortir de la console\n");
+          printf("\tps      : afficher les processus\n");
+          printf("\ttest    : lancer tous les testes\n");
+          printf("\thistory : afficher les commandes recemment tapees\n");
           save_cmd(buffer);
           return 2;
       } else if(compare(cmd, "history") == vrai) {
