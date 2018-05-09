@@ -11,7 +11,7 @@
 
 //extern void ctx_sw(uint32_t* pointeur1, uint32_t* pointeur2, uint32_t* pagedir_addr);
 extern void ctx_sw(uint32_t* pointeur1, uint32_t* pointeur2);
-extern void cr3_sw(uint32_t* pagedir_addr);
+extern void cr3_sw(uint32_t* pagedir_addr, uint32_t* pile_kernel);
 extern void ret_exit(void);
 extern void kernel2user(uint32_t* pileuser, uint32_t* codeprocessus);
 

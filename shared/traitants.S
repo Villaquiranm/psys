@@ -22,6 +22,14 @@ traitant_IT_32:
 # debut du traitant
 traitant_IT_49:
 # sauvegarde des registres
+    pushl %ebx
+    movl $0x18, %ebx
+    movl %ebx, %ds
+    movl %ebx, %es
+    movl %ebx, %fs
+    movl %ebx, %gs
+    popl %ebx
+
     pushl %esi
     pushl %ebx
     pushl %ecx
@@ -39,6 +47,14 @@ traitant_IT_49:
     popl %ecx
     popl %ebx
     popl %esi
+
+    pushl %ebx
+    movl $0x4b, %ebx
+    movl %ebx, %ds
+    movl %ebx, %es
+    movl %ebx, %fs
+    movl %ebx, %gs
+    popl %ebx
 # On n'ecrit pas sur EAX puisqu'il est utilise pour le retour
 # fin du traitant
     iret

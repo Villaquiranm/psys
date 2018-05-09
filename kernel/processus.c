@@ -104,7 +104,8 @@ void exitFunction(int retval){
 	active = nextProc;
 	//ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, nextProc->pagedir);
     uint32_t *pgdir_addr = (uint32_t *)(nextProc->pagedir);
-    cr3_sw(pgdir_addr);
+    uint32_t *pile_kernel = (uint32_t *)(nextProc->pile_kernel + 4096/4 - 1);
+    cr3_sw(pgdir_addr, pile_kernel);
     ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
 }
 
@@ -389,7 +390,8 @@ void schedule(){
 	active = nextProc;
 	//ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, nextProc->pagedir);
     uint32_t *pgdir_addr = (uint32_t *)(nextProc->pagedir);
-    cr3_sw(pgdir_addr);
+    uint32_t *pile_kernel = (uint32_t *)(nextProc->pile_kernel + 4096/4 - 1);
+    cr3_sw(pgdir_addr, pile_kernel);
     ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
 }
 
@@ -405,7 +407,8 @@ void schedulePID(int pid){
 		nextProc->state = ACTIF;
 		active = nextProc;
     uint32_t *pgdir_addr = (uint32_t *)(nextProc->pagedir);
-    cr3_sw(pgdir_addr);
+    uint32_t *pile_kernel = (uint32_t *)(nextProc->pile_kernel + 4096/4 - 1);
+    cr3_sw(pgdir_addr, pile_kernel);
     ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
 	}
 }
