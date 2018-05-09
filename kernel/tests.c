@@ -22,7 +22,7 @@ int test_suite(){
   int pid;
   int ret;
 
-  pid = start2("test23", 512, 128, NULL);
+  pid = start2("test1", 512, 128, NULL);
   waitpid(pid, &ret);
   assert(ret == 32832);
 

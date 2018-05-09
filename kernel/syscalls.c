@@ -19,15 +19,15 @@ typedef unsigned long uint_fast32_t;
 
 void traitant_appels_systeme(uint32_t args[]){
 
-    printf("traitant_appels_systeme\n");
+    //printf("traitant_appels_systeme\n");
 
     uint32_t numAppel = args[5];
 
-    printf("numero appel: %d\n", numAppel);
-    printf("parametres: %d, %d, %d, %d, %d, %d\n", args[0], args[1], args[2], args[3], args[4], args[5]);
+    //printf("numero appel: %d\n", numAppel);
+    //printf("parametres: %d, %d, %d, %d, %d, %d\n", args[0], args[1], args[2], args[3], args[4], args[5]);
 
-    printf("String: %s\n",(char *)(args[4]));
-    printf("Len: %d\n",strlen((char *)(args[4])));
+    //printf("String: %s\n",(char *)(args[4]));
+    //printf("Len: %d\n",strlen((char *)(args[4])));
 
     switch (numAppel) {
 
@@ -41,8 +41,7 @@ void traitant_appels_systeme(uint32_t args[]){
             break;
         /*case EXIT: exit(args[4]);
             break;  */
-        case GETPID: printf("olha soh! estou na getpid!!");
-                    getpid();
+        case GETPID: getpid();
             break;
         case GETPRIO: getprio(args[4]);
             break;
@@ -66,7 +65,7 @@ void traitant_appels_systeme(uint32_t args[]){
             break;
         case WAIT_CLOCK: wait_clock((unsigned long) args[4]);
             break;
-        case START: //start((const char *)args[5], (unsigned long)args[4], (int)args[3], (void *)args[2]);
+        case START: start2((const char *)args[4], (unsigned long) args[3], (int) args[2], (void *)args[1]);
             break;
         case WAITPID: waitpid((int) args[4], (int *)args[3]);
             break;
