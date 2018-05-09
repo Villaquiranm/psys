@@ -82,6 +82,42 @@ static void map_page(unsigned *pdir, unsigned *physaddr, unsigned virtualaddr, u
   ptable[pt_index] = ((unsigned)physaddr & 0xFFFFF000) | flags;
 }
 
+void * alloc_pages(unsigned *pdir, unsigned virtualaddr, unsigned flags, unsigned size) {
+  int nPages = size/4096;
+  if (size % 4096 != 0) {
+    nPages++;
+  }
+  void *debut_pages = pagealloc();
+  map_page(pdir, (unsigned *) debut_pages, virtualaddr, flags);
+  void *page;
+  for(int i = 1; i < nPages; i++) {
+    page = pagealloc();
+    map_page(pdir, (unsigned *) page, virtualaddr + i*0x1000u, flags);
+  }
+  return debut_pages;
+}
+
+void map_app(unsigned *pdir, unsigned virtualaddr, unsigned flags, struct uapps *app) {
+  int size = (int)app->end - (int)app->start + 4;
+  int nPages = size/4096;
+
+  void *space_app;
+  for(int i = 0; i < nPages; i++) {
+    space_app = pagealloc();
+    map_page(pdir, (unsigned *) space_app, virtualaddr + i*0x1000u, flags);
+    MALLOC_COPY(space_app, app->start + i*0x1000u, 4096);
+  }
+
+  //Dernière page
+  if(size%4096 != 0) {
+    space_app = pagealloc();
+    map_page(pdir, (unsigned *) space_app, virtualaddr + nPages*0x1000u, flags);
+    MALLOC_COPY(space_app, app->start + nPages*0x1000u, size%4096);
+  }
+
+
+}
+
 /*
  * Primitive to properly finish a process
  */
@@ -188,35 +224,36 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
     processus *newProc = (processus*)mem_alloc(sizeof(processus));
     newProc->pagedir = memalign(4096, 4096);
 
-    int app_size = (int)current_app->end - (int)current_app->start + 4;
+    // int app_size = (int)current_app->end - (int)current_app->start + 4;
 
     // Does this block has to be page-aligned?
-    //unsigned *space_app = (unsigned *)memalign(4096,app_size);
-    unsigned *space_app = (unsigned *)pagealloc();
-    unsigned *pagedeux;
-    if(app_size % 4096 > 0) {
-      pagedeux = (unsigned *)pagealloc();
-    }
-
+    // unsigned *space_app = (unsigned *)memalign(4096,app_size);
+    // unsigned *space_app = (unsigned *)pagealloc();
+    // unsigned *pagedeux;
+    // if(app_size % 4096 > 0) {
+    //  pagedeux = (unsigned *)pagealloc();
+    // }
+    //map_page(newProc->pagedir, space_app, 0x40000000, PAGE_DIR_FLAGS);
+    //map_page(newProc->pagedir, pagedeux, 0x40001000, PAGE_DIR_FLAGS);
+    //MALLOC_COPY(space_app, current_app->start, app_size);
 
     // Fill page directory for the first 256MB of memory
     copy_pgdir(newProc->pagedir, pgdir);
     ssize = ssize + 1;
 
-    // Allocate the required space for the execution stack plus the
-    // function pointer, termination function pointer and the argument
-    //uint32_t *pile = (uint32_t *)memalign(4096,ssize);
-    uint32_t *pile = (uint32_t *)pagealloc();
-
-    uint32_t *current = (pile + (ssize)/4) - 1;
-
     newProc->pile_kernel = (uint32_t *) mem_alloc(4096);
     uint32_t *pile_kernel = (newProc->pile_kernel + 4096/4) - 1;
 
-    map_page(newProc->pagedir, space_app, 0x40000000, PAGE_DIR_FLAGS);
-    map_page(newProc->pagedir, pagedeux, 0x40001000, PAGE_DIR_FLAGS);
-    MALLOC_COPY(space_app, current_app->start, app_size);
-    map_page(newProc->pagedir, pile, 0x80000000, PAGE_DIR_FLAGS);
+    map_app(newProc->pagedir, 0x40000000, PAGE_DIR_FLAGS, current_app);
+
+    // Allocate the required space for the execution stack plus the
+    // function pointer, termination function pointer and the argument
+    //uint32_t *pile = (uint32_t *)memalign(4096,ssize);
+    //uint32_t *pile = (uint32_t *)pagealloc();
+    //map_page(newProc->pagedir, pile, 0x80000000, PAGE_DIR_FLAGS);
+    uint32_t *pile = (uint32_t *) alloc_pages(newProc->pagedir,(unsigned) 0x80000000, PAGE_DIR_FLAGS, 4096);
+    //uint32_t *current = (pile + (ssize)/4) - 1;
+    uint32_t *current = (pile + 0x1000/4) - 1;
 
     // Put the function pointer, termination function pointer and the
     // argument on the top of the queue
@@ -234,7 +271,7 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
     *(pile_kernel--) = (uint32_t)0x40000000;
     //*(pile_kernel--) = (uint32_t)space_app;
     //*(pile_kernel--) = *(current);
-    *(pile_kernel--) = (uint32_t)(0x80000000 + 0x1000) - 9;
+    *(pile_kernel--) = (uint32_t)(0x80000000 + 0x1000) - 8;
     *(pile_kernel) = (uint32_t)kernel2user;
 
     // Set the process' fields with the appropiate values

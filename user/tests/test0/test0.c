@@ -5,12 +5,8 @@
  ******************************************************************************/
 #include "sysapi.h"
 
-//int main()
- int main(void *arg)
+int main(void *arg)
 {
-
-
-        // getpid();
         (void)arg;
         register unsigned reg1 = 1u;
         register unsigned reg2 = 0xFFFFFFFFu;
