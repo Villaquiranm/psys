@@ -23,11 +23,9 @@ int test_suite(){
   int pid;
   int ret;
 
-  // AUTOTEST
-  pid = start2("main", 512, 128, NULL);
-
-//   printf("Executing test 23");
-//   pid = start2("test23", 512, 128, NULL);
+  pid = start2("test1", 512, 128, NULL);
+  waitpid(pid, &ret);
+  assert(ret == 32832);
 
   for (i = 0; i < TESTS_NUMBER; i++) {
     printf("Executing test %d\n", i+1);

@@ -16,11 +16,13 @@ int main(void *arg)
         int rval;
 
         (void)arg;
-
+          printf("DUMMY_VAL=%d\n",(int)DUMMY_VAL);
         pid1 = start("dummy1", 4000, 192, (void *) DUMMY_VAL);
         assert(pid1 > 0);
         printf(" 2");
+        printf("\npid1=%d\n",pid1);
         r = waitpid(pid1, &rval);
+        printf("\nr=%d, pid1=%d\n",r,pid1);
         assert(r == pid1);
         assert(rval == 3);
         printf(" 3");
