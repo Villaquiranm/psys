@@ -11,10 +11,10 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $0, %eax
+movl $0, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
-movl 8(%esp), %ecx
+movl 32(%esp), %ebx
+movl 36(%esp), %ecx
 #interruption
 int $49
 #restauration des registres
@@ -39,10 +39,10 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $1, %eax
+movl $1, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
-movl 8(%esp), %ecx
+movl 32(%esp), %ebx
+movl 36(%esp), %ecx
 #interruption
 int $49
 #restauration des registres
@@ -67,12 +67,12 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $2, %eax
+movl $2, %esi
 
 #on met des paramètres des fonctions dans des registres
 #if defined CONS_READ_LINE
-movl 4(%esp), %ebx
-movl 8(%esp), %ecx
+movl 32(%esp), %ebx
+movl 36(%esp), %ecx
 #endif
 #interruption
 int $49
@@ -98,9 +98,9 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $3, %eax
+movl $3, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
+movl 32(%esp), %ebx
 #interruption
 int $49
 #restauration des registres
@@ -125,9 +125,9 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $4, %eax
+movl $4, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
+movl 32(%esp), %ebx
 #interruption
 int $49
 #restauration des registres
@@ -152,9 +152,9 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $5, %eax
+movl $5, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
+movl 32(%esp), %ebx
 #interruption
 int $49
 #restauration des registres
@@ -179,9 +179,9 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $6, %eax
+movl $6, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
+movl 32(%esp), %ebx
 #interruption
 int $49
 #restauration des registres
@@ -206,9 +206,9 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $7, %eax
+movl $7, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
+movl 32(%esp), %ebx
 #interruption
 int $49
 #restauration des registres
@@ -233,10 +233,10 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $8, %eax
+movl $8, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
-movl 8(%esp), %ecx
+movl 32(%esp), %ebx
+movl 36(%esp), %ecx
 #interruption
 int $49
 #restauration des registres
@@ -261,9 +261,9 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $9, %eax
+movl $9, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
+movl 32(%esp), %ebx
 #interruption
 int $49
 #restauration des registres
@@ -288,9 +288,9 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $10, %eax
+movl $10, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
+movl 32(%esp), %ebx
 #interruption
 int $49
 #restauration des registres
@@ -315,10 +315,10 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $11, %eax
+movl $11, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
-movl 8(%esp), %ecx
+movl 32(%esp), %ebx
+movl 36(%esp), %ecx
 #interruption
 int $49
 #restauration des registres
@@ -343,9 +343,9 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $12, %eax
+movl $12, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
+movl 32(%esp), %ebx
 #interruption
 int $49
 #restauration des registres
@@ -370,10 +370,10 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $13, %eax
+movl $13, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
-movl 8(%esp), %ecx
+movl 32(%esp), %ebx
+movl 36(%esp), %ecx
 #interruption
 int $49
 #restauration des registres
@@ -398,10 +398,10 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $14, %eax
+movl $14, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
-movl 8(%esp), %ecx
+movl 32(%esp), %ebx
+movl 36(%esp), %ecx
 #interruption
 int $49
 #restauration des registres
@@ -426,7 +426,7 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $15, %eax
+movl $15, %esi
 #on met des paramètres des fonctions dans des registres
 
 #interruption
@@ -453,9 +453,9 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $16, %eax
+movl $16, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
+movl 32(%esp), %ebx
 #interruption
 int $49
 #restauration des registres
@@ -480,12 +480,12 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $17, %eax
+movl $17, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
-movl 8(%esp), %ecx
-movl 12(%esp), %edx
-movl 16(%esp), %edi
+movl 32(%esp), %ebx
+movl 36(%esp), %ecx
+movl 40(%esp), %edx
+movl 44(%esp), %edi
 #interruption
 int $49
 #restauration des registres
@@ -510,10 +510,10 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $18, %eax
+movl $18, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
-movl 8(%esp), %ecx
+movl 32(%esp), %ebx
+movl 36(%esp), %ecx
 #interruption
 int $49
 #restauration des registres
@@ -538,10 +538,10 @@ pushl %esi
 pushl %ebp
 pushl %esp
 #on met dans le registre eax la valeur correspondente de l'appel
-movl $19, %eax
+movl $19, %esi
 #on met des paramètres des fonctions dans des registres
-movl 4(%esp), %ebx
-movl 8(%esp), %ecx
+movl 32(%esp), %ebx
+movl 36(%esp), %ecx
 #interruption
 int $49
 #restauration des registres

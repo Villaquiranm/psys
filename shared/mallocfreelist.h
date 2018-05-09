@@ -38,7 +38,7 @@ typedef struct ll_head {
 
 void malloc_addblock(void *addr, size_t size);
 void * pagealloc(void);
-void * fl_malloc(size_t size);
+//void * fl_malloc(size_t size);
 void fl_free(void * ptr);
 bool merge_blocks(ll_m *block);
 

@@ -18,7 +18,7 @@ void malloc_addblock(void *addr, size_t size) {
     ADD_LIST_NEWNODE(freelist, blk)
 }
 
-void * fl_malloc(size_t size) {
+/*void * fl_malloc(size_t size) {
     void * ptr = NULL;
     alloc_node_t *blk = NULL;
     bool hasBlock = false;
@@ -57,7 +57,7 @@ void * fl_malloc(size_t size) {
     }
 
     return ptr;
-}
+}*/
 
 void * pagealloc(void) {
     void *ptr = NULL;
