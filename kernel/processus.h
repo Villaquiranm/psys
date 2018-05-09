@@ -13,7 +13,10 @@
 extern void ctx_sw(uint32_t* pointeur1, uint32_t* pointeur2);
 extern void cr3_sw(uint32_t* pagedir_addr, uint32_t* pile_kernel);
 extern void ret_exit(void);
+extern void exit(int retval);
+extern void ret_user(int retval);
 extern void kernel2user(uint32_t* pileuser, uint32_t* codeprocessus);
+void return_user(void);
 
 typedef struct regs{
 	uint32_t ebx, esp, ebp, esi, edi;

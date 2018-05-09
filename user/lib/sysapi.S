@@ -124,13 +124,13 @@ pushl %edi
 pushl %esi
 pushl %ebp
 pushl %esp
-#on met dans le registre eax la valeur correspondente de l'appel
+# on met dans le registre eax la valeur correspondente de l'appel
 movl $4, %esi
-#on met des paramètres des fonctions dans des registres
-movl 32(%esp), %ebx
-#interruption
+# on met des paramètres des fonctions dans des registres
+movl 31(%esp), %ebx
+# interruption
 int $49
-#restauration des registres
+# restauration des registres
 popl %esp
 popl %ebp
 popl %esi

@@ -37,9 +37,9 @@ void traitant_appels_systeme(uint32_t args[]){
         /*case CONS_READ: cons_read(args[4], args[3]);
             break;
         case CONS_ECHO: cons_echo(args[4]);
-            break;
+            break;*/
         case EXIT: exit(args[4]);
-            break;  */
+            break;
         case GETPID: printf("olha soh! estou na getpid!!");
                     getpid();
             break;
