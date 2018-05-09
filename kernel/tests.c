@@ -2,6 +2,7 @@
 #include "processus.h"
 #include "tests.h"
 #include <stddef.h>
+#include "string.h"
 
 #define TESTS_NUMBER 3
 
@@ -22,19 +23,20 @@ int test_suite(){
   int pid;
   int ret;
 
-  pid = start2("test23", 512, 128, NULL);
-  waitpid(pid, &ret);
-  assert(ret == 32832);
+  // AUTOTEST
+  pid = start2("main", 512, 128, NULL);
 
-  for (i = 0; i < TESTS_NUMBER; i++) {
-    printf("Executing test %d\n", i+1);
-    pid = start(functions[i], function_names[i], 4000, 128, NULL);
-    waitpid(pid, &ret);
-    assert(ret == 0);
-  }
-
-  return 0;
-}
+//   printf("Executing test 23");
+//   pid = start2("test23", 512, 128, NULL);
+//
+//   for (i = 0; i < TESTS_NUMBER; i++) {
+//     printf("Executing test %d\n", i+1);
+//     pid = start(functions[i], function_names[i], 4000, 128, NULL);
+//     waitpid(pid, &ret);
+//     assert(ret == 0);
+// }
+//   return 0;
+// }
 
 void execute_tests() {
   start(test_suite, "test_suite", 4000, 10, NULL);

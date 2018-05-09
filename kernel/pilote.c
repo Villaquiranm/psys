@@ -33,14 +33,14 @@ unsigned long cons_read(char * string, unsigned long length){
 }
 
 int cons_write(const char *str, long size){
-  printf("Dans cons_write\n");
+  // printf("Dans cons_write\n");
   //printf("String: %s\n",str);
   //char string[size];
   //strncpy(string, str, size);
 
   //console_putbytes(string,size);
   console_putbytes(str,size);
-  printf("Apres console\n");
+  // printf("Apres console\n");
   printf("\n");
   return 0;
 }

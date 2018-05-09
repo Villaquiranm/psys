@@ -33,4 +33,3 @@ int main(void *arg)
         printf(" 6.\n");
         return 0;
 }
-
