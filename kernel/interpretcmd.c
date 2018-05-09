@@ -69,6 +69,26 @@ void save_cmd(char* cmd_line) {
   //return buffer_his
 }
 
+/*
+void save_command(char* cmd_line, unsigned long nb_char) {
+  for(unsigned long i = 0; i < nb_char; i++) {
+  //  printf("%c", *buffer++);
+    buffer_histo[id_his][i] = *cmd_line++;
+    printf("%c", buffer_histo[id_his][i]);
+    id_his++;
+  }
+}
+
+void print_history() {
+  for(unsigned long i = 0; i < nb_char; i++) {
+  //  printf("%c", *buffer++);
+  //  buffer_histo[id_his][i] = *cmd_line++;
+    printf("%c", buffer_histo[id_his][i]);
+    id_his++;
+  }
+}
+*/
+
 void affiche_history(int pos) {
   for(int i = pos - 1; i >= 0; i--) {
     printf("%d  %s\n", i, buffer_his[i]);
@@ -77,47 +97,55 @@ void affiche_history(int pos) {
 
 
  int builtin_command(char* cmd, char** param, unsigned long* param_length) {
-    if(compare(cmd, "color") == vrai) {
-      save_cmd(buffer);
-      //affiche_history(his_current_pos);
-      select_color();
-    } else if(compare(cmd, "echo") == vrai){
-      if(param[0][0] == '\"' && *param_length >2) {
-        //printf("je commence a lire! Le contenu de echo est suivant:\n");
-        int i = 1;
-        while(param[0][i] != '\"') {
-          printf("%c",param[0][i]);
-          i++;
-          if(i>50){
-            printf("erreur!\n");
-          }
-        }
-      } else {
-        for(unsigned long j = 0; j < *param_length - 2; j++) {
-           for(unsigned long i = 0; i<strlen(param[j]); i++) {
-            printf("%c", param[j][i]);
-            if (i > TOKEN_BUFFER_SIZE) {
+    //printf("%lu\n", *param_length); //pour tester
+      if(compare(cmd, "color") == vrai) {
+        save_cmd(buffer);
+        //affiche_history(his_current_pos);
+        select_color();
+        return 4;
+      } else if(compare(cmd, "echo") == vrai){
+        if(param[0][0] == '\"' && *param_length >2) {
+          //printf("je commence a lire! Le contenu de echo est suivant:\n");
+          int i = 1;
+          while(param[0][i] != '\"') {
+            printf("%c",param[0][i]);
+            i++;
+            if(i>50){
+              printf("Erreur: La taille maximun d'un string est limite a 50 caractere!\n");
               break;
             }
           }
-          printf(" ");
+        } else {
+          for(unsigned long j = 0; j < *param_length - 2; j++) {
+             for(unsigned long i = 0; i<strlen(param[j]); i++) {
+              printf("%c", param[j][i]);
+              if (i > TOKEN_BUFFER_SIZE) {
+                break;
+              }
+            }
+            printf(" ");
+          }
         }
-      }
-      save_cmd(buffer);
-      //affiche_history(his_current_pos);
-    } else if(compare(cmd, "help") == vrai) {
-        printf("les commandes disponibles:\n");
-        printf("        echo : afficher un string entre guillemets\n");
+        printf("\n");
         save_cmd(buffer);
-    } else if(compare(cmd, "history") == vrai) {
-        save_cmd(buffer);
-        affiche_history(his_current_pos);
-    }
-
-     else {
-       printf("La commande n'est pas reconnue!\n");
+        return 3;
+        //affiche_history(his_current_pos);
+      } else if(compare(cmd, "help") == vrai) {
+          printf("les commandes disponibles:\n");
+          printf("\techo : afficher un string entre guillemets\n");
+          save_cmd(buffer);
+          return 2;
+      } else if(compare(cmd, "history") == vrai) {
+          save_cmd(buffer);
+          affiche_history(his_current_pos);
+          return 1;
       }
-
+      /*
+       else {
+         printf("La commande n'est pas reconnue!\n");
+         return 0;
+        }
+        */
     return -1;
   }
 
@@ -163,7 +191,7 @@ void affiche_history(int pos) {
   }
 
   void type_prompt() {
-      char hostName[] = "ensishell";
+      char hostName[] = "BestTeam";
       char domainName[] = "grenoble-inp";
       change_couleur(2);
       printf("[Minishell %s@%s]$",hostName,domainName);
@@ -180,25 +208,34 @@ void affiche_history(int pos) {
         printf("\n\n");
   }
 
-  int miniShell() {
+  unsigned long getNbParam(unsigned long nb_wd) {
+    return nb_wd - 2;
+  }
 
+  int miniShell() {
     buffer = createBuffer(CMD_LINE_BUFFER_SIZE);
     unsigned long nb_wd = 0;
     //unsigned long size_cmd_line;
     char **tokens;
     char *cmd;
     char **param;
+    //unsigned long nb_char;
+    //int ret;
     welcomeScreen();
     buffer_his = (char **) mem_alloc(sizeof(char*)* HIS_BUFFER_SIZE);
     while(true) {
       type_prompt();
-      cons_read(buffer, CMD_LINE_BUFFER_SIZE);
+      /*nb_char = */cons_read(buffer, CMD_LINE_BUFFER_SIZE);
+      //printf("%lu\n", nb_char);
       tokens = split_cmd_line(buffer, &nb_wd);
       cmd = extraire_cmd(tokens);
       param = extraire_param(tokens, &nb_wd);
       builtin_command(cmd, param, &nb_wd);
-      printf("\n");
+    /*  if(ret > 0) {
+        save_command(buffer, nb_char);
+      }
+    */
+      //printf("\n");
     }
-
     return 0;
   }
