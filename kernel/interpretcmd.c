@@ -184,13 +184,15 @@ static int builtin_command(char* cmd, char** param, unsigned long* param_length)
   }
 
   static void welcomeScreen() {
-        printf("\t  #     # ####### #        #####  ####### #     # #######\n");
-        printf("\t  #  #  # #       #       #     # #     # ##   ## #      \n");
-        printf("\t  #  #  # #       #       #       #     # # # # # #      \n");
-        printf("\t  #  #  # #####   #       #       #     # #  #  # #####  \n");
-        printf("\t  #  #  # #       #       #       #     # #     # #      \n");
-        printf("\t  #  #  # #       #       #     # #     # #     # #      \n");
-        printf("\t   ## ##  ####### #######  #####  ####### #     # #######\n");
+    change_couleur(5);
+
+        printf("\t  _____                      _            _      ____   _____ \n");
+        printf("\t |  __ \\                    | |          | |    / __ \\ / ____|\n");
+        printf("\t | |__) |___ _ __ ___   ___ | | __ _  ___| |__ | |  | | (___    \n");
+        printf("\t |  _  // _ \\ '_ ` _ \\ / _ \\| |/ _` |/ __| '_ \\| |  | |\\___ \\  \n");
+        printf("\t | | \\ \\  __/ | | | | | (_) | | (_| | (__| | | | |__| |____) |    \n");
+        printf("\t |_|  \\_\\___|_| |_| |_|\\___/|_|\\__,_|\\___|_| |_|\\____/|_____/     \n");
+        change_couleur(prechoix);
         printf("\n");
         printf("\n\t      ============================================\n");
         printf("\t                      Mini C Shell\n");
@@ -198,6 +200,7 @@ static int builtin_command(char* cmd, char** param, unsigned long* param_length)
         printf("\t                  Projet Systeme -- 2A ENSIMAG:\n");
         printf("\t      ============================================\n");
         printf("\n\n");
+
   }
 
 
