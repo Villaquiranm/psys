@@ -12,6 +12,8 @@
 char *buffer;
 int his_current_pos = 0;
 char **buffer_his;
+int prechoix = 15;
+
 
 static int compare(const char* chaine1, const char* chaine2)
 {   unsigned int i=0;
@@ -24,7 +26,7 @@ static int compare(const char* chaine1, const char* chaine2)
 }
 
 static void select_color(){
-  int choix = 0;
+
   printf("\n\t============================================\n");
   printf("\t               Select color\n");
   printf("\t--------------------------------------------\n");
@@ -37,6 +39,7 @@ static void select_color(){
   printf("\t============================================\n");
   printf("\n\n");
   printf("Veuillez choisir un couleur en tapant le numero correspondant:");
+  int choix = 0;
   switch (cons_read(buffer, CMD_LINE_BUFFER_SIZE)) {
     case 1:
       choix += buffer[0]-'0';
@@ -46,6 +49,7 @@ static void select_color(){
     break;
   };
   if (choix >= 0 && choix <= 15) {
+    prechoix = choix;
       change_couleur(choix);
   }
 }
@@ -161,7 +165,9 @@ void affiche_history(int pos) {
   void type_prompt() {
       char hostName[] = "ensishell";
       char domainName[] = "grenoble-inp";
+      change_couleur(2);
       printf("[Minishell %s@%s]$",hostName,domainName);
+      change_couleur(prechoix);
       return;
   }
 

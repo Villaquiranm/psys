@@ -12,6 +12,7 @@ bool echo = true;
 bool initialized = false;
 int fid;
 int numMessages = 0;
+int num_char = 0;
 
 
 unsigned long cons_read(char * string, unsigned long length){
@@ -62,14 +63,18 @@ void keyboard_data(char * string){
           printf("%c",actuel);
         }
         psend(fid, actuel); //Il faut les envoyer bien sur.
+        num_char++;
       }
       else if (actuel == 127){// character BackSpace
-        if (echo) {
-          printf("\b");
-          printf(" ");
-          printf("\b");
+        if (num_char > 0) {
+          if (echo) {
+            printf("\b");
+            printf(" ");
+            printf("\b");
+          }
+          last_char(fid);
+          num_char--;
         }
-        last_char(fid);
       }
       else if (actuel == 13){//Caracter Enter We need to unblock the read line here.
         char s = 0xA;
@@ -78,6 +83,7 @@ void keyboard_data(char * string){
         }
         psend(fid, actuel); //Il faut les envoyer bien sur.
         numMessages++;
+        num_char = 0;
         //char bola[10] ;
         //unsigned long length = cons_read(bola, 10); //Uncomment to test
         //cons_write(bola, length);
@@ -88,6 +94,7 @@ void keyboard_data(char * string){
         }
       psend(fid,'^');
       psend(fid, actuel+64);
+      num_char += 2;
       }
     }
   }
