@@ -327,7 +327,7 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
 
 int kill(int pid) {
 
-	if (procs[pid] == NULL || pid == active->pid)
+	if (procs[pid] == NULL || pid == active->pid || procs[pid]->state==ZOMBIE || pid == 0)
 	/* Invalid pid */
 		return -1;
 
@@ -541,7 +541,7 @@ int getprio(int pid){
 }
 
 int chprio(int pid, int newprio){
-	if (procs[pid] == NULL || (newprio < 1 && newprio > MAXPRIO))
+	if (procs[pid] == NULL || (newprio < 1 || newprio > MAXPRIO) || procs[pid]->state==ZOMBIE)
 		return -1;
 
 	int prevPrio = procs[pid]->prio;
