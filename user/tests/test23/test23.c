@@ -2,7 +2,16 @@
 
 int main(void *arg)
 {
+        unsigned long quartz;
+        unsigned long ticks;
+
         (void)arg;
+
+        wait_clock(200);
+        clock_settings(&quartz, &ticks);
+        printf("Quartz: %u, Ticks: %u", quartz, ticks);
+        wait_clock(100);
+        printf("oi: %u", current_clock());
 
 //        pcreate(10);
 
@@ -14,7 +23,7 @@ int main(void *arg)
         strncpy(str,"Hello\0",5);
         cons_write(str,strlen(str));
 
-        
+
 
 
 
