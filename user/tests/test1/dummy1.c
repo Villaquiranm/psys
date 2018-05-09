@@ -3,6 +3,7 @@
 
 int main(void *arg) {
         printf("1");
+        printf("\narg=%d\n",(int)arg);
         assert((int) arg == DUMMY_VAL);
         return 3;
 }

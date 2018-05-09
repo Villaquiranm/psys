@@ -60,6 +60,7 @@ void tic_PIT(){
 	schedule();
 }
 
+
 void init_traitant_IT(uint32_t num_IT, void (*traitant)(void)){
 
 	uint32_t traitantFaible;
@@ -80,17 +81,29 @@ void init_traitant_IT(uint32_t num_IT, void (*traitant)(void)){
 
 	adresseN++;
 
+  uint32_t constant;
+
+  if(num_IT==49){
+    //Pour les interruption d'appel de systeme, on utilise ça pour permettre
+    //que les utilisateurs fassent l'interruption
+    constant = (uint32_t)0xEE00;
+  }else{
+    constant = (uint32_t)0x8E00;
+  }
+
 	*adresseN = traitantFort;
-	*adresseN = *adresseN | (uint32_t)0x8E00;
+	*adresseN = *adresseN | constant;
 
-	ms=0;
-	heure=0;
-	minute=0;
-	second=0;
+    if(num_IT==32){
+        ms=0;
+        heure=0;
+        minute=0;
+        second=0;
 
-	outb(0x34,0x43);
-	outb((QUARTZ / CLOCKFREQ) % 256, 0x40);
-	outb((uint8_t)(QUARTZ/CLOCKFREQ >> 8), 0x40);
+        outb(0x34,0x43);
+        outb((QUARTZ / CLOCKFREQ) % 256, 0x40);
+        outb((uint8_t)(QUARTZ/CLOCKFREQ >> 8), 0x40);
+    }
 
 	masque_IRQ(0,false);
   masque_IRQ(1,false);

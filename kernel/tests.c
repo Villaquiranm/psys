@@ -2,6 +2,7 @@
 #include "processus.h"
 #include "tests.h"
 #include <stddef.h>
+#include "string.h"
 
 #define TESTS_NUMBER 3
 
@@ -31,8 +32,7 @@ int test_suite(){
     pid = start(functions[i], function_names[i], 4000, 128, NULL);
     waitpid(pid, &ret);
     assert(ret == 0);
-  }
-
+}
   return 0;
 }
 

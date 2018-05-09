@@ -4,6 +4,7 @@
 #include "cpu.h"
 #include "kbd.h"
 #include "console.h"
+#include "string.h"
 #include "mem.h"
 
 #define TAILLE_TAMPON 100
@@ -38,8 +39,15 @@ unsigned long cons_read(char * string, unsigned long length){
 }
 
 int cons_write(const char *str, long size){
+  //printf("Dans cons_write\n");
+  //printf("String: %s\n",str);
+  //char string[size];
+  //strncpy(string, str, size);
+
+  //console_putbytes(string,size);
   console_putbytes(str,size);
-  printf("\n");
+  //printf("\n");
+  //printf("Apres console\n");
   return 0;
 }
 void cons_echo(bool on){

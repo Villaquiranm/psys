@@ -16,10 +16,10 @@ void initFile(){
      //start(&ecriteur,"Ecriteur", 1024, 10, NULL);
 
      start(&miniShell,"Consommateur", 1024, 10, NULL);
-     start(&miniShell,"Consommateur", 1024, 10, NULL);
-     start(&miniShell,"Consommateur", 1024, 10, NULL);
-     start(&miniShell,"Consommateur", 1024, 10, NULL);
-     start(&cons,"Eliminateur", 1024, 10, NULL);
+     //start(&miniShell,"Consommateur", 1024, 10, NULL);
+     //start(&miniShell,"Consommateur", 1024, 10, NULL);
+     //start(&miniShell,"Consommateur", 1024, 10, NULL);
+     //start(&cons,"Eliminateur", 1024, 10, NULL);
 }
 void addProcessus(struct processus * proc, int prio){
     PLINK * ptr = (PLINK *)mem_alloc(sizeof(PLINK));

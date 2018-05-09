@@ -5,7 +5,7 @@
 #include "stdbool.h"
 #include "stdint.h"
 
-#define MIN_ALOC_SIZE 8 //Not sure
+#define MIN_ALOC_SIZE 8192 //Not sure
 
 extern void * malloc(size_t n);
 extern void free(void* n);
@@ -37,7 +37,8 @@ typedef struct ll_head {
 
 
 void malloc_addblock(void *addr, size_t size);
-void * fl_malloc(size_t size);
+void * pagealloc(void);
+//void * fl_malloc(size_t size);
 void fl_free(void * ptr);
 bool merge_blocks(ll_m *block);
 

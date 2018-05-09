@@ -27,7 +27,7 @@ const char *states[7];
 
 
 hash_t apps_table;
-#define PAGE_DIR_FLAGS     0x00000003u
+#define PAGE_DIR_FLAGS     0x00000007u
 extern unsigned pgtab[];
 extern unsigned pgdir[];
 extern unsigned testaddr;
@@ -83,6 +83,42 @@ static void map_page(unsigned *pdir, unsigned *physaddr, unsigned virtualaddr, u
   ptable[pt_index] = ((unsigned)physaddr & 0xFFFFF000) | flags;
 }
 
+void * alloc_pages(unsigned *pdir, unsigned virtualaddr, unsigned flags, unsigned size) {
+  int nPages = size/4096;
+  if (size % 4096 != 0) {
+    nPages++;
+  }
+  void *debut_pages = pagealloc();
+  map_page(pdir, (unsigned *) debut_pages, virtualaddr, flags);
+  void *page;
+  for(int i = 1; i < nPages; i++) {
+    page = pagealloc();
+    map_page(pdir, (unsigned *) page, virtualaddr + i*0x1000u, flags);
+  }
+  return debut_pages;
+}
+
+void map_app(unsigned *pdir, unsigned virtualaddr, unsigned flags, struct uapps *app) {
+  int size = (int)app->end - (int)app->start + 4;
+  int nPages = size/4096;
+
+  void *space_app;
+  for(int i = 0; i < nPages; i++) {
+    space_app = pagealloc();
+    map_page(pdir, (unsigned *) space_app, virtualaddr + i*0x1000u, flags);
+    MALLOC_COPY(space_app, app->start + i*0x1000u, 4096);
+  }
+
+  //Dernière page
+  if(size%4096 != 0) {
+    space_app = pagealloc();
+    map_page(pdir, (unsigned *) space_app, virtualaddr + nPages*0x1000u, flags);
+    MALLOC_COPY(space_app, app->start + nPages*0x1000u, size%4096);
+  }
+
+
+}
+
 /*
  * Primitive to properly finish a process
  */
@@ -105,7 +141,8 @@ void exitFunction(int retval){
 	active = nextProc;
 	//ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, nextProc->pagedir);
     uint32_t *pgdir_addr = (uint32_t *)(nextProc->pagedir);
-    cr3_sw(pgdir_addr);
+    uint32_t *pile_kernel = (uint32_t *)(nextProc->pile_kernel + 4096/4 - 1);
+    cr3_sw(pgdir_addr, pile_kernel);
     ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
 }
 
@@ -116,16 +153,15 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 	// Create a pointer to a new process structure with the
 	// appropiate size
 	processus *newProc = (processus*)mem_alloc(sizeof(processus));
-    if(newProc==NULL){
-        printf("newProc==NULL !!!\n");
-    }
     newProc->pagedir = memalign(4096, 4096);
 	// Fill page directory for the first 256MB of memory fill_pgdir(newProc->pagedir, pgtab, 64);
 	copy_pgdir(newProc->pagedir, pgdir);
     ssize = ssize + 1;
 	// Allocate the required space for the execution stack plus the
 	// function pointer, termination function pointer and the argument
-    uint32_t *pile = (uint32_t *)fl_malloc(4096);
+    //uint32_t *pile = (uint32_t *)fl_malloc(4096);
+    uint32_t *pile = (uint32_t *)pagealloc();
+
 
     uint32_t *current = (pile + (4096)/4) - 1;
 
@@ -133,7 +169,7 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 	// argument on the top of the queue
 	*(current--) = (uint32_t)arg;
 	//*(current--) = (uint32_t)exitFunction;
-	*(current--) = (uint32_t)ret_exit;
+	*(current--) = (uint32_t)exit;
     *(current) = (uint32_t)pt_func;
 
 	// Set the process' fields with the appropiate values
@@ -145,7 +181,6 @@ int start(int (*pt_func)(void*), const char *process_name, unsigned long ssize, 
 	newProc->dyingProcsLink = NULL;
 	newProc->nextSleepingProcs = NULL;
 	newProc->expectedChild = 0;
-
 
 	if (active->pid == 0) {	// IDLE process is active
 		newProc->parent = NULL;
@@ -190,39 +225,66 @@ int start2(const char *process_name, unsigned long ssize, int prio, void *arg) {
     processus *newProc = (processus*)mem_alloc(sizeof(processus));
     newProc->pagedir = memalign(4096, 4096);
 
-    int app_size = (int)current_app->end - (int)current_app->start + 4;
+    // int app_size = (int)current_app->end - (int)current_app->start + 4;
 
     // Does this block has to be page-aligned?
-    unsigned *space_app = (unsigned *)fl_malloc(app_size);
-
-    MALLOC_COPY(space_app, current_app->start, app_size);
+    // unsigned *space_app = (unsigned *)memalign(4096,app_size);
+    // unsigned *space_app = (unsigned *)pagealloc();
+    // unsigned *pagedeux;
+    // if(app_size % 4096 > 0) {
+    //  pagedeux = (unsigned *)pagealloc();
+    // }
+    //map_page(newProc->pagedir, space_app, 0x40000000, PAGE_DIR_FLAGS);
+    //map_page(newProc->pagedir, pagedeux, 0x40001000, PAGE_DIR_FLAGS);
+    //MALLOC_COPY(space_app, current_app->start, app_size);
 
     // Fill page directory for the first 256MB of memory
     copy_pgdir(newProc->pagedir, pgdir);
     ssize = ssize + 1;
 
+    newProc->pile_kernel = (uint32_t *) mem_alloc(4096);
+    uint32_t *pile_kernel = (newProc->pile_kernel + 4096/4) - 1;
+
+    map_app(newProc->pagedir, 0x40000000, PAGE_DIR_FLAGS, current_app);
+
     // Allocate the required space for the execution stack plus the
     // function pointer, termination function pointer and the argument
-    uint32_t *pile = (uint32_t *)fl_malloc(ssize);
-    uint32_t *current = (pile + (ssize)/4) - 1;
-
-    newProc->pile_kernel = (uint32_t *) mem_alloc(4096);
-
-    map_page(newProc->pagedir, space_app, 0x40000000, 0x000000003u);
-    map_page(newProc->pagedir, pile, 0x80000000, 0x000000003u);
-
+    //uint32_t *pile = (uint32_t *)memalign(4096,ssize);
+    //uint32_t *pile = (uint32_t *)pagealloc();
+    //map_page(newProc->pagedir, pile, 0x80000000, PAGE_DIR_FLAGS);
+    uint32_t *pile = (uint32_t *) alloc_pages(newProc->pagedir,(unsigned) 0x80000000, PAGE_DIR_FLAGS, 4096);
+    //uint32_t *current = (pile + (ssize)/4) - 1;
+    uint32_t *current = (pile + 0x1000/4) - 1;
+    uint32_t *return_function = pagealloc();
+    map_page(newProc->pagedir, return_function, 0xFFFFF000, PAGE_DIR_FLAGS);
+    MALLOC_COPY(return_function, ret_user, 28);
     // Put the function pointer, termination function pointer and the
     // argument on the top of the queue
     *(current--) = (uint32_t)arg;
-    *(current--) = (uint32_t)ret_exit;
-    *(current) = (uint32_t)0x40000000;
+    *(current) = (uint32_t)0xFFFFF000;
+    //*(current) = (uint32_t)0x40000000;
+
+    /*
+    *(pile_kernel--) = (uint32_t)arg;
+    *(pile_kernel--) = (uint32_t)ret_exit;
+    *(pile_kernel) = (uint32_t)0x40000000;
+    */
+
+
+    *(pile_kernel--) = (uint32_t)0x40000000;
+    //*(pile_kernel--) = (uint32_t)space_app;
+    //*(pile_kernel--) = *(current);
+    *(pile_kernel--) = (uint32_t)(0x80000000 + 0x1000) - 8;
+    *(pile_kernel) = (uint32_t)kernel2user;
 
     // Set the process' fields with the appropiate values
     sprintf(newProc->nom, "%s", process_name);
     newProc->state = ACTIVABLE;
     newProc->prio = prio;
-    newProc->regs.esp = (uint32_t)current;
+    newProc->regs.esp = (uint32_t)pile_kernel;
+    //newProc->regs.esp = (uint32_t) current;
     newProc->pile = pile;
+    //newProc->pile = newProc->pile_kernel;
     newProc->dyingProcsLink = NULL;
     newProc->nextSleepingProcs = NULL;
     newProc->expectedChild = 0;
@@ -368,7 +430,8 @@ void schedule(){
 	active = nextProc;
 	//ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx, nextProc->pagedir);
     uint32_t *pgdir_addr = (uint32_t *)(nextProc->pagedir);
-    cr3_sw(pgdir_addr);
+    uint32_t *pile_kernel = (uint32_t *)(nextProc->pile_kernel + 4096/4 - 1);
+    cr3_sw(pgdir_addr, pile_kernel);
     ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
 }
 
@@ -384,7 +447,8 @@ void schedulePID(int pid){
 		nextProc->state = ACTIF;
 		active = nextProc;
     uint32_t *pgdir_addr = (uint32_t *)(nextProc->pagedir);
-    cr3_sw(pgdir_addr);
+    uint32_t *pile_kernel = (uint32_t *)(nextProc->pile_kernel + 4096/4 - 1);
+    cr3_sw(pgdir_addr, pile_kernel);
     ctx_sw(&prevProc->regs.ebx, &nextProc->regs.ebx);
 	}
 }
