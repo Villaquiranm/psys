@@ -70,6 +70,7 @@ void freeProcessus(int pid);
 void zombifyProc(int pid);
 void schedulePID(int pid);
 void schedule();
+void sys_information();
 
 /*TODO: Fonction suivante à créer qui prend en paramètre le code de
 la fonction à exécuter et renvoie le pid du processus créé, ou -1 en cas d'erreur */

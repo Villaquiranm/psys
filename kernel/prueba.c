@@ -14,8 +14,12 @@ void initFile(){
      //int a = pcreate(3);
      //printf("Creating file : %d\n",a);
      //start(&ecriteur,"Ecriteur", 1024, 10, NULL);
-     //start(&eliminateur,"Eliminateur", 1024, 10, NULL);
+
      start(&miniShell,"Consommateur", 1024, 10, NULL);
+     start(&miniShell,"Consommateur", 1024, 10, NULL);
+     start(&miniShell,"Consommateur", 1024, 10, NULL);
+     start(&miniShell,"Consommateur", 1024, 10, NULL);
+     start(&cons,"Eliminateur", 1024, 10, NULL);
 }
 void addProcessus(struct processus * proc, int prio){
     PLINK * ptr = (PLINK *)mem_alloc(sizeof(PLINK));
@@ -31,20 +35,11 @@ void showProcessus(){
     }
 }
 int cons() {
-    for (;;) {
-        int message;
-        int count;
-        int error = preceive(0,&message);
-        if (error >= 0) {
-            printf("J'ai recu le message : %d\n",message);
-        }else{
-            return 0; //printf("Consomateur : erreur\n");
-        }
-        count = pcount(0, &count);
-        printf("Pcount: %d\n",count);
-        wait_clock(100);
-        //schedule();
+    while (1) {
+      sys_information();
+      wait_clock(200);
     }
+
     return 0;
 }
 int prod(){

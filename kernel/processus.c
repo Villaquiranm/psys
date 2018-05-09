@@ -23,6 +23,7 @@ link procsPrioQueue = LIST_HEAD_INIT(procsPrioQueue);
 //link dyingProcessesQueue = LIST_HEAD_INIT(dyingProcessesQueue);
 processus *dyingProcessesQueue;
 processus *sleepingProcs;
+const char *states[7];
 
 
 hash_t apps_table;
@@ -404,12 +405,18 @@ void initProc(void){
     idle->pagedir = (unsigned *)0x101000;
 	sprintf(idle->nom, "idle");
 	active = idle;
-
+  procs[0] = idle;
 	processus *sentinel = (processus*)mem_alloc(sizeof(processus));
 	sentinel->dyingProcsLink = NULL;
 	dyingProcessesQueue = sentinel;
-
 	//start(proc3, "proc3", 512, 10, NULL);
+  states[0] ="ACTIF";
+  states[1] = "ACTIVABLE";
+  states[2] = "BLOQUE_SEMAPHORE";
+  states[3] = "BLOQUE_IO";
+  states[4] = "BLOQUE_FILS";
+  states[5] = "ENDORMI";
+  states[6] = "ZOMBIE";
 }
 
 int32_t mon_pid(void){
@@ -530,8 +537,6 @@ int waitpid(int pid, int *retvalp) {
 
 	}
 	return pid;
-
-
 }
 
 void zombifyProc(int pid){
@@ -547,4 +552,11 @@ void freeProcessus(int pid){
 	mem_free(procs[pid], sizeof(processus));
 	/* After freeing the procs array position it has to be set to NULL papapa */
 	procs[pid] = NULL;
+}
+void sys_information(){
+  int i = 0;
+  while (procs[i] != NULL) {
+    printf("[%d]\t%s\t\t\t%s\n",procs[i]->pid,procs[i]->nom,states[procs[i]->state]);
+    i++;
+  }
 }
